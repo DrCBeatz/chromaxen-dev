@@ -1,0 +1,36 @@
+.stretch_and_move{
+    animation-name: stretch_and_move;
+    animation-duration: .8s;
+}
+@keyframes stretch_and_move {
+	from{
+        width: 8em;
+        left: 0em;
+    }
+    50%{
+        width:18em;
+        left:2.5em;
+    }
+    to{
+        width: 8em;
+        left: 11.5em;
+    }
+}
+.stretch_and_move_backward{
+    animation-name: stretch_and_move_backward;
+    animation-duration: .8s;
+}
+@keyframes stretch_and_move_backward {
+	from{
+        width: 8em;
+        right: 0em;
+    }
+    50%{
+        width:16.5em;
+        right:9em;
+    }
+    to{
+        width: 8em;
+        right: 11.4em;
+    }
+}

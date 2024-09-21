@@ -1,0 +1,32 @@
+#feedback_form_container{
+    position:fixed;
+    font-size: 15px;
+    right:0px;
+    bottom:0px;
+}
+#feedback_form_container input{
+    margin-top: .5em;
+    margin-right: 1em;
+}
+#feedback_form_header{
+    text-align: right;
+    background-color: #a5b5b5;
+    padding: .5em;
+    padding-right: 1em;
+    margin-right: 1em;
+	border-top-left-radius: 1em;
+	border-top-right-radius: 1em;
+    cursor: pointer;
+}
+#feedback_form_header:hover{
+    background-color: #c5d5d5;
+}
+#feedback_form_body{
+    display: none;
+    background-color: #b5c5c5;
+    padding: 1em;
+    margin-right: 1em;
+}
+#feedback_form_radio{
+    padding-bottom: .5em;
+}

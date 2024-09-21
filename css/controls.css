@@ -1,0 +1,30 @@
+#controls {
+	position: absolute;		/* Using absolute positioning to avoid Firefox issues with zoom/float.*/
+	top: 8px;
+	left: 1080px;
+	display: none;
+	width: 200px;
+	height: 400px;
+}
+#controls button {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 12px;
+    width: 100px;
+    margin: 12px;
+    padding: 4px;
+}
+#controls select {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 12px;
+    width: 100px;
+    margin: 12px;
+}
+#controls input {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 12px;
+    margin: 12px;
+}
+#show_solved {
+    font-family: arial, helvetica, sans-serif;
+    font-size: 12px;
+}

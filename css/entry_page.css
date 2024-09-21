@@ -1,0 +1,68 @@
+body{
+    transition: background-color 2s;
+}
+#entry_page{
+    margin-top: 5em;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 20px;
+    width:12em;
+    height:22em;
+    background-color: #abc;
+    text-align: center;
+    padding-top: 1em;
+    border: 1em solid #999;
+    border-radius: .5em;
+    transition: background-color 2s, border-color 2s;
+}
+#entry_title{
+    width:8em;
+    color: #444;
+    font-size: 1.2em;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    padding:1em;
+    border-radius: .25em;
+    transition: color 2s;
+}
+#entry_tutorial_button{
+}
+#entry_continue_button{
+    display:none;
+}
+#entry_game_button{
+
+}
+#entry_random_button{
+
+}
+#entry_all_rules_button{
+
+}
+.entry_button{
+    background-color: #777;
+    position: relative;
+    width:7em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1em;
+    padding: 1em;
+    text-align: center;
+    border-radius: .25em;
+    cursor: pointer;
+    color: white;
+    transition: background-color 2s;
+}
+.entry_button:hover{
+    background-color: #999;
+    width:6em;
+    border-right: .5em solid white;
+    border-left: .5em solid black;
+}
+#back_to_menu{
+    float:left;
+	width:4em;
+	margin: .3em;
+	font-size: 1.2em;
+}

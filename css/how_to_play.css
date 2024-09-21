@@ -1,0 +1,131 @@
+#how_to_play_container{
+    background-color: #cdd;
+    font-size: 17px;
+    color: #756;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_play{
+    display: none;
+}
+#how_to_play_header{
+    padding: .2em;
+    font-size: 1.2em;
+    background-color: #bacaca;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_play_header:hover{
+    background-color:  #c5d5d5;
+    color: #867;
+}
+#how_to_play_text_header{
+    padding: .2em;
+    font-size: 1.05em;
+    background-color: #b0c0c0;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_play_text_header:hover{
+    background-color:  #c0d0d0;
+    color: #867;
+}
+#how_to_play_text{
+    display: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+#how_to_swapping_header{
+    padding: .2em;
+    font-size: 1.05em;
+    background-color: #b5c5c5;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_swapping_header:hover{
+    background-color: #c5d5d5;
+    color: #867;
+}
+#how_to_swapping{
+    display: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+#how_to_advancing_header{
+    padding: .2em;
+    font-size: 1.05em;
+    background-color: #a9b9b9;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_advancing_header:hover{
+    background-color: #c0d0d0;
+    color: #867;
+}
+#how_to_advancing{
+    display: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+#how_to_copy_replace_header{
+    display: none;
+    padding: .2em;
+    font-size: 1.05em;
+    background-color: #b5c5c5;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_copy_replace_header:hover{
+    background-color: #c5d5d5;
+    color: #867;
+}
+#how_to_copy_replace{
+    display: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+#how_to_color_rules_header{
+    padding: .2em;
+    font-size: 1.05em;
+    background-color: #a0b0b0;
+    text-align: center;
+    padding-right: 1em;
+    cursor: pointer;
+	border-bottom-left-radius: .5em;
+	border-bottom-right-radius: .5em;
+}
+#how_to_color_rules_header:hover{
+    background-color: #b5c5c5;
+    color: #867;
+}
+#how_to_color_rules{
+    display: none;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    padding-left: 2em;
+    padding-right: 2em;
+}

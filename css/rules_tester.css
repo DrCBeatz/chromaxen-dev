@@ -1,0 +1,36 @@
+#all_rules_container{}
+#tester_container{
+    display:none;
+}
+#back_button{
+    width:80px;
+    margin:1em;
+    display: inline-block;
+}
+#rule_display{
+    width:80px;
+    height:30px;
+    font-size: 20px;
+    background-color: red;
+    margin:1em;
+}
+#img_display{
+    width:80px;
+    height:80px;
+    background-color: blue;
+	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-color: #eff;
+    margin:1em;
+}
+#old_img_display{
+    width:80px;
+    height:80px;
+    background-color: green;
+	text-align: center;
+	background-repeat: no-repeat;
+	background-position: bottom;
+	background-color: #eff;
+    margin:1em;
+}

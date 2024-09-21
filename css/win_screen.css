@@ -1,0 +1,74 @@
+#win_screen_container{
+    position:fixed;
+    left:0px;
+    top: 3em;
+    width:100%;
+    height:100%;
+    display: none;
+}
+#win_screen{
+    margin:auto;
+    text-align: center;
+    border-radius: 1em;
+    width:42em;
+    border: 1px solid #523742;
+    background-color: #f3f3f5;
+}
+#win_screen button{
+    border-radius: .5em;
+    margin-left: .5em
+}
+#win_screen_header{
+    background-color: #fdfdff;
+    border-top: 1px solid #523742;
+    border-bottom: 1px solid #523742;
+}
+#win_screen_footer{
+    border-top: 1px solid #523742;
+    background-color: #fafaff;
+    margin-top: 3em;
+    padding: 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+#win_screen table{
+    background-color: #fdc;
+    width:35em;
+    border: 1px solid #523742;
+    margin: auto;
+    margin-top: 10px;
+}
+
+.is_mine{
+    background-color: #eef;
+}
+.is_mine_new{
+    background-color: #fafffa;
+    animation-name: is_mine_flash;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes is_mine_flash {
+    from { background-color: #ddf; }
+    to { background-color: #fafffa;}
+}
+
+#win_screen th{
+    background-color: #fdb;
+}
+
+#win_screen td{
+    border: 1px solid #523742;
+}
+
+#win_screen_footer{
+    height: 2em;
+}
+
+#win_screen_footer div{
+    float: left;
+	margin-left: 8em;
+	font-size: 1.2em;
+}
