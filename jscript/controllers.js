@@ -27,7 +27,6 @@ function rule_dragover(e){
     var row = e.currentTarget.rowIndex - 1; // Adjust for header row
     var rule = draggedRule; // Use the global variable
     drawRow(row, 1, rule); // Pass the rule to drawRow
-    console.log('Dragging over row:', row, 'with rule:', draggedRule);
 }
 
 function rule_dragleave(e){
@@ -111,6 +110,5 @@ function rule_dragenter(e){
         e.preventDefault();
     }
     e.dataTransfer.dropEffect = 'move';
-	console.log('Drag enter on row:', e.currentTarget.rowIndex - 1);
 }
 
