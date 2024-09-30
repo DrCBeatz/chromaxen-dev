@@ -1,3 +1,5 @@
+// jscript/get_rules.js
+
 function get_rules_list(el,callback){
     var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function(){

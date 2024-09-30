@@ -1,3 +1,5 @@
+// jscript/gamelogic.js
+
 // Game play globals.
 var ROWS = 8
 var COLS = 8
@@ -211,49 +213,48 @@ function nextMove()
 	}
 }
 
-function retreat(){
-	if(COOL_TRANSITIONS_ENABLED&&is_cool_transitions_animating) return
-	if(CURRENT_MOVE>0){
-		MOVE_COUNT++
-		localStorage.move_count = MOVE_COUNT
-		updateMoveCounter()
+function retreat() {
+    if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
+    if (CURRENT_MOVE > 0) {
+        MOVE_COUNT++;
+        localStorage.move_count = MOVE_COUNT;
+        updateMoveCounter();
 
-		CURRENT_MOVE--
-		localStorage.current_move = CURRENT_MOVE
+        CURRENT_MOVE--;
+        localStorage.current_move = CURRENT_MOVE;
 
-		enable_advance_button()
+        enable_advance_button();
 
-		for(var i = 0; i < ROWS; i++){
-			var state = CA_STATE_MATRIX[i][CURRENT_MOVE]
-			for(var j = CURRENT_MOVE + 1; j < COLS; j++)
-			{
-				state = nextByRule(state, RULES[i])
-				CA_STATE_MATRIX[i][j] = state
-			}
-		}
+        for (var i = 0; i < ROWS; i++) {
+            var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
+            for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
+                state = nextByRule(state, RULES[i]);
+                CA_STATE_MATRIX[i][j] = state;
+            }
+        }
 
-		localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX)
+        localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
 
-		if(CURRENT_MOVE==0){
-			disable_retreat_button()
-		}
+        if (CURRENT_MOVE == 0) {
+            disable_retreat_button();
+        }
 
-		if(COOL_TRANSITIONS_ENABLED){
-			transition_states_animation(function(){
-				drawRows()
+        if (COOL_TRANSITIONS_ENABLED) {
+            transition_states_animation(function () {
+                drawRows();
 
-				timer.start()
+                timer.start();
 
-				if(CURRENT_MOVE == COLS-1 && test_win()){
-					win()
-				}
-			},false)
-		}else{
-			drawRows()
+                if (CURRENT_MOVE == COLS - 1 && test_win()) {
+                    win();
+                }
+            }, false);
+        } else {
+            drawRows();
 
-			timer.start()
-		}
-	}
+            timer.start();
+        }
+    }
 }
 
 function test_win(){
@@ -331,20 +332,19 @@ function resetRules()
 		setRule(i, chooseRule())
 }
 
-function setRule(idx, rule)
-{
-	// Save the initial/current rule.
-	RULES[idx] = rule
-	localStorage.rules = JSON.stringify(RULES)
+function setRule(idx, rule) {
+    // Save the new rule
+    RULES[idx] = rule;
+    localStorage.rules = JSON.stringify(RULES);
 
-	var state = CA_STATE_MATRIX[idx][CURRENT_MOVE]
-	for(var i = CURRENT_MOVE + 1; i < COLS; i++)
-	{
-		state = nextByRule(state, rule)
-		CA_STATE_MATRIX[idx][i] = state
-	}
-	localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX)
-	display_rule(idx,rule)
+    // Recalculate the state matrix starting from CURRENT_MOVE
+    var state = CA_STATE_MATRIX[idx][CURRENT_MOVE]; // Start from the current state
+    for (var i = CURRENT_MOVE + 1; i < COLS; i++) {
+        state = nextByRule(state, rule);
+        CA_STATE_MATRIX[idx][i] = state;
+    }
+    localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+    display_rule(idx, rule);
 }
 
 function makeNewGame(is_random)

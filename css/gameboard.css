@@ -247,6 +247,8 @@ body{
 	background-position: bottom;
 	background-size: 8em 8em;
 	cursor: move;
+	position: relative;
+    z-index: 1;
 }
 .row_label:active {
 	opacity: 0.8;
@@ -263,6 +265,7 @@ body{
 }
 .row_label.moving {
 }
+
 .game_cell_td{
 }
 .game_cell_future{
@@ -365,4 +368,14 @@ body{
 		border-radius: 5em;
 		border-color: #fff;
 	}
+}
+
+.row_label_wrapper {
+    /* Styles for the wrapper */
+    display: inline-block;
+    position: relative;
+}
+
+tr.over {
+    background-color: #eef; /* Highlight the row on dragover */
 }

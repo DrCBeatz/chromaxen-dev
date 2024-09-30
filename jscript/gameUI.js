@@ -1,3 +1,5 @@
+// jscript/gameUI.js
+
 var COLORS = [    '#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742' ]
 var COLOR_KEY = [ 'grey',    'red',     'orange',  'yellow',  'green',   'blue',    'purple',  'black' ]
 
@@ -7,33 +9,37 @@ var show_rows_ahead = true
 
 
 function init_rows(){
-	var gameboard_el = document.getElementById('gameboard')
-	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='"+(COLS-1)+"'>Sequence</th><th>Goal</th><tr>"
+	var gameboard_el = document.getElementById('gameboard');
+	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
+
 
 	clearInterval(entry_page.anim_interval)
 	document.body.style.backgroundColor = "#bdcfcf"
 
 	for(var i = 0; i < ROWS; i++){
-	    var row_tr = document.createElement('TR')
+		var row_tr = document.createElement('TR');
 
-		var row_label_td = document.createElement('TD')
+        // Attach event listeners to the table row
+        row_tr.addEventListener('dragenter', rule_dragenter);
+        row_tr.addEventListener('dragover', rule_dragover);
+        row_tr.addEventListener('dragleave', rule_dragleave);
+        row_tr.addEventListener('drop', rule_drop);
 
-		var row_label_div = document.createElement('DIV')
-		row_label_div.id = "label_" + i
-		row_label_div.draggable = "true"
-		row_label_div.className = "row_label"
+        var row_label_td = document.createElement('TD');
 
-		//add event listeners
-		row_label_div.addEventListener('dragstart', rule_dragstart)
-		row_label_div.addEventListener('dragover', rule_dragover)
-		row_label_div.addEventListener('dragleave', rule_dragleave)
-		row_label_div.addEventListener('drop', rule_drop)
-		row_label_div.addEventListener('dragend', rule_dragend)
-		row_label_div.addEventListener('mousedown', rule_mousedown)
-		row_label_div.addEventListener('mouseup', rule_mouseup)
+        var row_label_div = document.createElement('DIV');
+        row_label_div.id = "label_" + i;
+        row_label_div.draggable = "true"; // Draggable element
+        row_label_div.className = "row_label";
 
-		row_label_td.appendChild(row_label_div)
-		row_tr.appendChild(row_label_td)
+        // Add event listeners to the draggable element
+        row_label_div.addEventListener('dragstart', rule_dragstart);
+        row_label_div.addEventListener('dragend', rule_dragend);
+        row_label_div.addEventListener('mousedown', rule_mousedown);
+        row_label_div.addEventListener('mouseup', rule_mouseup);
+
+        row_label_td.appendChild(row_label_div);
+        row_tr.appendChild(row_label_td);
 
 		for(var j = 0; j < COLS; j++){
 			var cell_td = document.createElement('TD')
@@ -84,43 +90,60 @@ function init_rows(){
 ////////////////////////////////
 }
 
-function drawRow(id, hint){
-	var rowIsSolved = CA_STATE_MATRIX[id][COLS-1]  == GOALS[id]
-	var goal_id = 'cell_'+id+'_'+(COLS-1)
-	var goal_el = document.getElementById(goal_id)
-	if(rowIsSolved){
-		goal_el.className = "game_cell_goal_solved"
-		goal_el.innerHTML = "<b>SOLVED!</b>"
-	}else{
-		goal_el.className = "game_cell_goal"
-		goal_el.innerHTML = ""
-	}
+function drawRow(id, hint, new_rule) {
+    var rowIsSolved = CA_STATE_MATRIX[id][COLS - 1] == GOALS[id];
+    var goal_id = 'cell_' + id + '_' + (COLS - 1);
+    var goal_el = document.getElementById(goal_id);
+    if (rowIsSolved) {
+        goal_el.className = "game_cell_goal_solved";
+        goal_el.innerHTML = "<b>SOLVED!</b>";
+    } else {
+        goal_el.className = "game_cell_goal";
+        goal_el.innerHTML = "";
+    }
 
-	for(var i = 0; i < COLS-1; i++){
-		var state = CA_STATE_MATRIX[id][i]
-		var cell_id = "cell_"+id+"_"+i
-	    var cell_el = document.getElementById(cell_id)
-		cell_el.style.backgroundColor = COLORS[state]
-		if(i == CURRENT_MOVE){
-			if(COOL_TRANSITIONS_ENABLED){
-				cell_el.className = "game_cell_invisible"
-				document.getElementById('gameboard_overlay_container').style.display = 'block'
-			}else{
-				document.getElementById('gameboard_overlay_container').style.display = 'none'
-				cell_el.className = "game_cell_current"
-			}
-		}else if(i < CURRENT_MOVE){
-			cell_el.className = "game_cell_past"
-			cell_el.style.backgroundColor = COLORS[state]
-		}else{
-			cell_el.className = "game_cell_future"
-			if(show_rows_ahead || hint){
-				cell_el.style.backgroundColor = COLORS[state]
-			}else{
-				cell_el.style.backgroundColor = "#bcc"
-			}
-		}
-	}
+    var states = [];
+    if (new_rule !== undefined) {
+        // Use existing states up to the current move
+        for (var i = 0; i <= CURRENT_MOVE; i++) {
+            states.push(CA_STATE_MATRIX[id][i]);
+        }
+
+        // Recalculate future states starting from the current move using the new rule
+        var state = CA_STATE_MATRIX[id][CURRENT_MOVE];
+        for (var i = CURRENT_MOVE + 1; i < COLS; i++) {
+            state = nextByRule(state, new_rule);
+            states.push(state);
+        }
+    } else {
+        states = CA_STATE_MATRIX[id];
+    }
+
+    // Update the cell colors
+    for (var i = 0; i < COLS - 1; i++) {
+        var state = states[i];
+        var cell_id = "cell_" + id + "_" + i;
+        var cell_el = document.getElementById(cell_id);
+        cell_el.style.backgroundColor = COLORS[state];
+        if (i == CURRENT_MOVE) {
+            if (COOL_TRANSITIONS_ENABLED) {
+                cell_el.className = "game_cell_invisible";
+                document.getElementById('gameboard_overlay_container').style.display = 'block';
+            } else {
+                document.getElementById('gameboard_overlay_container').style.display = 'none';
+                cell_el.className = "game_cell_current";
+            }
+        } else if (i < CURRENT_MOVE) {
+            cell_el.className = "game_cell_past";
+        } else {
+            cell_el.className = "game_cell_future";
+            if (show_rows_ahead || hint) {
+                cell_el.style.backgroundColor = COLORS[state];
+            } else {
+                cell_el.style.backgroundColor = "#bcc";
+            }
+        }
+    }
 }
 
 function drawRows()
