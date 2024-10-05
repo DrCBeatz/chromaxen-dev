@@ -1,3 +1,5 @@
+// jscript/win.js
+
 var HIGH_SCORE_LENGTH = 10
 
 function win(){
