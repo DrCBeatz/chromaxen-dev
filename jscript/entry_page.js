@@ -1,3 +1,5 @@
+// jscript/entry_page.js
+
 var entry_page = {}
 entry_page.continue_game = function(){
     document.getElementById('container').style.display = "block"
