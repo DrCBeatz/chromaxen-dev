@@ -66,8 +66,8 @@ function init_game() {
 			}
 			GAME_PRESETS.push(game)
 		}
-		localStorage.clear();
-		start_game()
+		
+		start_game(undefined, false)
 	})
 }
 
@@ -93,7 +93,7 @@ function start_game(preset) {
 
     moveHistory = JSON.parse(localStorage.moveHistory || '[]');
 
-    if (moveHistory.length === 0) {
+    if (MOVE_COUNT === 0) {
         disable_retreat_button();
     } else {
         enable_retreat_button();
@@ -124,9 +124,37 @@ function start_game(preset) {
         show_rows_ahead = JSON.parse(localStorage.show_rows_ahead || 'true');
         GAME_NAME = localStorage.game_name || 'Default Game';
         GAME_DESC = localStorage.game_desc || '';
+
+        // Initialize the game board
+        resize();
+        init_rows();
+        drawRows();
+        display_rules();
+        update_title_header();
+        update_dragndrop_style_display();
+        init_preset_menu();
+        display_preset_features();
+
+        // Restore the state of advance and retreat buttons
+        if (CURRENT_MOVE == 0) {
+            disable_retreat_button();
+        } else {
+            enable_retreat_button();
+        }
+        if (CURRENT_MOVE == COLS - 2 && !test_win()) {
+            disable_advance_button();
+        } else {
+            enable_advance_button();
+        }
+
+        if (test_win()) {
+            reveal_solve_button();
+        } else {
+            hide_solve_button();
+        }
     }
 
-    // Rest of your code...
+    timer.start();
 }
 
 function create_random_preset() {
@@ -205,16 +233,16 @@ function retreat() {
     if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
 
     if (moveHistory.length > 0) {
-        // Decrement MOVE_COUNT safely
-        if (MOVE_COUNT > 0) {
-            MOVE_COUNT--;
-            localStorage.move_count = MOVE_COUNT;
-            updateMoveCounter();
-        }
-
         var lastMove = moveHistory.pop();
 
         if (lastMove.action === 'advance') {
+            // Decrement MOVE_COUNT safely
+            if (MOVE_COUNT > 0) {
+                MOVE_COUNT--;
+                localStorage.move_count = MOVE_COUNT;
+                updateMoveCounter();
+            }
+
             // Undo the advance move
             CURRENT_MOVE--;
             localStorage.current_move = CURRENT_MOVE;
@@ -232,10 +260,6 @@ function retreat() {
 
             localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
 
-            if (CURRENT_MOVE === 0) {
-                disable_retreat_button();
-            }
-
             if (COOL_TRANSITIONS_ENABLED) {
                 transition_states_animation(function () {
                     drawRows();
@@ -250,13 +274,14 @@ function retreat() {
                 timer.start();
             }
         } else if (lastMove.action === 'ruleChange') {
-            // Undo the rule change
+            // Decrement MOVE_COUNT safely
             if (MOVE_COUNT > 0) {
                 MOVE_COUNT--;
                 localStorage.move_count = MOVE_COUNT;
                 updateMoveCounter();
             }
 
+            // Undo the rule change
             var fromIndex = lastMove.fromIndex;
             var toIndex = lastMove.toIndex;
             var fromRule = lastMove.fromRule;
@@ -270,18 +295,6 @@ function retreat() {
             display_rule(fromIndex);
             display_rule(toIndex);
 
-            // Update the draggable elements
-            var fromDiv = document.getElementById('label_' + fromIndex);
-            var toDiv = document.getElementById('label_' + toIndex);
-
-            // Swap the innerHTML and background images back
-            // var tempHTML = fromDiv.innerHTML;
-            // var tempBG = fromDiv.style.backgroundImage;
-            // fromDiv.innerHTML = toDiv.innerHTML;
-            // fromDiv.style.backgroundImage = toDiv.style.backgroundImage;
-            // toDiv.innerHTML = tempHTML;
-            // toDiv.style.backgroundImage = tempBG;
-
             // Recalculate the CA_STATE_MATRIX for affected rows
             for (var i = 0; i < ROWS; i++) {
                 var state = CA_STATE_MATRIX[i][0];
@@ -294,17 +307,14 @@ function retreat() {
             localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
 
             drawRows();
-
-            if (CURRENT_MOVE === COLS - 1 && test_win()) {
-                win();
-            }
-
             timer.start();
         }
 
-        // Disable the retreat button if there are no more moves to undo
-        if (moveHistory.length === 0) {
+        // Disable the retreat button if MOVE_COUNT == 0
+        if (MOVE_COUNT === 0) {
             disable_retreat_button();
+        } else {
+            enable_retreat_button();
         }
     }
 }
@@ -398,6 +408,10 @@ function setRule(idx, rule, recalculateFromStart = false) {
 function makeNewGame(is_random) {
 	timer.reset()
 	CURRENT_MOVE = 0
+
+	MOVE_COUNT = 0;
+	localStorage.move_count = MOVE_COUNT;
+	
 	localStorage.current_move = CURRENT_MOVE
 
 	DRAG_COUNT = 0
