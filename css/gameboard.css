@@ -50,6 +50,7 @@ body{
 	padding-right: .5em;
 	padding-top: .2em;
 	padding-bottom: .2em;
+	cursor: pointer;
 }
 .button:hover{
 	background-color:#eee;
@@ -65,6 +66,8 @@ body{
 	padding-right: .5em;
 	padding-top: .2em;
 	padding-bottom: .2em;
+	cursor: default;
+	opacity: 0.6;
 }
 #container {
 	display: none;

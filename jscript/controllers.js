@@ -15,15 +15,35 @@ function rule_dragstart(e){
     e.currentTarget.classList.add('moving');
 }
 
+function rule_dragend(e) {
+    // Remove the 'moving' class from the dragged element
+    e.currentTarget.classList.remove('moving');
+
+    // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
+    var rows = document.getElementsByTagName('tr');
+    for (var i = 0; i < rows.length; i++) {
+        rows[i].classList.remove('over');
+    }
+
+    // Redraw the row to remove any hints or previews
+    if (e.currentTarget && e.currentTarget.id) {
+        var row = parseInt(e.currentTarget.id.split('_')[1]);
+        drawRow(row, 0);
+    }
+
+    // Clear the global variable
+    draggedRule = null;
+}
+
+
 
 function rule_dragover(e){
     if (e.preventDefault) {
         e.preventDefault();
     }
     e.dataTransfer.dropEffect = 'move';
-    if (dragSrcEl_ != e.currentTarget) {
-        e.currentTarget.classList.add('over');
-    }
+    e.currentTarget.classList.add('over');
+
     var row = e.currentTarget.rowIndex - 1; // Adjust for header row
     var rule = draggedRule; // Use the global variable
     drawRow(row, 1, rule); // Pass the rule to drawRow
@@ -35,9 +55,12 @@ function rule_dragleave(e){
     drawRow(row, 0); // Redraw without the new rule
 }
 
-function rule_drop(e){
+function rule_drop(e) {
     if (e.stopPropagation) {
         e.stopPropagation();
+    }
+    if (e.preventDefault) {
+        e.preventDefault();
     }
     if (dragSrcEl_ != e.currentTarget) {
         DRAG_COUNT++;
@@ -48,11 +71,26 @@ function rule_drop(e){
 
         var targetDiv = e.currentTarget.querySelector('.row_label'); // The draggable element in the row
         var prev_html = targetDiv.innerHTML;
-        targetDiv.innerHTML = e.dataTransfer.getData('text/html');
         var prev_bg_img = targetDiv.style.backgroundImage;
-        targetDiv.style.backgroundImage = e.dataTransfer.getData('image/jpeg');
-        var rule = dragSrcEl_.getAttribute('data-rule');
         var prev_rule = targetDiv.getAttribute('data-rule');
+
+        var rule = dragSrcEl_.getAttribute('data-rule');
+
+        // Corrected moveHistory push
+        moveHistory.push({
+            action: 'ruleChange',
+            fromIndex: parseInt(dragSrcEl_.id.split('_')[1]),
+            toIndex: e.currentTarget.rowIndex - 1,
+            fromRule: parseInt(rule),
+            toRule: parseInt(prev_rule)
+        });
+        localStorage.moveHistory = JSON.stringify(moveHistory);
+
+        enable_retreat_button();
+
+        // Update the target rule display
+        targetDiv.innerHTML = e.dataTransfer.getData('text/html');
+        targetDiv.style.backgroundImage = e.dataTransfer.getData('image/jpeg');
         targetDiv.setAttribute('data-rule', rule);
 
         var idx = e.currentTarget.rowIndex - 1; // Row index
@@ -67,7 +105,10 @@ function rule_drop(e){
 
         timer.start();
 
-        drawRows();
+        // Remove the 'over' class and redraw the row without hint
+        e.currentTarget.classList.remove('over');
+        drawRow(idx, 0);
+
         if (test_win()) {
             reveal_solve_button();
             if (CURRENT_MOVE == COLS - 2) {
@@ -80,19 +121,6 @@ function rule_drop(e){
             }
         }
     }
-}
-
-
-function rule_dragend(e){
-    var rule_els = document.getElementsByClassName('row_label');
-    for (var i = 0; i < rule_els.length; i++) {
-        rule_els[i].classList.remove('moving');
-    }
-    if (e.currentTarget && e.currentTarget.id) {
-        var row = parseInt(e.currentTarget.id.split('_')[1]);
-        drawRow(row, 0);
-    }
-    draggedRule = null; // Clear the global variable
 }
 
 function rule_mousedown(e){
