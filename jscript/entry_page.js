@@ -14,13 +14,15 @@ entry_page.tutorial = function(){
     document.getElementById('entry_page').style.display = "none"
     start_game(0)
 }
-entry_page.start_game = function(){
-    document.getElementById('container').style.display = "block"
-    document.getElementById('entry_page').style.display = "none"
-    history.pushState({},"Game","#game")
-    window.onpopstate = this.back_to_menu
-    start_game(0)
+entry_page.start_game = function() {
+    document.getElementById('container').style.display = "block";
+    document.getElementById('entry_page').style.display = "none";
+    history.pushState({}, "Game", "#game");
+    window.onpopstate = this.back_to_menu;
+
+    start_game(0); // Start a new game with preset 0
 }
+
 entry_page.random_game = function(){
     document.getElementById('container').style.display = "block"
     document.getElementById('entry_page').style.display = "none"

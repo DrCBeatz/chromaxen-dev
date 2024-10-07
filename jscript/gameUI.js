@@ -321,16 +321,15 @@ function set_preset_menu(){
 	select_el.value = GAME_NAME//"Game "+(PRESET+1)
 }
 
-function init_preset_menu(){
-	var select_el = document.getElementById('preset_select_el')
-	select_el.innerHTML = ""
-	for(var i=0; i<GAME_PRESETS.length; i++)
-	{
-		option_el = document.createElement('OPTION')
-		option_el.innerHTML = GAME_PRESETS[i].name//"Game "+GAME_PRESETS[i].id
-		if(i==PRESET) option_el.selected = true
-		select_el.appendChild(option_el)
-	}
+function init_preset_menu() {
+    var select_el = document.getElementById('preset_select_el');
+    select_el.innerHTML = "";
+    for (var i = 0; i < GAME_PRESETS.length; i++) {
+        var option_el = document.createElement('OPTION');
+        option_el.innerHTML = GAME_PRESETS[i].name; // or use "Game " + (i + 1) if you prefer
+        select_el.appendChild(option_el);
+    }
+    select_el.selectedIndex = PRESET;
 }
 
 function toggle_preset_menu(){

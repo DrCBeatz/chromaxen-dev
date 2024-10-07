@@ -100,6 +100,9 @@ function start_game(preset) {
     }
 
     if (preset !== undefined) {
+        // Set PRESET and update localStorage.preset
+        PRESET = preset;
+        localStorage.preset = PRESET;
         loadPreset(preset);
     } else {
         if (localStorage.initial_state !== undefined)
@@ -136,12 +139,12 @@ function start_game(preset) {
         display_preset_features();
 
         // Restore the state of advance and retreat buttons
-        if (CURRENT_MOVE == 0) {
+        if (CURRENT_MOVE === 0) {
             disable_retreat_button();
         } else {
             enable_retreat_button();
         }
-        if (CURRENT_MOVE == COLS - 2 && !test_win()) {
+        if (CURRENT_MOVE === COLS - 2 && !test_win()) {
             disable_advance_button();
         } else {
             enable_advance_button();
