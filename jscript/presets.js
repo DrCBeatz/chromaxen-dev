@@ -1,3 +1,5 @@
+// jscript/presets.js
+
 function getFirstChildByTagName(parent, tagName) {
 	var nodes = parent.childNodes;
 	for(var i = 0; i<nodes.length; i++)
