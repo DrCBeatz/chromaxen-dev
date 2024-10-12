@@ -1,3 +1,5 @@
+// jscript/timer.js
+
 // A simple elapsed timer displaying minutes:seconds.
 var Timer = function(display_el,callback,start_ms){
 	var is_running = false
