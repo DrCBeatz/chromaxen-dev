@@ -1,6 +1,7 @@
 // jscript/win.js
 
 var HIGH_SCORE_LENGTH = 10
+var API_BASE_URL = "http://localhost:8000"
 
 function win(){
     hide_solve_button()
@@ -25,17 +26,16 @@ function lose(){
     localStorage.clear()
 }
 
-function send_win_data(win_data_str){
-    var send_data = win_data_str
+function send_win_data(win_data){
     var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200){
-            //console.log(xhttp.responseText)
+            console.log(xhttp.responseText)
         }
     }
-    xhttp.open("POST","php/send_win_state.php",true)
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-    xhttp.send(send_data)
+    xhttp.open("POST", API_BASE_URL + "/api/win_state", true)
+    xhttp.setRequestHeader("Content-type", "application/json")
+    xhttp.send(win_data)
 }
 
 function get_leader_board(){
@@ -50,16 +50,16 @@ function get_leader_board(){
             process_leaderboard(high_scores)
         }
     }
-    xhttp.open("GET","php/get_win_states.php?game="+encodeURI(GAME_NAME),true)
+    xhttp.open("GET", API_BASE_URL + "/api/get_win_states.php?game="+encodeURI(GAME_NAME),true)
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
     xhttp.send()
 }
 
 function process_leaderboard(high_scores){
     var win_data = {
-        moves:MOVE_COUNT,
-        time:timer.get_time_str(),
-        game:GAME_NAME,
+        moves: MOVE_COUNT,
+        time: timer.get_time_str(),
+        game: GAME_NAME,
         is_mine_new:true
     }
     if(high_scores.length>0){
