@@ -1,17 +1,18 @@
 # frontend/Dockerfile
 
-FROM node:14-alpine
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install live-server globally
-RUN npm install -g live-server
+# Install watchdog for hot reloading (optional)
+RUN pip install watchdog
 
-# Expose port 8080
-EXPOSE 8080
+# Expose port 8000
+EXPOSE 8080 
 
-# Copy your frontend files into the container
+# Copy the frontend files into the container
 COPY . /app
 
-# Command to run live-server with CORS enabled
-CMD ["live-server", "--host=0.0.0.0", "--port=8080", "--no-browser", "--watch=/app", "--cors"]
+# Command to run the server
+CMD ["python", "-m", "http.server", "8080", "--bind", "0.0.0.0"]
+

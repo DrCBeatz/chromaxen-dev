@@ -26,33 +26,31 @@ function lose(){
     localStorage.clear()
 }
 
-function send_win_data(win_data){
-    var xhttp = new XMLHttpRequest()
-    xhttp.onreadystatechange = function(){
-        if(xhttp.readyState == 4 && xhttp.status == 200){
-            console.log(xhttp.responseText)
+function send_win_data(win_data) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            console.log(xhttp.responseText);
         }
-    }
-    xhttp.open("POST", API_BASE_URL + "/api/win_state", true)
-    xhttp.setRequestHeader("Content-type", "application/json")
-    xhttp.send(win_data)
+    };
+    xhttp.open("POST", API_BASE_URL + "/api/win_state", true);
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.send(JSON.stringify(win_data));
 }
 
-function get_leader_board(){
-    var xhttp = new XMLHttpRequest()
-    xhttp.onreadystatechange = function(){
-        if(xhttp.readyState == 4 && xhttp.status == 200){
-            //console.log(xhttp.responseText)
-            var high_score_header_el = document.getElementById('high_score_table_header')
-            high_score_header_el.innerHTML = "High Score for " + GAME_NAME
+function get_leader_board() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+            var high_score_header_el = document.getElementById('high_score_table_header');
+            high_score_header_el.innerHTML = "High Score for " + GAME_NAME;
 
-            var high_scores = JSON.parse(xhttp.responseText) || []
-            process_leaderboard(high_scores)
+            var high_scores = JSON.parse(xhttp.responseText) || [];
+            process_leaderboard(high_scores);
         }
-    }
-    xhttp.open("GET", API_BASE_URL + "/api/get_win_states.php?game="+encodeURI(GAME_NAME),true)
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-    xhttp.send()
+    };
+    xhttp.open("GET", API_BASE_URL + "/api/win_states?game=" + encodeURIComponent(GAME_NAME), true);
+    xhttp.send();
 }
 
 function process_leaderboard(high_scores){
@@ -144,23 +142,37 @@ function draw_leaderboard(high_scores, win_data){
 }
 
 function create_enter_name_form(win_data){
-    var send_data_str = "moves="+win_data.moves+"&time="+win_data.time+"&game="+win_data.game+"&name="
-    var form = document.createElement('FORM')
-    form.id = "your_name"
-    var span = document.createElement('SPAN')
-    span.innerHTML = "Enter Name: "
-    form.appendChild(span)
-    var input = document.createElement('INPUT')
-    input.type = 'text'
-    input.id = 'name_input'
-    form.appendChild(input)
-    var button = document.createElement('BUTTON')
-    button.innerHTML = "send"
-    button.onclick = function(){
-        var name = document.getElementById('name_input').value
-        send_win_data(send_data_str + name)
-        document.getElementById('your_name').innerHTML = name
-    }
-    form.appendChild(button)
-    return form
+    var form = document.createElement('FORM');
+    form.id = "your_name";
+    var span = document.createElement('SPAN');
+    span.innerHTML = "Enter Name: ";
+    form.appendChild(span);
+    var input = document.createElement('INPUT');
+    input.type = 'text';
+    input.id = 'name_input';
+    form.appendChild(input);
+    var button = document.createElement('BUTTON');
+    button.innerHTML = "send";
+
+    // Modify the button's onclick handler
+    button.onclick = function(event){
+        event.preventDefault(); // Prevent form submission
+        var name = document.getElementById('name_input').value;
+
+        // Construct the win_data object with the name
+        var updated_win_data = {
+            moves: win_data.moves,
+            time: win_data.time,
+            game: win_data.game,
+            name: name
+        };
+
+        // Send the data
+        send_win_data(updated_win_data);
+
+        // Update the form to display the name
+        document.getElementById('your_name').innerHTML = name;
+    };
+    form.appendChild(button);
+    return form;
 }
