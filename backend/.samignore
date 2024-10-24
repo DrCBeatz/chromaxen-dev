@@ -1,0 +1,7 @@
+Dockerfile*
+.dockerignore
+.gitignore
+.samignore
+*.pyc
+__pycache__/
+dockerfiles/

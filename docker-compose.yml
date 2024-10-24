@@ -1,8 +1,15 @@
 # docker-compose.yml
 
+networks:
+  default:
+    name: sam-network
+    external: true
+
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/backend/Dockerfile.dev
     ports:
       - "8000:8000"
     volumes:
@@ -14,13 +21,17 @@ services:
       - DYNAMODB_ENDPOINT_URL=http://dynamodb-local:8000
       - AWS_ACCESS_KEY_ID=fakeMyKeyId
       - AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
+    networks:
+      - default
 
   frontend:
     build: ./frontend
     ports:
-      - "3000:8080"
+      - "8080:8080"
     volumes:
       - ./frontend:/app
+    networks:
+      - default
 
   dynamodb-local:
     image: amazon/dynamodb-local:latest
@@ -28,3 +39,5 @@ services:
     command: "-jar DynamoDBLocal.jar -sharedDb"
     ports:
       - "8001:8000"
+    networks:
+      - default

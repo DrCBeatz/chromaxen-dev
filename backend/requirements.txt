@@ -1,3 +1,7 @@
 fastapi[all]
 uvicorn[standard]
 boto3>=1.20.0
+botocore
+pydantic
+mangum
+python-dotenv==1.0.1

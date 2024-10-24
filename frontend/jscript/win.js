@@ -29,8 +29,12 @@ function lose(){
 function send_win_data(win_data) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            console.log(xhttp.responseText);
+        if (xhttp.readyState == 4) {
+            if (xhttp.status == 200) {
+                console.log(xhttp.responseText);
+            } else {
+                console.error("Error sending win data:", xhttp.statusText);
+            }
         }
     };
     xhttp.open("POST", API_BASE_URL + "/api/win_state", true);
@@ -41,18 +45,21 @@ function send_win_data(win_data) {
 function get_leader_board() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            var high_score_header_el = document.getElementById('high_score_table_header');
-            high_score_header_el.innerHTML = "High Score for " + GAME_NAME;
+        if (xhttp.readyState == 4) {
+            if (xhttp.status == 200) {
+                var high_score_header_el = document.getElementById('high_score_table_header');
+                high_score_header_el.innerHTML = "High Score for " + GAME_NAME;
 
-            var high_scores = JSON.parse(xhttp.responseText) || [];
-            process_leaderboard(high_scores);
+                var high_scores = JSON.parse(xhttp.responseText) || [];
+                process_leaderboard(high_scores);
+            } else {
+                console.error("Error fetching leaderboard:", xhttp.statusText);
+            }
         }
     };
     xhttp.open("GET", API_BASE_URL + "/api/win_states?game=" + encodeURIComponent(GAME_NAME), true);
     xhttp.send();
 }
-
 function process_leaderboard(high_scores){
     var win_data = {
         moves: MOVE_COUNT,
