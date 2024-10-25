@@ -1,3 +1,5 @@
+# frontend/downlod_scripts/download_jpgs.py
+
 import urllib.request
 import urllib.error
 import time

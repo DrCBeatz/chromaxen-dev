@@ -1,3 +1,5 @@
+# frontend/download_scripts/download_svgs.py
+
 import urllib.request
 import urllib.error
 import time
