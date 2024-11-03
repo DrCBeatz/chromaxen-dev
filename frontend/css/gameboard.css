@@ -355,6 +355,7 @@ td {
   border: 0.4em solid #544;
   border-radius: 5em;
   background-color: #cddfdf;
+  box-sizing: border-box;
 }
 .game_cell_goal_solved {
   width: 7em;
@@ -408,6 +409,7 @@ td {
   border-radius: 50%; /* Make it a circle */
   opacity: 0.7; /* Semi-transparent */
   z-index: 0; /* Ensure it sits below the text */
+  box-sizing: border-box; /* Ensure consistent sizing */
 }
 
 .game_cell_goal_solved_preview > span {
@@ -426,6 +428,11 @@ td,
 .game_cell_td {
   text-align: center;
   vertical-align: middle;
+}
+
+.game_cell_goal,
+.game_cell_goal_solved_preview {
+  box-sizing: border-box;
 }
 
 .row_label_wrapper {
