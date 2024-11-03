@@ -1,125 +1,128 @@
-<!-- index.html -->
+<!-- frontend/index.html -->
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-<link rel="stylesheet" type="text/css" href="css/gameboard.css" />
-<link rel="stylesheet" type="text/css" href="css/controls.css" />
-<link rel="stylesheet" type="text/css" href="css/win_screen.css" />
-<link rel="stylesheet" type="text/css" href="css/lose_screen.css" />
-<link rel="stylesheet" type="text/css" href="css/color_transitions.css" />
-<link rel="stylesheet" type="text/css" href="css/copyright.css" />
-<link rel="stylesheet" type="text/css" href="css/how_to_play.css" />
-<link rel="stylesheet" type="text/css" href="css/feedback.css" />
-<link rel="stylesheet" type="text/css" href="css/entry_page.css" />
+	<link rel="stylesheet" type="text/css" href="css/gameboard.css" />
+	<link rel="stylesheet" type="text/css" href="css/controls.css" />
+	<link rel="stylesheet" type="text/css" href="css/win_screen.css" />
+	<link rel="stylesheet" type="text/css" href="css/lose_screen.css" />
+	<link rel="stylesheet" type="text/css" href="css/color_transitions.css" />
+	<link rel="stylesheet" type="text/css" href="css/copyright.css" />
+	<link rel="stylesheet" type="text/css" href="css/how_to_play.css" />
+	<link rel="stylesheet" type="text/css" href="css/feedback.css" />
+	<link rel="stylesheet" type="text/css" href="css/entry_page.css" />
 
 
-<script type="text/javascript" src="jscript/gameUI.js"></script>
-<script type="text/javascript" src="jscript/gamelogic.js"></script>
-<script type="text/javascript" src="jscript/timer.js"></script>
-<script type="text/javascript" src="jscript/presets.js"></script>
-<script type="text/javascript" src="jscript/presetMenu.js"></script>
-<script type="text/javascript" src="jscript/win.js"></script>
-<script type="text/javascript" src="jscript/controllers.js"></script>
-<script type="text/javascript" src="jscript/utility.js"> </script>
-<script type="text/javascript" src="jscript/get_rules.js"> </script>
-<script type="text/javascript" src="jscript/entry_page.js"> </script>
+	<script type="text/javascript" src="jscript/gameUI.js"></script>
+	<script type="text/javascript" src="jscript/gamelogic.js"></script>
+	<script type="text/javascript" src="jscript/timer.js"></script>
+	<script type="text/javascript" src="jscript/presets.js"></script>
+	<script type="text/javascript" src="jscript/presetMenu.js"></script>
+	<script type="text/javascript" src="jscript/win.js"></script>
+	<script type="text/javascript" src="jscript/controllers.js"></script>
+	<script type="text/javascript" src="jscript/utility.js"> </script>
+	<script type="text/javascript" src="jscript/get_rules.js"> </script>
+	<script type="text/javascript" src="jscript/entry_page.js"> </script>
 
-<title>ChromaXen</title>
+	<title>ChromaXen</title>
 
 </head>
+
 </html>
 </head>
+
 <body onload="init_game()">
-<div id="entry_page">
-	<div id="entry_title" onmousedown="entry_page.start_color_animation()">
-		<b>ChromaXen</b>
-	</div>
-	<div id="entry_continue_button" class="entry_button" onmouseup="entry_page.continue_game()">
-		Continue
-	</div>
-
-	<div id="entry_game_button" class="entry_button" onmouseup="entry_page.start_game()">
-		New Game
-	</div>
-	<div id="entry_random_button" class="entry_button" onmouseup="entry_page.random_game()">
-		Random
-	</div>
-	<div id="entry_all_rules_button" class="entry_button" onmouseup="entry_page.show_all_rules()">
-		All Rules
-	</div>
-</div>
-<div id="container">
-	<div id="game_header">
-		<div id="back_to_menu" class="button" onmouseup="entry_page.back_to_menu()">&#x21DA; Menu</div>
-		<div id="game_title_display"></div>
-		<div id="game_desc_display"></div>
-		<div id="next_button" class="button" onclick="next_game_header()">Next Level &#x21DB;</div>
-		<div id="prev_button" class="button" onclick="prev_game()">&#x21DA;</div>
-		<select id="preset_select_el" onchange="loadPreset(this.selectedIndex);"></select>
-	</div>
-
-	<div id="gameboard_container">
-		<table id="gameboard" >
-		</table>
-	</div>
-
-	<div id="gameboard_overlay_container">
-		<div id="gameboard_overlay"></div>
-	</div>
-
-	<div id="game_footer">
-		<div id="update_button" class="button" onclick="nextMove()">Advance</div>
-		<div id="retreat_button" class="button" onclick="retreat()">Retreat</div>
-		<div id="reset_button" class="button" onclick="makeNewGame()">Reset &#x21BA;</div>
-		<div id="random_button" class="button" onclick="makeNewGame(true)">Random</div>
-		<div id="moves_display">
-			<span>Moves: </span>
-			<span id="update_counter">0</span>
+	<div id="entry_page">
+		<div id="entry_title" onmousedown="entry_page.start_color_animation()">
+			<b>ChromaXen</b>
 		</div>
-		<div id="timer_display">
-			<span>Time: </span>
-			<span id="timer">00:00</span>
+		<div id="entry_continue_button" class="entry_button" onmouseup="entry_page.continue_game()">
+			Continue
 		</div>
-		<div id="dragndrop_style_display">Style: Swap</div>
-		<div id="solve_button" class="button" onclick="solve()">Solve!</div>
-	</div>
 
-	<div id="win_screen_container">
-		<div id="win_screen">
-			<h1 id="win_screen_header">You win!</h1>
-			<h3 id="high_score_table_header"><b>Game 1 High Score</b></h3>
-			<table id="high_score_table">
-				<tr>
-					<th></th>
-					<th>Moves</th>
-					<th>Time</th>
-					<th>Name</th>
-				</tr>
+		<div id="entry_game_button" class="entry_button" onmouseup="entry_page.start_game()">
+			New Game
+		</div>
+		<div id="entry_random_button" class="entry_button" onmouseup="entry_page.random_game()">
+			Random
+		</div>
+		<div id="entry_all_rules_button" class="entry_button" onmouseup="entry_page.show_all_rules()">
+			All Rules
+		</div>
+	</div>
+	<div id="container">
+		<div id="game_header">
+			<div id="back_to_menu" class="button" onmouseup="entry_page.back_to_menu()">&#x21DA; Menu</div>
+			<div id="game_title_display"></div>
+			<div id="game_desc_display"></div>
+			<div id="next_button" class="button" onclick="next_game_header()">Next Level &#x21DB;</div>
+			<div id="prev_button" class="button" onclick="prev_game()">&#x21DA;</div>
+			<select id="preset_select_el" onchange="loadPreset(this.selectedIndex);"></select>
+		</div>
+
+		<div id="gameboard_container">
+			<table id="gameboard">
 			</table>
-			<div id="win_screen_footer">
-				<div class="button" onclick="reset()">Replay &#x21BA;</div>
-				<div class="button" onclick="next_game_win()">Next &#x21DB;</div>
+		</div>
+
+		<div id="gameboard_overlay_container">
+			<div id="gameboard_overlay"></div>
+		</div>
+
+		<div id="game_footer">
+			<div id="update_button" class="button" onclick="nextMove()">Advance</div>
+			<div id="retreat_button" class="button" onclick="retreat()">Retreat</div>
+			<div id="reset_button" class="button" onclick="makeNewGame()">Reset &#x21BA;</div>
+			<div id="random_button" class="button" onclick="makeNewGame(true)">Random</div>
+			<div id="moves_display">
+				<span>Moves: </span>
+				<span id="update_counter">0</span>
+			</div>
+			<div id="timer_display">
+				<span>Time: </span>
+				<span id="timer">00:00</span>
+			</div>
+			<div id="dragndrop_style_display">Style: Swap</div>
+			<div id="solve_button" class="button" onclick="solve()">Solve!</div>
+		</div>
+
+		<div id="win_screen_container">
+			<div id="win_screen">
+				<h1 id="win_screen_header">You win!</h1>
+				<h3 id="high_score_table_header"><b>Game 1 High Score</b></h3>
+				<table id="high_score_table">
+					<tr>
+						<th></th>
+						<th>Moves</th>
+						<th>Time</th>
+						<th>Name</th>
+					</tr>
+				</table>
+				<div id="win_screen_footer">
+					<div class="button" onclick="reset()">Replay &#x21BA;</div>
+					<div class="button" onclick="next_game_win()">Next &#x21DB;</div>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div id="lose_screen_container">
-		<div id="lose_screen">
-			<h1 id="lose_screen_header">
-				You lose
-			</h1>
-			<div id="lose_screen_footer">
-				<div class="button" onclick="reset()">Replay</div>
-				<div class="button" onclick="next_game()">Next</div>
+		<div id="lose_screen_container">
+			<div id="lose_screen">
+				<h1 id="lose_screen_header">
+					You lose
+				</h1>
+				<div id="lose_screen_footer">
+					<div class="button" onclick="reset()">Replay</div>
+					<div class="button" onclick="next_game()">Next</div>
+				</div>
 			</div>
 		</div>
+		<div id="error_log"></div>
 	</div>
-	<div id="error_log"></div>
-</div>
-<div id="all_rules"></div>
-<div id="give_feedback">Give feedback: <a href="mailto:info@chromaxen.com">info@chromaxen.com</a></div>
-<div id="copyright" onclick="toggle_preset_menu()">Copyright 2011, 2021, Gary Bourgeois</div>
+	<div id="all_rules"></div>
+	<div id="give_feedback">Give feedback: <a href="mailto:info@chromaxen.com">info@chromaxen.com</a></div>
+	<div id="copyright" onclick="toggle_preset_menu()">Copyright 2011, 2021, Gary Bourgeois</div>
 
-</html>
+	</html>

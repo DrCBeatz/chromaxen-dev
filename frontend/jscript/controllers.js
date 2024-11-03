@@ -4,7 +4,7 @@ var dragSrcEl_;
 var draggedRule = null; // Global variable to store the dragged rule
 var prevRow = null;
 
-function rule_dragstart(e){
+function rule_dragstart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
     e.dataTransfer.setData('image/jpeg', e.currentTarget.style.backgroundImage);
@@ -21,13 +21,8 @@ function rule_dragend(e) {
 
     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
     var rows = document.getElementsByTagName('tr');
-    for (var i = 0; i < rows.length; i++) {
-        rows[i].classList.remove('over');
-    }
-
-    // Redraw the row to remove any hints or previews
-    if (e.currentTarget && e.currentTarget.id) {
-        var row = parseInt(e.currentTarget.id.split('_')[1]);
+    for (var i = i; i < rows.length; i++) {
+        var row = i - 1;
         drawRow(row, 0);
     }
 
@@ -37,7 +32,7 @@ function rule_dragend(e) {
 
 
 
-function rule_dragover(e){
+function rule_dragover(e) {
     if (e.preventDefault) {
         e.preventDefault();
     }
@@ -49,7 +44,7 @@ function rule_dragover(e){
     drawRow(row, 1, rule); // Pass the rule to drawRow
 }
 
-function rule_dragleave(e){
+function rule_dragleave(e) {
     e.currentTarget.classList.remove('over');
     var row = e.currentTarget.rowIndex - 1;
     drawRow(row, 0); // Redraw without the new rule
@@ -123,17 +118,17 @@ function rule_drop(e) {
     }
 }
 
-function rule_mousedown(e){
+function rule_mousedown(e) {
     var row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 1);
 }
 
-function rule_mouseup(e){
+function rule_mouseup(e) {
     var row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 0);
 }
 
-function rule_dragenter(e){
+function rule_dragenter(e) {
     if (e.preventDefault) {
         e.preventDefault();
     }

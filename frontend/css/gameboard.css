@@ -1,384 +1,439 @@
-body{
-	background-color:#bdcfcf;
-	font-size: 14px;
-	color: #523742;
-	font-family: sans-serif;
+/* frontend/css/gameboard.css */
 
-	-moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+body {
+  background-color: #bdcfcf;
+  font-size: 14px;
+  color: #523742;
+  font-family: sans-serif;
+
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
-#give_feedback{
-	position: fixed;
-	font-size: 20px;
-	margin:5px;
-	bottom:0px;
-	right:0px;
+#give_feedback {
+  position: fixed;
+  font-size: 20px;
+  margin: 5px;
+  bottom: 0px;
+  right: 0px;
 }
-#all_rules{
-	position:fixed;
-	left:2000px;
+#all_rules {
+  position: fixed;
+  left: 2000px;
 }
-.rule{
-	float:left;
-	font-size: 10px;
-	width:10em;
-	height:10em;
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
-	border: 2px solid #cdd;
-	background-color: #eff;
-	margin: 1em;
-	text-align: center;
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-size: 8em 8em;
+.rule {
+  float: left;
+  font-size: 10px;
+  width: 10em;
+  height: 10em;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+  border: 2px solid #cdd;
+  background-color: #eff;
+  margin: 1em;
+  text-align: center;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 8em 8em;
 }
-.rule header{
-	font-size: 1.5em;
-	border-top-left-radius: .6em;
-	border-top-right-radius: .6em;
-	background-color: #dee;
+.rule header {
+  font-size: 1.5em;
+  border-top-left-radius: 0.6em;
+  border-top-right-radius: 0.6em;
+  background-color: #dee;
 }
-.button{
-	background-color:#ddd;
-	border:.1em solid #aaa;
-	border-radius: .3em;
-	cursor: pointer;
-	padding-left: .5em;
-	padding-right: .5em;
-	padding-top: .2em;
-	padding-bottom: .2em;
-	cursor: pointer;
+.button {
+  background-color: #ddd;
+  border: 0.1em solid #aaa;
+  border-radius: 0.3em;
+  cursor: pointer;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  cursor: pointer;
 }
-.button:hover{
-	background-color:#eee;
+.button:hover {
+  background-color: #eee;
 }
-.button:active{
-	background-color:#bcf;
+.button:active {
+  background-color: #bcf;
 }
-.button_disabled{
-	background-color:#aaa;
-	border:.1em solid #544;
-	border-radius: .3em;
-	padding-left: .5em;
-	padding-right: .5em;
-	padding-top: .2em;
-	padding-bottom: .2em;
-	cursor: default;
-	opacity: 0.6;
+.button_disabled {
+  background-color: #aaa;
+  border: 0.1em solid #544;
+  border-radius: 0.3em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  cursor: default;
+  opacity: 0.6;
 }
 #container {
-	display: none;
-	margin:auto;
-	background-color:#cdd;
-	width: 69.5em;
-	border-radius: 1em;
+  display: none;
+  margin: auto;
+  background-color: #cdd;
+  width: 69.5em;
+  border-radius: 1em;
 }
-#gameboard_container{
-	font-size: .66em;
-	margin: 1em;
-	padding-left: 0px;
-	margin-left: 0px;
+#gameboard_container {
+  font-size: 0.66em;
+  margin: 1em;
+  padding-left: 0px;
+  margin-left: 0px;
 }
-#gameboard{
-	margin: auto;
-	background-color: #cdd;
+#gameboard {
+  margin: auto;
+  background-color: #cdd;
 }
-#gameboard table{
-	table-layout: fixed;
-	border: 1px solid black;
+#gameboard table {
+  table-layout: fixed;
+  border: 1px solid black;
 }
-#gameboard td{
-	height:11em;
-	width:11em;
-	background-color: #cdd;
+#gameboard td {
+  height: 11em;
+  width: 11em;
+  background-color: #cdd;
 }
-#gameboard tr{
-	background-color: #cdd;
+#gameboard tr {
+  background-color: #cdd;
 }
-#gameboard th{
-	font-size: 1.6em;
-	background-color: #cdd;
-}
-
-#gameboard tr:not(:nth-child(1)){
-	border-top:.8em solid #adbfbf;
+#gameboard th {
+  font-size: 1.6em;
+  background-color: #cdd;
 }
 
-#gameboard tr td:nth-child(1){
-	background-color: #cdd;
+#gameboard tr:not(:nth-child(1)) {
+  border-top: 0.8em solid #adbfbf;
 }
 
-#gameboard tr td:last-child{
-	background-color:#cdd;
+#gameboard tr td:nth-child(1) {
+  background-color: #cdd;
 }
 
-#gameboard_overlay_container{
-	position: relative;
-	font-size: .66em;
-	margin-top: 1.5em;
-	margin-left: 11.65em;
-	width:0px;
-	height:0px;
-	transition: opacity 1s;
+#gameboard tr td:last-child {
+  background-color: #cdd;
 }
-#gameboard_overlay{
-	position: relative;
-	margin-left: 1.5em;
+
+#gameboard_overlay_container {
+  position: relative;
+  font-size: 0.66em;
+  margin-top: 1.5em;
+  margin-left: 11.65em;
+  width: 0px;
+  height: 0px;
+  transition: opacity 1s;
 }
-.gameboard_overlay_cell{
-	height:11em;
-	width:11em;
-	margin-right: 0px;
-	padding-left: 1.2em;
-	padding-top: .6em;
+#gameboard_overlay {
+  position: relative;
+  margin-left: 1.5em;
 }
-#game_header{
-	width:100%;
-	height:3em;
-	font-size: 14px;
-	background-color: #dee;
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
+.gameboard_overlay_cell {
+  height: 11em;
+  width: 11em;
+  margin-right: 0px;
+  padding-left: 1.2em;
+  padding-top: 0.6em;
 }
-#game_title_display{
-	padding: .5em;
-	text-align: center;
-	font-size: 1.4em;
-	float: left;
+#game_header {
+  width: 100%;
+  height: 3em;
+  font-size: 14px;
+  background-color: #dee;
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
 }
-#game_desc_display{
-	padding: 1em;
-	text-align: center;
-	font-size: 1em;
-	float: left;
+#game_title_display {
+  padding: 0.5em;
+  text-align: center;
+  font-size: 1.4em;
+  float: left;
 }
-#next_button{
-	float:right;
-	width:5.9em;
-	margin: .3em;
-	font-size: 1.2em;
+#game_desc_display {
+  padding: 1em;
+  text-align: center;
+  font-size: 1em;
+  float: left;
 }
-#prev_button{
-	float:right;
-	width:1em;
-	margin: .3em;
-	font-size: 1.2em;
+#next_button {
+  float: right;
+  width: 5.9em;
+  margin: 0.3em;
+  font-size: 1.2em;
 }
-#preset_select_el{
-	float:right;
-	margin: .5em;
-	font-size: 1.2em;
+#prev_button {
+  float: right;
+  width: 1em;
+  margin: 0.3em;
+  font-size: 1.2em;
 }
-#game_footer{
-	width:100%;
-	height:3em;
-	padding-top: 1em;
-	background-color: #dee;
-	border-bottom-left-radius: 1em;
-	border-bottom-right-radius: 1em;
+#preset_select_el {
+  float: right;
+  margin: 0.5em;
+  font-size: 1.2em;
 }
-#game_footer div{
-	float:left;
-	margin-left: 2em;
-	font-size: 1.2em;
+#game_footer {
+  width: 100%;
+  height: 3em;
+  padding-top: 1em;
+  background-color: #dee;
+  border-bottom-left-radius: 1em;
+  border-bottom-right-radius: 1em;
 }
-#timer_display{
-	float:left;
-	padding-top: .2em;
-	margin-left: 2em;
-	font-size: 1.2em;
+#game_footer div {
+  float: left;
+  margin-left: 2em;
+  font-size: 1.2em;
 }
-#moves_display{
-	float:left;
-	padding-top: .2em;
-	margin-left: 2em;
-	font-size: 1.2em;
+#timer_display {
+  float: left;
+  padding-top: 0.2em;
+  margin-left: 2em;
+  font-size: 1.2em;
 }
-#dragndrop_style_display{
-	display: none;
-	margin-left: 1em;
-	padding: .2em;
-	font-size: 1.2em;
-	float: left;
+#moves_display {
+  float: left;
+  padding-top: 0.2em;
+  margin-left: 2em;
+  font-size: 1.2em;
 }
-#solve_button{
-	display: none;
-	float:right !important;
-	margin-right: 1.6em !important;
-	position: relative;
-	text-align: center;
-	animation-name: button_glow;
-	animation-duration: 1s;
-	animation-direction: alternate;
-	animation-iteration-count: infinite;
+#dragndrop_style_display {
+  display: none;
+  margin-left: 1em;
+  padding: 0.2em;
+  font-size: 1.2em;
+  float: left;
+}
+#solve_button {
+  display: none;
+  float: right !important;
+  margin-right: 1.6em !important;
+  position: relative;
+  text-align: center;
+  animation-name: button_glow;
+  animation-duration: 1s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
 }
 @keyframes button_glow {
-	from{
-		background-color:#ccc;
-		right:0em;
-		width:3em;
-	}
-	to{
-		background-color:#fff;
-		right:-.2em;
-		width:3.5em;
-	}
+  from {
+    background-color: #ccc;
+    right: 0em;
+    width: 3em;
+  }
+  to {
+    background-color: #fff;
+    right: -0.2em;
+    width: 3.5em;
+  }
 }
 .row_game_content {
-	display: inline;
-	vertical-align: middle;
-	border: 2px solid #dee;
-	border-radius: 2em;
-	background-color: #eff;
-	padding-bottom: .5em;
+  display: inline;
+  vertical-align: middle;
+  border: 2px solid #dee;
+  border-radius: 2em;
+  background-color: #eff;
+  padding-bottom: 0.5em;
 }
 .row_label {
-	display: block;
-	vertical-align: middle;
-	width: 10em;
-	height: 10em;
-	border-radius: 1.7em;
-	border: .5em solid #cdd;
-	background-color: #eff;
-	margin-right: .5em;
-	margin-left: .5em;
-	text-align: center;
-	background-repeat: no-repeat;
-	background-position: bottom;
-	background-size: 8em 8em;
-	cursor: move;
-	position: relative;
-    z-index: 1;
+  display: block;
+  vertical-align: middle;
+  width: 10em;
+  height: 10em;
+  border-radius: 1.7em;
+  border: 0.5em solid #cdd;
+  background-color: #eff;
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+  text-align: center;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 8em 8em;
+  cursor: move;
+  position: relative;
+  z-index: 1;
 }
 .row_label:active {
-	opacity: 0.8;
-	background-color: #dee;
+  opacity: 0.8;
+  background-color: #dee;
 }
-.row_label header{
-	border-top-left-radius: 1em;
-	border-top-right-radius: 1em;
-	font-size: 1.5em;
-	background-color: #dee;
+.row_label header {
+  border-top-left-radius: 1em;
+  border-top-right-radius: 1em;
+  font-size: 1.5em;
+  background-color: #dee;
 }
 .row_label.over {
-	border: .5em solid #69f;
+  border: 0.5em solid #69f;
 }
 .row_label.moving {
 }
 
-.game_cell_td{
+td {
+  text-align: center;
+  vertical-align: middle;
 }
-.game_cell_future{
-	margin: auto;
-	position: relative;
-	width:3em;
-	height:3em;
-	border-radius: 1.5em;
-	background-color: #dee;
-	animation-name: cell_appear;
-	animation-duration: 1s;
+
+.game_cell_td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.game_cell_future {
+  margin: auto;
+  position: relative;
+  width: 3em;
+  height: 3em;
+  border-radius: 1.5em;
+  background-color: #dee;
+  animation-name: cell_appear;
+  animation-duration: 1s;
 }
 @keyframes cell_appear {
-	from{
-		opacity: 0;
-		width:.5em;
-		height:.5em;
-	}
-	to{
-		opacity:1;
-		width:3em;
-		height:3em;
-	}
+  from {
+    opacity: 0;
+    width: 0.5em;
+    height: 0.5em;
+  }
+  to {
+    opacity: 1;
+    width: 3em;
+    height: 3em;
+  }
 }
-.game_cell_past{
-	margin: auto;
-	width:8em;
-	height:8em;
-	border-radius: 5em;
-	background-color: #cddfdf;
-	border:.4em solid #dee;
-	animation-name: cell_appear_past;
-	animation-duration: 1s;
-	animation-fill-mode: forwards;
+.game_cell_past {
+  margin: auto;
+  width: 8em;
+  height: 8em;
+  border-radius: 5em;
+  background-color: #cddfdf;
+  border: 0.4em solid #dee;
+  animation-name: cell_appear_past;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
 }
 @keyframes cell_appear_past {
-	from{
-		opacity: 0;
-		width:.5em;
-		height:.5em;
-	}
-	to{
-		opacity:.5;
-		width:8em;
-		height:8em;
-	}
+  from {
+    opacity: 0;
+    width: 0.5em;
+    height: 0.5em;
+  }
+  to {
+    opacity: 0.5;
+    width: 8em;
+    height: 8em;
+  }
 }
-.game_cell_current{
-	margin: auto;
-	position: relative;
-	width:8em;
-	height:8em;
-	border-radius: 5em;
-	border:.4em solid #544;
-	background-color: #cddfdf;
-	animation-duration: .8s;
-	animation-fill-mode: both;
-	z-index: 2;
+.game_cell_current {
+  margin: auto;
+  position: relative;
+  width: 8em;
+  height: 8em;
+  border-radius: 5em;
+  border: 0.4em solid #544;
+  background-color: #cddfdf;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+  z-index: 2;
 }
-.game_cell_invisible{
-	margin: auto;
-	position: relative;
-	width:8em;
-	height:8em;
-	border-radius: 5em;
-	border:.4em solid #544;
-	opacity: 0.0;
-	z-index: 2;
+.game_cell_invisible {
+  margin: auto;
+  position: relative;
+  width: 8em;
+  height: 8em;
+  border-radius: 5em;
+  border: 0.4em solid #544;
+  opacity: 0;
+  z-index: 2;
 }
-.game_cell_goal{
-	margin: auto;
-	width:8em;
-	height:8em;
-	border:.4em solid #544;
-	border-radius: 5em;
-	background-color: #cddfdf;
+.game_cell_goal {
+  margin: auto;
+  width: 8em;
+  height: 8em;
+  border: 0.4em solid #544;
+  border-radius: 5em;
+  background-color: #cddfdf;
 }
-.game_cell_goal_solved{
-	width:7em;
-	height:4em;
-	margin: auto;
-	border:.5em solid #dee;
-	font-size: 1.2em;
-	padding-top: 2.8em;
-	text-align: center;
-	color: #eee;
-	border-radius: 5em;
-	background-color: #cddfdf;
-	animation-name: solved;
-	animation-duration: 1s;
-	animation-direction: alternate;
-	animation-iteration-count: infinite;
+.game_cell_goal_solved {
+  width: 7em;
+  height: 4em;
+  margin: auto;
+  border: 0.5em solid #dee;
+  font-size: 1.2em;
+  padding-top: 2.8em;
+  text-align: center;
+  color: #eee;
+  border-radius: 5em;
+  background-color: #cddfdf;
+  animation-name: solved;
+  animation-duration: 1s;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
 }
 @keyframes solved {
-	from{
-		border-radius: 5em;
-		border-color: #bdcfcf;
-	}
-	to{
-		border-radius: 5em;
-		border-color: #fff;
-	}
+  from {
+    border-radius: 5em;
+    border-color: #bdcfcf;
+  }
+  to {
+    border-radius: 5em;
+    border-color: #fff;
+  }
+}
+
+.game_cell_goal_solved_preview {
+  margin: auto;
+  width: 8em; /* Match the size of regular goal cells */
+  height: 8em;
+  border: 0.4em solid #544;
+  border-radius: 5em;
+  background-color: transparent;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.game_cell_goal_solved_preview::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Fill the entire cell */
+  height: 100%;
+  background-color: currentColor; /* Use the cell's text color */
+  border-radius: 50%; /* Make it a circle */
+  opacity: 0.7; /* Semi-transparent */
+  z-index: 0; /* Ensure it sits below the text */
+}
+
+.game_cell_goal_solved_preview > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff; /* Use white color for text */
+  font-weight: bold;
+  font-size: 1.2em; /* Adjust as needed */
+  z-index: 1; /* Ensure text appears above the circle */
+}
+
+/* Ensure table cells are centered */
+td,
+.game_cell_td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 .row_label_wrapper {
-    /* Styles for the wrapper */
-    display: inline-block;
-    position: relative;
+  /* Styles for the wrapper */
+  display: inline-block;
+  position: relative;
 }
 
 tr.over {
-    background-color: #eef; /* Highlight the row on dragover */
+  background-color: #eef; /* Highlight the row on dragover */
 }
