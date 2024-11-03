@@ -562,3 +562,4 @@ function disable_retreat_button() {
 	retreat_btn.onclick = null;
 	retreat_btn.style.cursor = 'default';
 }
+

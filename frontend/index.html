@@ -26,6 +26,7 @@
 	<script type="text/javascript" src="jscript/utility.js"> </script>
 	<script type="text/javascript" src="jscript/get_rules.js"> </script>
 	<script type="text/javascript" src="jscript/entry_page.js"> </script>
+	<script type="text/javascript" src="jscript/saveLoad.js"> </script>
 
 	<title>ChromaXen</title>
 
@@ -85,6 +86,12 @@
 				<span>Time: </span>
 				<span id="timer">00:00</span>
 			</div>
+			<div id="save_button" class="button" onclick="saveGame()">Save Game</div>
+			<!-- In your index.html -->
+			<div id="load_button" class="button" onclick="document.getElementById('load_game_input').click()">Load Game
+			</div>
+			<input type="file" id="load_game_input" accept=".json" style="display:none" onchange="loadGame(event)">
+
 			<div id="dragndrop_style_display">Style: Swap</div>
 			<div id="solve_button" class="button" onclick="solve()">Solve!</div>
 		</div>
