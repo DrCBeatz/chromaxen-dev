@@ -209,7 +209,7 @@ body {
 #solve_button {
   display: none;
   float: right !important;
-  margin-right: 1.6em !important;
+  margin-right: 4px !important;
   position: relative;
   text-align: center;
   animation-name: button_glow;
@@ -386,7 +386,7 @@ td {
 
 .game_cell_goal_solved_preview {
   margin: auto;
-  width: 8em; /* Match the size of regular goal cells */
+  width: 8em;
   height: 8em;
   border: 0.4em solid #544;
   border-radius: 5em;
@@ -403,13 +403,13 @@ td {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%; /* Fill the entire cell */
+  width: 100%;
   height: 100%;
-  background-color: currentColor; /* Use the cell's text color */
-  border-radius: 50%; /* Make it a circle */
-  opacity: 0.7; /* Semi-transparent */
-  z-index: 0; /* Ensure it sits below the text */
-  box-sizing: border-box; /* Ensure consistent sizing */
+  background-color: currentColor;
+  border-radius: 50%;
+  opacity: 0.7;
+  z-index: 0;
+  box-sizing: border-box;
 }
 
 .game_cell_goal_solved_preview > span {
@@ -417,13 +417,12 @@ td {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #fff; /* Use white color for text */
+  color: #fff;
   font-weight: bold;
-  font-size: 1.2em; /* Adjust as needed */
-  z-index: 1; /* Ensure text appears above the circle */
+  font-size: 1.2em;
+  z-index: 1;
 }
 
-/* Ensure table cells are centered */
 td,
 .game_cell_td {
   text-align: center;
@@ -436,11 +435,10 @@ td,
 }
 
 .row_label_wrapper {
-  /* Styles for the wrapper */
   display: inline-block;
   position: relative;
 }
 
 tr.over {
-  background-color: #eef; /* Highlight the row on dragover */
+  background-color: #eef;
 }

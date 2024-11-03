@@ -90,12 +90,6 @@ function init_rows() {
 	////////////////////////////////
 }
 
-// jscript/gameUI.js
-
-// jscript/gameUI.js
-
-// jscript/gameUI.js
-
 function drawRow(id, hint, new_rule) {
 	var states = [];
 	var wouldBeSolved = false;
