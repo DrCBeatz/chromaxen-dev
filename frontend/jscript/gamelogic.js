@@ -66,7 +66,7 @@ function init_game() {
 			}
 			GAME_PRESETS.push(game)
 		}
-		
+
 		start_game(undefined, false)
 	})
 }
@@ -87,77 +87,77 @@ function parse_comma_number_list(str) {
 }
 
 function start_game(preset) {
-    timer = new Timer(document.getElementById('timer'), function (_this) {
-        localStorage.time = _this.elapsed_ms;
-    });
+	timer = new Timer(document.getElementById('timer'), function (_this) {
+		localStorage.time = _this.elapsed_ms;
+	});
 
-    moveHistory = JSON.parse(localStorage.moveHistory || '[]');
+	moveHistory = JSON.parse(localStorage.moveHistory || '[]');
 
-    if (MOVE_COUNT === 0) {
-        disable_retreat_button();
-    } else {
-        enable_retreat_button();
-    }
+	if (MOVE_COUNT === 0) {
+		disable_retreat_button();
+	} else {
+		enable_retreat_button();
+	}
 
-    if (preset !== undefined) {
-        // Set PRESET and update localStorage.preset
-        PRESET = preset;
-        localStorage.preset = PRESET;
-        loadPreset(preset);
-    } else {
-        if (localStorage.initial_state !== undefined)
-            initial_state = JSON.parse(localStorage.initial_state);
+	if (preset !== undefined) {
+		// Set PRESET and update localStorage.preset
+		PRESET = preset;
+		localStorage.preset = PRESET;
+		loadPreset(preset);
+	} else {
+		if (localStorage.initial_state !== undefined)
+			initial_state = JSON.parse(localStorage.initial_state);
 
-        PRESET = parseInt(localStorage.preset) || 0;
-        CURRENT_MOVE = parseInt(localStorage.current_move) || 0;
-        DRAG_COUNT = parseInt(localStorage.drag_count) || 0;
-        MOVE_COUNT = parseInt(localStorage.move_count) || 0;
-        updateMoveCounter();
+		PRESET = parseInt(localStorage.preset) || 0;
+		CURRENT_MOVE = parseInt(localStorage.current_move) || 0;
+		DRAG_COUNT = parseInt(localStorage.drag_count) || 0;
+		MOVE_COUNT = parseInt(localStorage.move_count) || 0;
+		updateMoveCounter();
 
-        TIME = parseInt(localStorage.time) || 0;
-        timer.set_time(TIME);
+		TIME = parseInt(localStorage.time) || 0;
+		timer.set_time(TIME);
 
-        ROWS = parseInt(localStorage.rows) || 8;
-        COLS = parseInt(localStorage.cols) || 8;
-        RULES = JSON.parse(localStorage.rules || '[]');
-        CA_STATE_MATRIX = JSON.parse(localStorage.state_matrix || '[]');
-        GOALS = JSON.parse(localStorage.goals || '[]');
+		ROWS = parseInt(localStorage.rows) || 8;
+		COLS = parseInt(localStorage.cols) || 8;
+		RULES = JSON.parse(localStorage.rules || '[]');
+		CA_STATE_MATRIX = JSON.parse(localStorage.state_matrix || '[]');
+		GOALS = JSON.parse(localStorage.goals || '[]');
 
-        SWAP_ENABLED = JSON.parse(localStorage.swap_enabled || 'true');
-        show_rows_ahead = JSON.parse(localStorage.show_rows_ahead || 'true');
-        GAME_NAME = localStorage.game_name || 'Default Game';
-        GAME_DESC = localStorage.game_desc || '';
+		SWAP_ENABLED = JSON.parse(localStorage.swap_enabled || 'true');
+		show_rows_ahead = JSON.parse(localStorage.show_rows_ahead || 'true');
+		GAME_NAME = localStorage.game_name || 'Default Game';
+		GAME_DESC = localStorage.game_desc || '';
 
-        // Initialize the game board
-        resize();
-        init_rows();
-        drawRows();
-        display_rules();
-        update_title_header();
-        update_dragndrop_style_display();
-        init_preset_menu();
-        display_preset_features();
+		// Initialize the game board
+		resize();
+		init_rows();
+		drawRows();
+		display_rules();
+		update_title_header();
+		update_dragndrop_style_display();
+		init_preset_menu();
+		display_preset_features();
 
-        // Restore the state of advance and retreat buttons
-        if (CURRENT_MOVE === 0) {
-            disable_retreat_button();
-        } else {
-            enable_retreat_button();
-        }
-        if (CURRENT_MOVE === COLS - 2 && !test_win()) {
-            disable_advance_button();
-        } else {
-            enable_advance_button();
-        }
+		// Restore the state of advance and retreat buttons
+		if (CURRENT_MOVE === 0) {
+			disable_retreat_button();
+		} else {
+			enable_retreat_button();
+		}
+		if (CURRENT_MOVE === COLS - 2 && !test_win()) {
+			disable_advance_button();
+		} else {
+			enable_advance_button();
+		}
 
-        if (test_win()) {
-            reveal_solve_button();
-        } else {
-            hide_solve_button();
-        }
-    }
+		if (test_win()) {
+			reveal_solve_button();
+		} else {
+			hide_solve_button();
+		}
+	}
 
-    timer.start();
+	timer.start();
 }
 
 function create_random_preset() {
@@ -233,94 +233,199 @@ function nextMove() {
 }
 
 function retreat() {
-    if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
+	if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
 
-    if (moveHistory.length > 0) {
-        var lastMove = moveHistory.pop();
+	if (moveHistory.length > 0) {
+		var lastMove = moveHistory.pop();
 
-        if (lastMove.action === 'advance') {
-            // Decrement MOVE_COUNT safely
-            if (MOVE_COUNT > 0) {
-                MOVE_COUNT--;
-                localStorage.move_count = MOVE_COUNT;
-                updateMoveCounter();
-            }
+		if (lastMove.action === 'advance') {
+			// Decrement MOVE_COUNT safely
+			if (MOVE_COUNT > 0) {
+				MOVE_COUNT--;
+				localStorage.move_count = MOVE_COUNT;
+				updateMoveCounter();
+			}
 
-            // Undo the advance move
-            CURRENT_MOVE--;
-            localStorage.current_move = CURRENT_MOVE;
+			// Undo the advance move safely
+			if (CURRENT_MOVE > 0) {
+				CURRENT_MOVE--;
+				localStorage.current_move = CURRENT_MOVE;
+			}
 
-            enable_advance_button();
+			enable_advance_button();
 
-            // Recalculate CA_STATE_MATRIX from CURRENT_MOVE onwards
-            for (var i = 0; i < ROWS; i++) {
-                var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
-                for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
-                    state = nextByRule(state, RULES[i]);
-                    CA_STATE_MATRIX[i][j] = state;
-                }
-            }
+			// Recalculate CA_STATE_MATRIX from CURRENT_MOVE onwards
+			for (var i = 0; i < ROWS; i++) {
+				var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
+				for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
+					state = nextByRule(state, RULES[i]);
+					CA_STATE_MATRIX[i][j] = state;
+				}
+			}
 
-            localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
 
-            if (COOL_TRANSITIONS_ENABLED) {
-                transition_states_animation(function () {
-                    drawRows();
-                    timer.start();
+			if (COOL_TRANSITIONS_ENABLED) {
+				transition_states_animation(function () {
+					drawRows();
+					timer.start();
 
-                    if (CURRENT_MOVE === COLS - 1 && test_win()) {
-                        win();
-                    }
-                }, false);
-            } else {
-                drawRows();
-                timer.start();
-            }
-        } else if (lastMove.action === 'ruleChange') {
-            // Decrement MOVE_COUNT safely
-            if (MOVE_COUNT > 0) {
-                MOVE_COUNT--;
-                localStorage.move_count = MOVE_COUNT;
-                updateMoveCounter();
-            }
+					if (CURRENT_MOVE === COLS - 1 && test_win()) {
+						win();
+					}
+				}, false);
+			} else {
+				drawRows();
+				timer.start();
+			}
+		} else if (lastMove.action === 'ruleChange') {
+			// Decrement MOVE_COUNT safely
+			if (MOVE_COUNT > 0) {
+				MOVE_COUNT--;
+				localStorage.move_count = MOVE_COUNT;
+				updateMoveCounter();
+			}
 
-            // Undo the rule change
-            var fromIndex = lastMove.fromIndex;
-            var toIndex = lastMove.toIndex;
-            var fromRule = lastMove.fromRule;
-            var toRule = lastMove.toRule;
+			// Undo the rule change
+			var fromIndex = lastMove.fromIndex;
+			var toIndex = lastMove.toIndex;
+			var fromRule = lastMove.fromRule;
+			var toRule = lastMove.toRule;
 
-            // Swap back the rules
-            setRule(fromIndex, fromRule, true);
-            setRule(toIndex, toRule, true);
+			// Swap back the rules
+			setRule(fromIndex, fromRule, true);
+			setRule(toIndex, toRule, true);
 
-            // Update the rule display
-            display_rule(fromIndex);
-            display_rule(toIndex);
+			// Update the rule display
+			display_rule(fromIndex);
+			display_rule(toIndex);
 
-            // Recalculate the CA_STATE_MATRIX for affected rows
-            for (var i = 0; i < ROWS; i++) {
-                var state = CA_STATE_MATRIX[i][0];
-                for (var j = 1; j < COLS; j++) {
-                    state = nextByRule(state, RULES[i]);
-                    CA_STATE_MATRIX[i][j] = state;
-                }
-            }
+			// Recalculate the CA_STATE_MATRIX for affected rows
+			for (var i = 0; i < ROWS; i++) {
+				var state = CA_STATE_MATRIX[i][0];
+				for (var j = 1; j < COLS; j++) {
+					state = nextByRule(state, RULES[i]);
+					CA_STATE_MATRIX[i][j] = state;
+				}
+			}
 
-            localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
 
-            drawRows();
-            timer.start();
-        }
+			drawRows();
+			timer.start();
+		}
 
-        // Disable the retreat button if MOVE_COUNT == 0
-        if (MOVE_COUNT === 0) {
-            disable_retreat_button();
-        } else {
-            enable_retreat_button();
-        }
-    }
+		// Disable the retreat button if MOVE_COUNT == 0
+		if (MOVE_COUNT === 0) {
+			disable_retreat_button();
+		} else {
+			enable_retreat_button();
+		}
+	} else {
+		// If moveHistory is empty, ensure buttons are correctly disabled
+		disable_retreat_button();
+		// Optionally, you can enable the advance button if needed
+		enable_advance_button();
+	}
+}// jscript/gamelogic.js
+
+function retreat() {
+	if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
+
+	if (moveHistory.length > 0) {
+		var lastMove = moveHistory.pop();
+
+		if (lastMove.action === 'advance') {
+			// Decrement MOVE_COUNT safely
+			if (MOVE_COUNT > 0) {
+				MOVE_COUNT--;
+				localStorage.move_count = MOVE_COUNT;
+				updateMoveCounter();
+			}
+
+			// Undo the advance move safely
+			if (CURRENT_MOVE > 0) {
+				CURRENT_MOVE--;
+				localStorage.current_move = CURRENT_MOVE;
+			}
+
+			enable_advance_button();
+
+			// Recalculate CA_STATE_MATRIX from CURRENT_MOVE onwards
+			for (var i = 0; i < ROWS; i++) {
+				var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
+				for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
+					state = nextByRule(state, RULES[i]);
+					CA_STATE_MATRIX[i][j] = state;
+				}
+			}
+
+			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+
+			if (COOL_TRANSITIONS_ENABLED) {
+				transition_states_animation(function () {
+					drawRows();
+					timer.start();
+
+					if (CURRENT_MOVE === COLS - 1 && test_win()) {
+						win();
+					}
+				}, false);
+			} else {
+				drawRows();
+				timer.start();
+			}
+		} else if (lastMove.action === 'ruleChange') {
+			// Decrement MOVE_COUNT safely
+			if (MOVE_COUNT > 0) {
+				MOVE_COUNT--;
+				localStorage.move_count = MOVE_COUNT;
+				updateMoveCounter();
+			}
+
+			// Undo the rule change
+			var fromIndex = lastMove.fromIndex;
+			var toIndex = lastMove.toIndex;
+			var fromRule = lastMove.fromRule;
+			var toRule = lastMove.toRule;
+
+			// Swap back the rules
+			setRule(fromIndex, fromRule, true);
+			setRule(toIndex, toRule, true);
+
+			// Update the rule display
+			display_rule(fromIndex);
+			display_rule(toIndex);
+
+			// Recalculate the CA_STATE_MATRIX for affected rows
+			for (var i = 0; i < ROWS; i++) {
+				var state = CA_STATE_MATRIX[i][0];
+				for (var j = 1; j < COLS; j++) {
+					state = nextByRule(state, RULES[i]);
+					CA_STATE_MATRIX[i][j] = state;
+				}
+			}
+
+			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+
+			drawRows();
+			timer.start();
+		}
+
+		// Disable the retreat button if MOVE_COUNT == 0
+		if (MOVE_COUNT === 0) {
+			disable_retreat_button();
+		} else {
+			enable_retreat_button();
+		}
+	} else {
+		// If moveHistory is empty, ensure buttons are correctly disabled
+		disable_retreat_button();
+		// Optionally, enable the advance button if needed
+		enable_advance_button();
+	}
 }
+
 
 function test_win() {
 	for (var i = 0; i < GOALS.length; i++) {
@@ -393,19 +498,19 @@ function resetRules() {
 }
 
 function setRule(idx, rule, recalculateFromStart = false) {
-    // Save the new rule
-    RULES[idx] = rule;
-    localStorage.rules = JSON.stringify(RULES);
+	// Save the new rule
+	RULES[idx] = rule;
+	localStorage.rules = JSON.stringify(RULES);
 
-    // Recalculate the state matrix starting from the appropriate point
-    var startMove = recalculateFromStart ? 0 : CURRENT_MOVE;
-    var state = CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
-    for (var i = startMove + 1; i < COLS; i++) {
-        state = nextByRule(state, rule);
-        CA_STATE_MATRIX[idx][i] = state;
-    }
-    localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
-    display_rule(idx, rule);
+	// Recalculate the state matrix starting from the appropriate point
+	var startMove = recalculateFromStart ? 0 : CURRENT_MOVE;
+	var state = CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
+	for (var i = startMove + 1; i < COLS; i++) {
+		state = nextByRule(state, rule);
+		CA_STATE_MATRIX[idx][i] = state;
+	}
+	localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+	display_rule(idx, rule);
 }
 
 function makeNewGame(is_random) {
@@ -414,7 +519,7 @@ function makeNewGame(is_random) {
 
 	MOVE_COUNT = 0;
 	localStorage.move_count = MOVE_COUNT;
-	
+
 	localStorage.current_move = CURRENT_MOVE
 
 	DRAG_COUNT = 0

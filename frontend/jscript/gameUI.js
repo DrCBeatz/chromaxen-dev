@@ -186,13 +186,15 @@ function update_title_header() {
 function disable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button_disabled"
-	retreat_btn.onclick = function () { return false }
+	// retreat_btn.onclick = function () { return false }
+	retreat_btn.style.cursor = 'default';
 }
 
 function enable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button"
-	retreat_btn.onclick = retreat
+	retreat_btn.style.cursor = 'pointer';
+	// retreat_btn.onclick = retreat
 }
 
 function disable_advance_button() {

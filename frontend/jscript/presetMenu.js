@@ -13,6 +13,16 @@ function loadPreset(preset_index, updateLocalStoragePreset = false) {
     PRESET = preset_index;
     localStorage.preset = PRESET; // Always update localStorage.preset
 
+    // **Reset the moveHistory array and update localStorage**
+    moveHistory = [];
+    localStorage.moveHistory = JSON.stringify(moveHistory);
+
+    // **Disable the retreat button, as there are no moves to undo**
+    disable_retreat_button();
+
+    // **Enable the advance button if applicable**
+    enable_advance_button();
+
     if (preset_index >= -1 && preset_index < GAME_PRESETS.length) {
         var game;
         if (preset_index == -1) {
@@ -80,6 +90,6 @@ function loadPreset(preset_index, updateLocalStoragePreset = false) {
     update_title_header();
     update_dragndrop_style_display();
 
-	// Call init_preset_menu() here
+    // Call init_preset_menu() here
     init_preset_menu();
 }
