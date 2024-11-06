@@ -1,4 +1,4 @@
-// jscript/controllers.js
+// frontend/jscript/controllers.js
 
 var dragSrcEl_;
 var draggedRule = null; // Global variable to store the dragged rule
