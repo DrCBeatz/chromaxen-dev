@@ -21,7 +21,7 @@ function rule_dragend(e) {
 
     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
     var rows = document.getElementsByTagName('tr');
-    for (var i = i; i < rows.length; i++) {
+    for (var i = 1; i < rows.length; i++) {
         var row = i - 1;
         drawRow(row, 0);
     }
