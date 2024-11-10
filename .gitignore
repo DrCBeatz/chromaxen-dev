@@ -7,3 +7,4 @@ env.json
 .aws-sam/
 *.log
 docker-compose.override.yml
+frontend/node_modules/
