@@ -33,6 +33,10 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   comment             = "CloudFront distribution for Chromaxen frontend"
   default_root_object = "index.html"
 
+  lifecycle {
+      prevent_destroy = true
+    }
+
   aliases = ["chromaxen.com", "www.chromaxen.com"]  # Custom domain and subdomain
 
   default_cache_behavior {
@@ -52,8 +56,6 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
     default_ttl = 3600
     max_ttl     = 86400
   }
-
-  
 
     viewer_certificate {
     acm_certificate_arn      = aws_acm_certificate.chromaxen_certificate.arn
@@ -78,6 +80,10 @@ resource "aws_acm_certificate" "chromaxen_certificate" {
   domain_name               = "chromaxen.com"
   subject_alternative_names = ["www.chromaxen.com"]
   validation_method         = "DNS"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 
   tags = {
     Name = "Chromaxen Certificate"
@@ -121,11 +127,18 @@ resource "aws_s3_bucket_policy" "frontend_public_policy" {
     ]
   })
   provider = aws.us_east_2  # Specify provider for us-east-2
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Route 53 Hosted Zone
 resource "aws_route53_zone" "chromaxen_zone" {
   name = "chromaxen.com"
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # A Record (Alias) for the root domain pointing to CloudFront
