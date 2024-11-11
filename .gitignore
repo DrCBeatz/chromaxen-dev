@@ -8,3 +8,6 @@ env.json
 *.log
 docker-compose.override.yml
 frontend/node_modules/
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
