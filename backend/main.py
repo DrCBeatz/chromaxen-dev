@@ -90,20 +90,26 @@ def create_table(dynamodb):
 async def startup_event():
     try:
         print(f"DYNAMODB_ENDPOINT_URL: {DYNAMODB_ENDPOINT_URL}")
-        dynamodb = boto3.resource(
-            'dynamodb',
-            endpoint_url=DYNAMODB_ENDPOINT_URL,
-            region_name=REGION_NAME,
-            aws_access_key_id=AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-        )
 
         if ENVIRONMENT == 'development':
+            dynamodb = boto3.resource(
+                'dynamodb',
+                endpoint_url=DYNAMODB_ENDPOINT_URL,
+                region_name=REGION_NAME,
+                aws_access_key_id=AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+            )
             create_table(dynamodb)  # Always create the table if it doesn't exist
+        else:
+            dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
+
         app.state.table = dynamodb.Table(DYNAMODB_TABLE_NAME)
-        # Test connectivity
-        existing_tables = dynamodb.meta.client.list_tables()['TableNames']
-        print(f"Existing tables: {existing_tables}")
+
+        if ENVIRONMENT == 'development':
+            # Test connectivity
+            existing_tables = dynamodb.meta.client.list_tables()['TableNames']
+            print(f"Existing tables: {existing_tables}")
+
         print("DynamoDB resource initialized")
     except Exception as e:
         print(f"Exception during DynamoDB initialization: {e}")

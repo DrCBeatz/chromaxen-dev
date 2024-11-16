@@ -168,6 +168,7 @@ output "cloudfront_domain_name" {
 }
 
 resource "aws_dynamodb_table" "high_scores" {
+  provider     = aws.us_east_2
   name         = "HighScores"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "game"
@@ -189,10 +190,10 @@ resource "aws_dynamodb_table" "high_scores" {
   }
 
   global_secondary_index {
-    name               = "GameMovesIndex"
-    hash_key           = "game"
-    range_key          = "moves"
-    projection_type    = "ALL"
+    name            = "GameMovesIndex"
+    hash_key        = "game"
+    range_key       = "moves"
+    projection_type = "ALL"
   }
 
   tags = {
@@ -234,7 +235,6 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:Scan",
-          "dynamodb:ListTables",
           "dynamodb:DescribeTable"
         ],
         Effect   = "Allow",
@@ -248,9 +248,10 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
 }
 
 resource "aws_lambda_function" "chromaxen_backend" {
+  provider         = aws.us_east_2
   filename         = "${path.module}/lambda_function_payload.zip"
   function_name    = "ChromaxenBackend"
-  role             = aws_iam_role.lambda_role.arn
+  role             = aws_iam_role.lambda_role.arn  # IAM is global
   handler          = "main.handler"
   runtime          = "python3.9"
   timeout          = 30
@@ -266,26 +267,40 @@ resource "aws_lambda_function" "chromaxen_backend" {
 
 # AWS API Gateway REST API
 resource "aws_api_gateway_rest_api" "api_gateway" {
-  name = "ChromaxenAPI"
+  provider = aws.us_east_2
+  name     = "ChromaxenAPI"
 }
 
 # API Resource
 resource "aws_api_gateway_resource" "api_resource" {
+  provider    = aws.us_east_2
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
   path_part   = "{proxy+}"
 }
 
+
 # API Method
 resource "aws_api_gateway_method" "api_method" {
+  provider      = aws.us_east_2
   rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
   resource_id   = aws_api_gateway_resource.api_resource.id
   http_method   = "ANY"
   authorization = "NONE"
 }
 
+resource "aws_api_gateway_method" "options_method" {
+  provider      = aws.us_east_2
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  resource_id   = aws_api_gateway_resource.api_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+
 # API Integration
 resource "aws_api_gateway_integration" "lambda_integration" {
+  provider                = aws.us_east_2
   rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
   resource_id             = aws_api_gateway_resource.api_resource.id
   http_method             = aws_api_gateway_method.api_method.http_method
@@ -294,8 +309,23 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   uri                     = aws_lambda_function.chromaxen_backend.invoke_arn
 }
 
+resource "aws_api_gateway_integration" "options_integration" {
+  provider                = aws.us_east_2
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
+  resource_id             = aws_api_gateway_resource.api_resource.id
+  http_method             = aws_api_gateway_method.options_method.http_method
+  type                    = "MOCK"
+  request_templates       = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+
+  depends_on = [aws_api_gateway_method.options_method]
+}
+
+
 # Lambda Permission for API Gateway
 resource "aws_lambda_permission" "api_gateway_permission" {
+  provider      = aws.us_east_2
   function_name = aws_lambda_function.chromaxen_backend.function_name
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -305,6 +335,7 @@ resource "aws_lambda_permission" "api_gateway_permission" {
 
 # API Gateway Deployment
 resource "aws_api_gateway_deployment" "api_deployment" {
+  provider   = aws.us_east_2
   depends_on = [
     aws_api_gateway_integration.lambda_integration
   ]
@@ -317,26 +348,8 @@ output "api_gateway_invoke_url" {
   value = "${aws_api_gateway_deployment.api_deployment.invoke_url}"
 }
 
-resource "aws_api_gateway_method" "options_method" {
-  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
-  resource_id   = aws_api_gateway_resource.api_resource.id
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "options_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
-  resource_id             = aws_api_gateway_resource.api_resource.id
-  http_method             = aws_api_gateway_method.options_method.http_method
-  type                    = "MOCK"
-  request_templates       = {
-    "application/json" = "{\"statusCode\": 200}"
-  }
-
-  depends_on = [aws_api_gateway_method.options_method]
-}
-
 resource "aws_api_gateway_method_response" "options_response" {
+  provider    = aws.us_east_2
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   resource_id = aws_api_gateway_resource.api_resource.id
   http_method = aws_api_gateway_method.options_method.http_method
@@ -350,6 +363,7 @@ resource "aws_api_gateway_method_response" "options_response" {
 }
 
 resource "aws_api_gateway_integration_response" "options_integration_response" {
+  provider    = aws.us_east_2
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   resource_id = aws_api_gateway_resource.api_resource.id
   http_method = aws_api_gateway_method.options_method.http_method
