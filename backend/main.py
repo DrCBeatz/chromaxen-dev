@@ -11,9 +11,15 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 from mangum import Mangum
 
-DYNAMODB_ENDPOINT_URL = os.environ.get('DYNAMODB_ENDPOINT_URL', 'http://dynamodb-local:8000')
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'fakeMyKeyId')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', 'fakeSecretAccessKey')
+ENVIRONMENT = os.environt.get('ENVIRONMENT', 'development')
+
+if ENVIRONMENT == 'development':
+    DYNAMODB_ENDPOINT_URL = os.environ.get('DYNAMODB_ENDPOINT_URL', 'http://dynamodb-local:8000')
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'fakeMyKeyId')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', 'fakeSecretAccessKey')
+else: 
+    DYNAMODB_ENDPOINT_URL = AWS_ACCESS_KEY_ID = AWS_SECRET_ACCESS_KEY = None
+
 REGION_NAME = os.environ.get('AWS_REGION', 'us-east-2')
 DYNAMODB_TABLE_NAME = 'HighScores'
 
@@ -22,7 +28,7 @@ app = FastAPI()
 # CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify allowed origins
+    allow_origins=["https://chromaxen.com"],  # In production, specify allowed origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -91,7 +97,9 @@ async def startup_event():
             aws_access_key_id=AWS_ACCESS_KEY_ID,
             aws_secret_access_key=AWS_SECRET_ACCESS_KEY
         )
-        create_table(dynamodb)  # Always create the table if it doesn't exist
+
+        if ENVIRONMENT == 'development':
+            create_table(dynamodb)  # Always create the table if it doesn't exist
         app.state.table = dynamodb.Table(DYNAMODB_TABLE_NAME)
         # Test connectivity
         existing_tables = dynamodb.meta.client.list_tables()['TableNames']

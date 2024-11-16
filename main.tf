@@ -166,3 +166,106 @@ resource "aws_route53_record" "www_cname" {
 output "cloudfront_domain_name" {
   value = aws_cloudfront_distribution.frontend_distribution.domain_name
 }
+
+resource "aws_dynamodb_table" "high_scores" {
+  name         = "HighScores"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "game"
+  range_key    = "score_id"
+
+  attribute {
+    name = "game"
+    type = "S"
+  }
+
+  attribute {
+    name = "score_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "moves"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name               = "GameMovesIndex"
+    hash_key           = "game"
+    range_key          = "moves"
+    projection_type    = "ALL"
+  }
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_iam_role" "lambda_role" {
+  name = "chromaxen_lambda_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy_attachment" "lambda_policy_attach" {
+  name       = "lambda_policy_attach"
+  roles      = [aws_iam_role.lambda_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
+  name = "lambda_dynamodb_policy"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:Query"
+      ],
+      Effect   = "Allow",
+      Resource = aws_dynamodb_table.high_scores.arn
+    }]
+  })
+}
+
+resource "aws_lambda_function" "chromaxen_backend" {
+  filename         = "lambda_function_payload.zip"
+  function_name    = "ChromaxenBackend"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "main.handler"
+  runtime          = "python3.9"
+  timeout          = 30
+
+  environment {
+    variables = {
+      ENVIRONMENT = "production"
+    }
+  }
+}
+
+resource "aws_api_gateway_rest_api" "api_gateway" {
+  name = "ChromaxenAPI"
+}
+
+resource "aws_api_gateway_resource" "api_resource" {
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
+  path_part   = "api"
+}
+
+# Define methods and integrations...
+
+output "api_gateway_invoke_url" {
+  value = aws_api_gateway_deployment.api_gateway_invoke_url
+}
