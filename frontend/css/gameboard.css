@@ -221,13 +221,11 @@ body {
 @keyframes button_glow {
   from {
     background-color: #ccc;
-    right: 0em;
-    width: 3em;
+    transform: scale(1);
   }
   to {
     background-color: #fff;
-    right: -0.2em;
-    width: 3.5em;
+    transform: scale(1.1);
   }
 }
 .row_game_content {
