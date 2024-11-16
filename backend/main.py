@@ -10,6 +10,7 @@ import boto3
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 from mangum import Mangum
+from fastapi.responses import JSONResponse
 
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
@@ -25,10 +26,17 @@ DYNAMODB_TABLE_NAME = 'HighScores'
 
 app = FastAPI()
 
+origins = [
+    "https://chromaxen.com",
+    "https://www.chromaxen.com",
+    "http://localhost:8080",  # For local development
+    "http://127.0.0.1:8080",
+]
+
 # CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://chromaxen.com"],  # In production, specify allowed origins
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -133,7 +141,7 @@ async def submit_win_data(win_data: WinData, request: Request):
 
         table.put_item(Item=item)
         print(f"Received win data: {win_data}")
-        return {"message": "Win data received successfully"}
+        return {"message": "Win data received successfully"},
     except ClientError as e:
         print(f"Error saving data: {e.response['Error']['Message']}")
         import traceback
@@ -169,5 +177,11 @@ async def get_win_states(game: str, request: Request):
         print(f"Exception in get_win_states: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 # Add the Mangum handler after defining the app
-handler = Mangum(app)
+# handler = Mangum(app)
+
+def handler(event, context):
+    from mangum import Mangum
+    asgi_handler = Mangum(app)
+    return asgi_handler(event, context)

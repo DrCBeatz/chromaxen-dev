@@ -1,7 +1,21 @@
 // jscript/win.js
 
 var HIGH_SCORE_LENGTH = 10
-var API_BASE_URL = "http://localhost:8000"
+var API_BASE_URL = "";
+
+function setApiBaseUrl() {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        // Local development environment
+        API_BASE_URL = "http://localhost:8000";
+    } else {
+        // Production environment
+        API_BASE_URL = window.location.protocol + "//api.chromaxen.com";
+    }
+}
+
+// Call the function to set API_BASE_URL
+setApiBaseUrl();
+
 
 function win(){
     hide_solve_button()
