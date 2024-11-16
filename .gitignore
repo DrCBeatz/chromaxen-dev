@@ -11,3 +11,27 @@ frontend/node_modules/
 .terraform/
 terraform.tfstate
 terraform.tfstate.backup
+
+# Ignore Python dependency directories
+backend/__pycache__/
+backend/*.dist-info/
+backend/*.egg-info/
+backend/*.pyc
+backend/__pycache__/
+backend/*/__pycache__/
+backend/*.pyo
+backend/*/*.pyo
+backend/*.whl
+backend/*.zip
+backend/*.tar.gz
+
+# Ignore all directories except your code and essential files
+backend/*/
+!backend/main.py
+!backend/requirements.txt
+
+# Ignore the deployment package
+lambda_function_payload.zip
+backend/six.py
+backend/typing_extensions.py
+backend/ujson.cpython-39-x86_64-linux-gnu.so

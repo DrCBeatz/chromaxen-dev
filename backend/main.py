@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 from mangum import Mangum
 
-ENVIRONMENT = os.environt.get('ENVIRONMENT', 'development')
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
 if ENVIRONMENT == 'development':
     DYNAMODB_ENDPOINT_URL = os.environ.get('DYNAMODB_ENDPOINT_URL', 'http://dynamodb-local:8000')

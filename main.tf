@@ -227,25 +227,35 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [{
-      Action = [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:Query"
-      ],
-      Effect   = "Allow",
-      Resource = aws_dynamodb_table.high_scores.arn
-    }]
+    Statement = [
+      {
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:ListTables",
+          "dynamodb:DescribeTable"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          aws_dynamodb_table.high_scores.arn,
+          "${aws_dynamodb_table.high_scores.arn}/index/*"
+        ]
+      }
+    ]
   })
 }
 
 resource "aws_lambda_function" "chromaxen_backend" {
-  filename         = "lambda_function_payload.zip"
+  filename         = "${path.module}/lambda_function_payload.zip"
   function_name    = "ChromaxenBackend"
   role             = aws_iam_role.lambda_role.arn
   handler          = "main.handler"
   runtime          = "python3.9"
   timeout          = 30
+
+  source_code_hash = filebase64sha256("${path.module}/lambda_function_payload.zip")
 
   environment {
     variables = {
@@ -254,18 +264,100 @@ resource "aws_lambda_function" "chromaxen_backend" {
   }
 }
 
+# AWS API Gateway REST API
 resource "aws_api_gateway_rest_api" "api_gateway" {
   name = "ChromaxenAPI"
 }
 
+# API Resource
 resource "aws_api_gateway_resource" "api_resource" {
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
   parent_id   = aws_api_gateway_rest_api.api_gateway.root_resource_id
-  path_part   = "api"
+  path_part   = "{proxy+}"
 }
 
-# Define methods and integrations...
+# API Method
+resource "aws_api_gateway_method" "api_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  resource_id   = aws_api_gateway_resource.api_resource.id
+  http_method   = "ANY"
+  authorization = "NONE"
+}
 
+# API Integration
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
+  resource_id             = aws_api_gateway_resource.api_resource.id
+  http_method             = aws_api_gateway_method.api_method.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.chromaxen_backend.invoke_arn
+}
+
+# Lambda Permission for API Gateway
+resource "aws_lambda_permission" "api_gateway_permission" {
+  function_name = aws_lambda_function.chromaxen_backend.function_name
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.api_gateway.execution_arn}/*/*"
+}
+
+# API Gateway Deployment
+resource "aws_api_gateway_deployment" "api_deployment" {
+  depends_on = [
+    aws_api_gateway_integration.lambda_integration
+  ]
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  stage_name  = "prod"
+}
+
+# Output the Invoke URL
 output "api_gateway_invoke_url" {
-  value = aws_api_gateway_deployment.api_gateway_invoke_url
+  value = "${aws_api_gateway_deployment.api_deployment.invoke_url}"
+}
+
+resource "aws_api_gateway_method" "options_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api_gateway.id
+  resource_id   = aws_api_gateway_resource.api_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "options_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
+  resource_id             = aws_api_gateway_resource.api_resource.id
+  http_method             = aws_api_gateway_method.options_method.http_method
+  type                    = "MOCK"
+  request_templates       = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+
+  depends_on = [aws_api_gateway_method.options_method]
+}
+
+resource "aws_api_gateway_method_response" "options_response" {
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  resource_id = aws_api_gateway_resource.api_resource.id
+  http_method = aws_api_gateway_method.options_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  resource_id = aws_api_gateway_resource.api_resource.id
+  http_method = aws_api_gateway_method.options_method.http_method
+  status_code = aws_api_gateway_method_response.options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
 }
