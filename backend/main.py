@@ -9,8 +9,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import boto3
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
-from mangum import Mangum
-from fastapi.responses import JSONResponse
 
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
@@ -96,6 +94,8 @@ def create_table(dynamodb):
 
 @app.on_event("startup")
 async def startup_event():
+    if os.environ.get('TESTING'):
+        return
     try:
         print(f"DYNAMODB_ENDPOINT_URL: {DYNAMODB_ENDPOINT_URL}")
 
@@ -141,7 +141,7 @@ async def submit_win_data(win_data: WinData, request: Request):
 
         table.put_item(Item=item)
         print(f"Received win data: {win_data}")
-        return {"message": "Win data received successfully"},
+        return {"message": "Win data received successfully"}
     except ClientError as e:
         print(f"Error saving data: {e.response['Error']['Message']}")
         import traceback
