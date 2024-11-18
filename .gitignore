@@ -29,6 +29,8 @@ backend/*.tar.gz
 backend/*/
 !backend/main.py
 !backend/requirements.txt
+!backend/tests/
+!backend/tests/*.py
 
 # Ignore the deployment package
 lambda_function_payload.zip

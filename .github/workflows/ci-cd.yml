@@ -26,6 +26,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-test.txt
 
+      - name: List backend directory contents
+        run: |
+          ls -la backend
+        
       - name: Run tests
         working-directory: backend
         env:
