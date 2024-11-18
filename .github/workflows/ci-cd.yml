@@ -34,6 +34,7 @@ jobs:
         working-directory: backend
         env:
           TESTING: '1'
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest tests/
 
