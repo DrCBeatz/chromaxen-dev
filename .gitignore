@@ -39,3 +39,4 @@ backend/typing_extensions.py
 backend/ujson.cpython-39-x86_64-linux-gnu.so
 
 *.fr.txt
+test_bash_scripts.txt

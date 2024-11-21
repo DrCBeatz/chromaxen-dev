@@ -62,7 +62,7 @@ def test_submit_win_data(mock_dynamodb_fixture):
         "name": "Tester"
     })
     assert response.status_code == 200
-    assert response.json() == {"message": "Win data received successfully test"}
+    assert response.json() == {"message": "Win data received successfully"}
 
 def test_get_win_states(mock_dynamodb_fixture):
     # Submit sample data
