@@ -141,7 +141,7 @@ async def submit_win_data(win_data: WinData, request: Request):
 
         table.put_item(Item=item)
         print(f"Received win data: {win_data}")
-        return {"message": "Win data received successfully"}
+        return {"message": "Win data received successfully test"}
     except ClientError as e:
         print(f"Error saving data: {e.response['Error']['Message']}")
         import traceback
