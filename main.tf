@@ -1,5 +1,15 @@
 # main .tf
 
+terraform {
+  backend "s3" {
+    bucket         = "chromaxen-terraform-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "us-east-2"
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
+  }
+}
+
 # Primary provider for us-east-1, used for CloudFront and ACM
 provider "aws" {
   region = "us-east-1"  # CloudFront and ACM require us-east-1
