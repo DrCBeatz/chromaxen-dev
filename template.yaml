@@ -1,6 +1,6 @@
 # template.yaml
 
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Chromaxen Backend Serverless Application
 
@@ -8,7 +8,7 @@ Globals:
   Function:
     Timeout: 30
     MemorySize: 128
-    Runtime: python3.9  # Moved Runtime here for consistency
+    Runtime: python3.9
   Api:
     Cors:
       AllowOrigin: "'*'"
@@ -19,12 +19,12 @@ Resources:
   ChromaxenFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: backend/  # Ensure this path is correct
-      Handler: main.handler  # Ensure this points to main.py and handler function
+      CodeUri: backend/
+      Handler: main.handler
       PackageType: Zip
       Policies:
         - AWSLambdaBasicExecutionRole
-        - Version: '2012-10-17'
+        - Version: "2012-10-17"
           Statement:
             - Effect: Allow
               Action:
@@ -33,7 +33,7 @@ Resources:
       Environment:
         Variables:
           DYNAMODB_TABLE_NAME: HighScores
-          # Include other environment variables here
+
       Events:
         WinState:
           Type: Api
@@ -49,10 +49,10 @@ Resources:
       BuildMethod: python3.9
       BuildProperties:
         Exclude:
-          - 'Dockerfile*'
-          - '.dockerignore'
-          - '.gitignore'
-          - '.samignore'
-          - '*.pyc'
-          - '__pycache__/*'
-          - 'dockerfiles/**'
+          - "Dockerfile*"
+          - ".dockerignore"
+          - ".gitignore"
+          - ".samignore"
+          - "*.pyc"
+          - "__pycache__/*"
+          - "dockerfiles/**"
