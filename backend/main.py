@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import boto3
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
+from mangum import Mangum
 
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
@@ -179,9 +180,4 @@ async def get_win_states(game: str, request: Request):
 
 
 # Add the Mangum handler after defining the app
-# handler = Mangum(app)
-
-def handler(event, context):
-    from mangum import Mangum
-    asgi_handler = Mangum(app)
-    return asgi_handler(event, context)
+handler = Mangum(app)
