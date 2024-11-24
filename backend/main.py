@@ -28,8 +28,8 @@ app = FastAPI()
 origins = [
     "https://chromaxen.com",
     "https://www.chromaxen.com",
-    "http://localhost:8080",  # For local development
-    "http://127.0.0.1:8080",
+    "http://localhost:5173",  # For local development
+    "http://127.0.0.1:5173",
 ]
 
 # CORS middleware to allow cross-origin requests

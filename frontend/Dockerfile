@@ -1,18 +1,25 @@
 # frontend/Dockerfile
 
-FROM python:3.9-slim
+# Use an official Node.js runtime as the base image
+FROM node:18-alpine
 
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install watchdog for hot reloading (optional)
-RUN pip install watchdog
+# Copy package.json and package-lock.json (if available)
+COPY package*.json ./
 
-# Expose port 8000
-EXPOSE 8080 
+# Install frontend dependencies
+RUN npm install
 
-# Copy the frontend files into the container
-COPY . /app
+# Copy the rest of the frontend application code
+COPY . .
 
-# Command to run the server
-CMD ["python", "-m", "http.server", "8080", "--bind", "0.0.0.0"]
+# Expose the port Vite uses (default is 5173)
+EXPOSE 5173
 
+# Set environment variable for Docker's file change notifications (optional but recommended)
+ENV CHOKIDAR_USEPOLLING=true
+
+# Command to run the Vite development server
+CMD ["npm", "run", "dev", "--", "--host"]
