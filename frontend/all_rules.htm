@@ -1,32 +1,31 @@
 <!-- frontend/all_rules.htm -->
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" type="text/css" href="css/gameboard.css" />
-        <link rel="stylesheet" href="css/rules_tester.css">
-        <title>all_rules</title>
-    </head>
-    <body>
-        <div id="all_rules_container"></div>
-        <div id="tester_container">
-            <div id="buttons">
-                <span id="back_button" class="button" onmousedown="show_prev_rule()">prev</span>
-                <span id="back_button" class="button" onmousedown="back_to_rules()">all_rules</span>
-                <span id="back_button" class="button" onmousedown="show_next_rule()">next</span>
-                <span id="back_button" class="button" onmousedown="refresh_rule()">refresh</span>
-            </div>
 
-            <div id="rule_display"></div>
-            <div id="img_display"></div>
-            <div id="old_img_display"></div>
-            <table id="color_test_table"></table>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="css/gameboard.css" />
+    <link rel="stylesheet" href="css/rules_tester.css">
+    <title>all_rules</title>
+    <script defer type="module" src="jscript/all_rules.js"></script>
+</head>
+
+<body>
+    <div id="all_rules_container"></div>
+    <div id="tester_container">
+        <div id="buttons">
+            <span id="back_button_prev" class="button">prev</span>
+            <span id="back_button_all_rules" class="button">all_rules</span>
+            <span id="back_button_next" class="button">next</span>
+            <span id="back_button_refresh" class="button">refresh</span>
         </div>
-        <script src="jscript/get_rules.js" charset="utf-8"></script>
-        <script src="jscript/gamelogic.js" charset="utf-8"></script>
-        <script src="jscript/gameUI.js" charset="utf-8"></script>
-        <script type="text/javascript">
-            get_rules_list(document.getElementById('all_rules_container'))
-        </script>
-    </body>
+
+        <div id="rule_display"></div>
+        <div id="img_display"></div>
+        <div id="old_img_display"></div>
+        <table id="color_test_table"></table>
+    </div>
+</body>
+
 </html>
