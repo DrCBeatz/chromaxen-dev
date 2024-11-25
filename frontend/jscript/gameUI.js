@@ -1,22 +1,23 @@
 // jscript/gameUI.js
 
-var COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742']
-var COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black']
+import { gameState } from './state.js';
+import { rule_dragenter, rule_dragover, rule_dragleave, rule_drop, rule_dragstart, rule_dragend, rule_mousedown, rule_mouseup } from './controllers.js';
+import { nextMove, nextByRule } from './gamelogic.js';
 
-var current_cell_overlay_left_offset = 11.46
+export const COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742']
+export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black']
 
-var show_rows_ahead = true
+export const current_cell_overlay_left_offset = 11.46
 
-
-function init_rows() {
+export function init_rows() {
 	var gameboard_el = document.getElementById('gameboard');
-	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
+	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
 
 
 	clearInterval(entry_page.anim_interval)
 	document.body.style.backgroundColor = "#bdcfcf"
 
-	for (var i = 0; i < ROWS; i++) {
+	for (var i = 0; i < gameState.ROWS; i++) {
 		var row_tr = document.createElement('TR');
 
 		// Attach event listeners to the table row
@@ -41,22 +42,22 @@ function init_rows() {
 		row_label_td.appendChild(row_label_div);
 		row_tr.appendChild(row_label_td);
 
-		for (var j = 0; j < COLS; j++) {
+		for (var j = 0; j < gameState.COLS; j++) {
 			var cell_td = document.createElement('TD')
 			cell_td.className = "game_cell_td"
 			var cell_div = document.createElement('DIV')
-			if (j == CURRENT_MOVE) {
-				if (COOL_TRANSITIONS_ENABLED) {
+			if (j == gameState.CURRENT_MOVE) {
+				if (gameState.COOL_TRANSITIONS_ENABLED) {
 					cell_div.className = "game_cell_invisible"
 					document.getElementById('gameboard_overlay_container').style.opacity = "1"
 				} else {
 					cell_div.className = "game_cell_current"
 				}
 				////////////////////
-			} else if (j == COLS - 1) {
+			} else if (j == gameState.COLS - 1) {
 				cell_div.className = "game_cell_goal"
-				cell_div.style.backgroundColor = COLORS[GOALS[i]]
-			} else if (j < CURRENT_MOVE) {
+				cell_div.style.backgroundColor = COLORS[gameState.GOALS[i]]
+			} else if (j < gameState.CURRENT_MOVE) {
 				cell_div.className = "game_cell_past"
 			} else {
 				cell_div.className = "game_cell_future"
@@ -73,16 +74,16 @@ function init_rows() {
 	//////////////////////////////
 	var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
 	gameboard_overlay_el.innerHTML = ""
-	gameboard_overlay_el.style.top = (-11.7 * ROWS) + "em"
-	gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * CURRENT_MOVE) + "em"
-	for (var i = 0; i < ROWS; i++) {
+	gameboard_overlay_el.style.top = (-11.7 * gameState.ROWS) + "em"
+	gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
+	for (var i = 0; i < gameState.ROWS; i++) {
 		var cell_overlay_container_el = document.createElement('DIV')
 		cell_overlay_container_el.className = "gameboard_overlay_cell"
 
 		var cell_overlay_el = document.createElement('DIV')
 		cell_overlay_el.className = "game_cell_current"
 		cell_overlay_el.id = "current_cell_" + i
-		var state = CA_STATE_MATRIX[i][CURRENT_MOVE]
+		var state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
 		cell_overlay_el.style.backgroundColor = COLORS[state]
 		cell_overlay_container_el.appendChild(cell_overlay_el)
 		gameboard_overlay_el.appendChild(cell_overlay_container_el)
@@ -90,38 +91,50 @@ function init_rows() {
 	////////////////////////////////
 }
 
-function drawRow(id, hint, new_rule) {
+export function drawRow(id, hint, new_rule) {
 	var states = [];
 	var wouldBeSolved = false;
 
 	// Check if we're dragging over the source row
-	var isSourceRow = (dragSrcEl_ && parseInt(dragSrcEl_.id.split('_')[1]) === id);
+	var isSourceRow = (gameState.dragSrcEl_ && parseInt(gameState.dragSrcEl_.id.split('_')[1]) === id);
+
+	// **Add this check to ensure CA_STATE_MATRIX[id] exists**
+	if (!gameState.CA_STATE_MATRIX[id]) {
+		console.error(`CA_STATE_MATRIX[${id}] is undefined`);
+		return; // Exit the function if undefined
+	}
+
+	// **Add this check to ensure the last element exists**
+	if (typeof gameState.CA_STATE_MATRIX[id][gameState.COLS - 1] === 'undefined') {
+		console.error(`CA_STATE_MATRIX[${id}][${gameState.COLS - 1}] is undefined`);
+		return; // Exit the function if undefined
+	}
 
 	// Determine if the row is already solved
-	var isAlreadySolved = CA_STATE_MATRIX[id][COLS - 1] === GOALS[id];
+	var isAlreadySolved = gameState.CA_STATE_MATRIX[id][gameState.COLS - 1] === gameState.GOALS[id];
 
 	if (new_rule !== undefined && !isSourceRow) {
 		// Use existing states up to the current move
-		for (var i = 0; i <= CURRENT_MOVE; i++) {
-			states.push(CA_STATE_MATRIX[id][i]);
+		for (var i = 0; i <= gameState.CURRENT_MOVE; i++) {
+			states.push(gameState.CA_STATE_MATRIX[id][i]);
 		}
 
 		// Recalculate future states starting from the current move using the new rule
-		var state = CA_STATE_MATRIX[id][CURRENT_MOVE];
-		for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
+		var state = gameState.CA_STATE_MATRIX[id][gameState.CURRENT_MOVE];
+		for (var j = gameState.CURRENT_MOVE + 1; j < gameState.COLS; j++) {
 			state = nextByRule(state, new_rule);
 			states.push(state);
 		}
 
 		// Check if the row would be solved
-		wouldBeSolved = states[COLS - 1] === GOALS[id];
+		wouldBeSolved = states[gameState.COLS - 1] === gameState.GOALS[id];
 	} else {
-		states = CA_STATE_MATRIX[id];
-		wouldBeSolved = states[COLS - 1] === GOALS[id];
+		states = gameState.CA_STATE_MATRIX[id];
+		wouldBeSolved = states[gameState.COLS - 1] === gameState.GOALS[id];
 	}
 
 	// Update the goal cell display based on whether the row is solved or would be solved
-	var goalCell = document.getElementById('cell_' + id + '_' + (COLS - 1));
+	var goalCell = document.getElementById('cell_' + id + '_' + (gameState.COLS - 1));
 
 	if (isAlreadySolved) {
 		// If the row is already solved, ensure it retains the 'Solved' appearance
@@ -131,7 +144,7 @@ function drawRow(id, hint, new_rule) {
 	} else if (wouldBeSolved && hint && new_rule !== undefined && !isSourceRow) {
 		// Show the preview only if the row is not already solved and not the source row
 		goalCell.className = 'game_cell_goal_solved_preview';
-		goalCell.style.color = COLORS[GOALS[id]]; // Set the color for the circle
+		goalCell.style.color = COLORS[gameState.GOALS[id]]; // Set the color for the circle
 		goalCell.innerHTML = '<span>Will be Solved!</span>';
 	} else {
 		// Default goal cell appearance
@@ -141,25 +154,25 @@ function drawRow(id, hint, new_rule) {
 	}
 
 	// Update the cell colors for each state
-	for (var i = 0; i < COLS - 1; i++) {
+	for (var i = 0; i < gameState.COLS - 1; i++) {
 		var state = states[i];
 		var cell_id = 'cell_' + id + '_' + i;
 		var cell_el = document.getElementById(cell_id);
 		cell_el.style.backgroundColor = COLORS[state];
 
-		if (i === CURRENT_MOVE) {
-			if (COOL_TRANSITIONS_ENABLED) {
+		if (i === gameState.CURRENT_MOVE) {
+			if (gameState.COOL_TRANSITIONS_ENABLED) {
 				cell_el.className = 'game_cell_invisible';
 				document.getElementById('gameboard_overlay_container').style.display = 'block';
 			} else {
 				document.getElementById('gameboard_overlay_container').style.display = 'none';
 				cell_el.className = 'game_cell_current';
 			}
-		} else if (i < CURRENT_MOVE) {
+		} else if (i < gameState.CURRENT_MOVE) {
 			cell_el.className = 'game_cell_past';
 		} else {
 			cell_el.className = 'game_cell_future';
-			if (show_rows_ahead || hint) {
+			if (gameState.show_rows_ahead || hint) {
 				cell_el.style.backgroundColor = COLORS[state];
 			} else {
 				cell_el.style.backgroundColor = '#bcc';
@@ -168,84 +181,82 @@ function drawRow(id, hint, new_rule) {
 	}
 }
 
-function drawRows() {
-	for (var i = 0; i < ROWS; i++) {
+export function drawRows() {
+	for (var i = 0; i < gameState.ROWS; i++) {
 		drawRow(i, 0);	// draw row, hint=0
 	}
 }
 
-function update_title_header() {
+export function update_title_header() {
 	//update title header
 	var header_el = document.getElementById('game_title_display')
-	header_el.innerHTML = GAME_NAME//"Game "+(PRESET+1)
+	header_el.innerHTML = gameState.GAME_NAME//"Game "+(PRESET+1)
 
 	var desc_el = document.getElementById('game_desc_display')
-	desc_el.innerHTML = GAME_DESC
+	desc_el.innerHTML = gameState.GAME_DESC
 }
 
-function disable_retreat_button() {
+export function disable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button_disabled"
-	// retreat_btn.onclick = function () { return false }
 	retreat_btn.style.cursor = 'default';
 }
 
-function enable_retreat_button() {
+export function enable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button"
 	retreat_btn.style.cursor = 'pointer';
-	// retreat_btn.onclick = retreat
 }
 
-function disable_advance_button() {
+export function disable_advance_button() {
 	var advance_btn = document.getElementById('update_button')
 	advance_btn.className = "button_disabled"
 	advance_btn.onclick = function () { return false }
 }
 
-function enable_advance_button() {
+export function enable_advance_button() {
 	var advance_btn = document.getElementById('update_button')
 	advance_btn.className = "button"
 	advance_btn.onclick = nextMove
 }
 
-function reveal_solve_button() {
+export function reveal_solve_button() {
 	document.getElementById('solve_button').style.display = "block"
 }
 
-function hide_solve_button() {
+export function hide_solve_button() {
 	document.getElementById('solve_button').style.display = "none"
 }
 
-function update_dragndrop_style_display() {
+export function update_dragndrop_style_display() {
 	var style_display_el = document.getElementById('dragndrop_style_display')
-	if (SWAP_ENABLED) {
+	if (gameState.SWAP_ENABLED) {
 		style_display_el.innerHTML = "Style: Swap"
 	} else {
 		style_display_el.innerHTML = "Style: Copy and Replace"
 	}
 }
 
-function solve() {
+export function solve() {
 	disable_retreat_button()
 	nextMove()
-	--MOVE_COUNT
+	--gameState.MOVE_COUNT
 	var interval = setInterval(function () {
 		nextMove()
-		--MOVE_COUNT
-		if (CURRENT_MOVE == COLS - 1) { clearInterval(interval) }
+		--gameState.MOVE_COUNT
+		if (gameState.CURRENT_MOVE == gameState.COLS - 1) { clearInterval(interval) }
 	}, 850)
 }
 
-function display_rules() {
-	for (var i = 0; i < ROWS; i++) {
+export function display_rules() {
+	for (var i = 0; i < gameState.ROWS; i++) {
 		display_rule(i)
 	}
 }
 
-function display_rule(idx) {
+export function display_rule(idx) {
 	// Set the display.
-	var rule = RULES[idx]
+	var rule = gameState.RULES[idx]
 
 	var div_id = "label_" + idx
 	var theDiv = document.getElementById(div_id)
@@ -262,13 +273,13 @@ function display_rule(idx) {
 	theDiv.setAttribute('data-rule', rule)
 }
 
-function transition_states_animation(callback, is_forwards) {
-	is_cool_transitions_animating = true
+export function transition_states_animation(callback, is_forwards) {
+	gameState.is_cool_transitions_animating = true
 	if (is_forwards) {
-		for (var i = 0; i < ROWS; i++) {
-			var next_el = document.getElementById('cell_' + i + '_' + (CURRENT_MOVE))
+		for (var i = 0; i < gameState.ROWS; i++) {
+			var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
 
-			var next_state = CA_STATE_MATRIX[i][CURRENT_MOVE]
+			var next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
 
 			next_el.style.display = "none"
 
@@ -278,8 +289,8 @@ function transition_states_animation(callback, is_forwards) {
 			overlay_el.style.backgroundColor = COLORS[next_state]
 		}
 		setTimeout(function () {
-			for (var i = 0; i < ROWS; i++) {
-				var next_el = document.getElementById('cell_' + i + '_' + (CURRENT_MOVE))
+			for (var i = 0; i < gameState.ROWS; i++) {
+				var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
 
 				next_el.style.display = "block"
 
@@ -289,20 +300,20 @@ function transition_states_animation(callback, is_forwards) {
 				overlay_el.className = "game_cell_current"
 			}
 			var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
-			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * CURRENT_MOVE) + "em"
+			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
 
-			is_cool_transitions_animating = false
+			gameState.is_cool_transitions_animating = false
 
 			callback()
-			if (CURRENT_MOVE == (COLS - 1)) {
+			if (gameState.CURRENT_MOVE == (gameState.COLS - 1)) {
 				document.getElementById('gameboard_overlay_container').style.opacity = '0'
 			}
 		}, 800)
 	} else {
-		for (var i = 0; i < ROWS; i++) {
-			var next_el = document.getElementById('cell_' + i + '_' + (CURRENT_MOVE))
+		for (let i = 0; i < gameState.ROWS; i++) {
+			var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
 
-			var next_state = CA_STATE_MATRIX[i][CURRENT_MOVE]
+			var next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
 
 			next_el.style.display = "none"
 
@@ -312,8 +323,8 @@ function transition_states_animation(callback, is_forwards) {
 			overlay_el.style.backgroundColor = COLORS[next_state]
 		}
 		setTimeout(function () {
-			for (var i = 0; i < ROWS; i++) {
-				var next_el = document.getElementById('cell_' + i + '_' + (CURRENT_MOVE))
+			for (var i = 0; i < gameState.ROWS; i++) {
+				var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
 
 				next_el.style.display = "block"
 
@@ -322,39 +333,39 @@ function transition_states_animation(callback, is_forwards) {
 				overlay_el.className = "game_cell_current"
 			}
 			var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
-			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * CURRENT_MOVE) + "em"
+			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
 
-			is_cool_transitions_animating = false
+			gameState.is_cool_transitions_animating = false
 
 			callback()
 		}, 800)
 	}
 }
 
-function hide_screens() {
+export function hide_screens() {
 	var win_screen_element = document.getElementById('win_screen_container')
 	win_screen_element.style.display = 'none'
 	var lose_screen_element = document.getElementById('lose_screen_container')
 	lose_screen_element.style.display = 'none'
 }
 
-function set_preset_menu() {
+export function set_preset_menu() {
 	var select_el = document.getElementById('preset_select_el')
-	select_el.value = GAME_NAME//"Game "+(PRESET+1)
+	select_el.value = gameState.GAME_NAME//"Game "+(PRESET+1)
 }
 
-function init_preset_menu() {
+export function init_preset_menu() {
 	var select_el = document.getElementById('preset_select_el');
 	select_el.innerHTML = "";
-	for (var i = 0; i < GAME_PRESETS.length; i++) {
+	for (var i = 0; i < gameState.GAME_PRESETS.length; i++) {
 		var option_el = document.createElement('OPTION');
-		option_el.innerHTML = GAME_PRESETS[i].name; // or use "Game " + (i + 1) if you prefer
+		option_el.innerHTML = gameState.GAME_PRESETS[i].name; // or use "Game " + (i + 1) if you prefer
 		select_el.appendChild(option_el);
 	}
-	select_el.selectedIndex = PRESET;
+	select_el.selectedIndex = gameState.PRESET;
 }
 
-function toggle_preset_menu() {
+export function toggle_preset_menu() {
 	var preset_el = document.getElementById('preset_select_el')
 	if (preset_el.style.display == 'block') {
 		preset_el.style.display = 'none'
@@ -363,21 +374,21 @@ function toggle_preset_menu() {
 	}
 }
 
-function display_preset_features() {
-	if (PRESET == 0) {
+export function display_preset_features() {
+	if (gameState.PRESET == 0) {
 		document.getElementById('prev_button').style.display = 'none'
 		document.getElementById('next_button').style.display = 'block'
-	} else if (PRESET == -1) {
+	} else if (gameState.PRESET == -1) {
 		document.getElementById('prev_button').style.display = 'none'
 		document.getElementById('next_button').style.display = 'none'
-	} else if (PRESET == (GAME_PRESETS.length - 1)) {
+	} else if (gameState.PRESET == (gameState.GAME_PRESETS.length - 1)) {
 		document.getElementById('next_button').style.display = 'none'
 	} else {
 		document.getElementById('prev_button').style.display = 'block'
 		document.getElementById('next_button').style.display = 'block'
 	}
 
-	if (PRESET == -1) {
+	if (gameState.PRESET == -1) {
 		document.getElementById('random_button').style.display = 'block'
 		document.getElementById('preset_select_el').style.display = 'none'
 	} else {
@@ -404,18 +415,18 @@ function display_preset_features() {
 	//}
 }
 
-function resize() {
-	if (ROWS > 4) {
-		document.body.style.fontSize = (14 - (ROWS - 4)) + 'px'
+export function resize() {
+	if (gameState.ROWS > 4) {
+		document.body.style.fontSize = (14 - (gameState.ROWS - 4)) + 'px'
 	} else {
 		document.body.style.fontSize = '14px'
 	}
 }
 
-function updateMoveCounter() {
-	document.getElementById("update_counter").innerHTML = MOVE_COUNT
+export function updateMoveCounter() {
+	document.getElementById("update_counter").innerHTML = gameState.MOVE_COUNT
 }
-function showSolvedRows(flag) {
-	SHOW_SOLVED_ROWS = flag
+export function showSolvedRows(flag) {
+	gameState.SHOW_SOLVED_ROWS = flag
 	drawRows()
 }

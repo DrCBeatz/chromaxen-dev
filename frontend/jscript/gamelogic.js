@@ -1,45 +1,54 @@
 // jscript/gamelogic.js
 
+import { gameState } from './state.js';
+import { get_rules_list } from './get_rules.js';
+import { loadPresets } from './presets.js';
+import { loadPreset } from './presetMenu.js';
+import { Timer } from './timer.js';
+import { updateMoveCounter, resize, init_rows, drawRows, display_rules, update_title_header, update_dragndrop_style_display, init_preset_menu, display_preset_features, enable_advance_button, hide_solve_button, display_rule, transition_states_animation, hide_screens, set_preset_menu, reveal_solve_button, solve, disable_advance_button } from './gameUI.js';
+import { win } from './win.js';
+
 // Game play globals.
-var ROWS = 8
-var COLS = 8
-var RULES = [127, 53, 61, 43, 41, 17, 123, 213]
-var GOALS = [0, 0, 0, 0, 0, 0, 0, 0]
-var PRESET
+gameState.ROWS = 8
+gameState.COLS = 8
+gameState.RULES = [127, 53, 61, 43, 41, 17, 123, 213]
+gameState.GOALS = [0, 0, 0, 0, 0, 0, 0, 0]
+gameState.PRESET
 
-var moveHistory = []; // Stack to keep track of game moves
+gameState.moveHistory = []; // Stack to keep track of game moves
 
-var CURRENT_MOVE = 0
-var DRAG_COUNT = 0
-var MOVE_COUNT = 0
+gameState.CURRENT_MOVE = 0
+gameState.DRAG_COUNT = 0
+gameState.MOVE_COUNT = 0
 
-var TIME = 0
-var timer
+gameState.TIME = 0
+gameState.timer = null;
 
-var SWAP_ENABLED = true
-var SHOW_SOLVED_ROWS = false
-var COOL_TRANSITIONS_ENABLED = true
-var is_cool_transitions_animating = false
+gameState.SWAP_ENABLED = true
+gameState.SHOW_SOLVED_ROWS = false
+gameState.COOL_TRANSITIONS_ENABLED = true
+gameState.is_cool_transitions_animating = false
 
 // Instantiate 8x8 state matrix
-var CA_STATE_MATRIX = []
+gameState.CA_STATE_MATRIX = []
 
-var GAME_PRESETS = []
+gameState.GAME_PRESETS = []
 
-var GAME_XML_URL = "games.xml"
+gameState.GAME_XML_URL = "games.xml"
 
-var GAME_NAME
-var GAME_DESC
+gameState.GAME_NAME
+gameState.GAME_DESC
+gameState.SEEDS
 
-var initial_state = {}
+gameState.initial_state = {}
 
-function init_game() {
+export function init_game() {
 	if (localStorage.current_move != undefined) {
 		document.getElementById('entry_continue_button').style.display = "block"
 	}
 
 	get_rules_list(document.getElementById('all_rules'))
-	loadPresets("games/" + GAME_XML_URL, function (xml) {
+	loadPresets("games/" + gameState.GAME_XML_URL, function (xml) {
 		var game_nodes = xml.getElementsByTagName("game")
 		for (var i = 0; i < game_nodes.length; i++) {
 			var game = {
@@ -64,14 +73,14 @@ function init_game() {
 					game_nodes[i].getElementsByTagName("swap_enabled")[0].childNodes[0].nodeValue
 				)
 			}
-			GAME_PRESETS.push(game)
+			gameState.GAME_PRESETS.push(game)
 		}
 
 		start_game(undefined, false)
 	})
 }
 
-function parse_comma_number_list(str) {
+export function parse_comma_number_list(str) {
 	var str_split = str.split(",")
 	var new_array = []
 	for (var i = 0; i < str_split.length; i++) {
@@ -86,14 +95,14 @@ function parse_comma_number_list(str) {
 	return new_array
 }
 
-function start_game(preset) {
-	timer = new Timer(document.getElementById('timer'), function (_this) {
+export function start_game(preset) {
+	gameState.timer = new Timer(document.getElementById('timer'), function (_this) {
 		localStorage.time = _this.elapsed_ms;
 	});
 
-	moveHistory = JSON.parse(localStorage.moveHistory || '[]');
+	gameState.moveHistory = JSON.parse(localStorage.moveHistory || '[]');
 
-	if (MOVE_COUNT === 0) {
+	if (gameState.MOVE_COUNT === 0) {
 		disable_retreat_button();
 	} else {
 		enable_retreat_button();
@@ -101,32 +110,33 @@ function start_game(preset) {
 
 	if (preset !== undefined) {
 		// Set PRESET and update localStorage.preset
-		PRESET = preset;
-		localStorage.preset = PRESET;
+		gameState.PRESET = preset;
+		localStorage.preset = gameState.PRESET;
 		loadPreset(preset);
 	} else {
 		if (localStorage.initial_state !== undefined)
-			initial_state = JSON.parse(localStorage.initial_state);
+			gameState.initial_state = JSON.parse(localStorage.initial_state);
 
-		PRESET = parseInt(localStorage.preset) || 0;
-		CURRENT_MOVE = parseInt(localStorage.current_move) || 0;
-		DRAG_COUNT = parseInt(localStorage.drag_count) || 0;
-		MOVE_COUNT = parseInt(localStorage.move_count) || 0;
+		gameState.PRESET = parseInt(localStorage.preset) || 0;
+		gameState.CURRENT_MOVE = parseInt(localStorage.current_move) || 0;
+		gameState.DRAG_COUNT = parseInt(localStorage.drag_count) || 0;
+		gameState.MOVE_COUNT = parseInt(localStorage.move_count) || 0;
 		updateMoveCounter();
 
-		TIME = parseInt(localStorage.time) || 0;
-		timer.set_time(TIME);
+		gameState.TIME = parseInt(localStorage.time) || 0;
+		gameState.timer.set_time(gameState.TIME);
 
-		ROWS = parseInt(localStorage.rows) || 8;
-		COLS = parseInt(localStorage.cols) || 8;
-		RULES = JSON.parse(localStorage.rules || '[]');
-		CA_STATE_MATRIX = JSON.parse(localStorage.state_matrix || '[]');
-		GOALS = JSON.parse(localStorage.goals || '[]');
+		gameState.ROWS = parseInt(localStorage.rows) || 8;
+		gameState.COLS = parseInt(localStorage.cols) || 8;
+		gameState.RULES = JSON.parse(localStorage.rules || '[]');
+		gameState.CA_STATE_MATRIX = JSON.parse(localStorage.state_matrix || '[]');
+		gameState.GOALS = JSON.parse(localStorage.goals || '[]');
 
-		SWAP_ENABLED = JSON.parse(localStorage.swap_enabled || 'true');
-		show_rows_ahead = JSON.parse(localStorage.show_rows_ahead || 'true');
-		GAME_NAME = localStorage.game_name || 'Default Game';
-		GAME_DESC = localStorage.game_desc || '';
+		gameState.SWAP_ENABLED = JSON.parse(localStorage.swap_enabled || 'true');
+		gameState.show_rows_ahead = JSON.parse(localStorage.show_rows_ahead || 'true');
+		gameState.GAME_NAME = localStorage.game_name || 'Default Game';
+		gameState.GAME_DESC = localStorage.game_desc || '';
+
 
 		// Initialize the game board
 		resize();
@@ -139,12 +149,12 @@ function start_game(preset) {
 		display_preset_features();
 
 		// Restore the state of advance and retreat buttons
-		if (CURRENT_MOVE === 0) {
+		if (gameState.CURRENT_MOVE === 0) {
 			disable_retreat_button();
 		} else {
 			enable_retreat_button();
 		}
-		if (CURRENT_MOVE === COLS - 2 && !test_win()) {
+		if (gameState.CURRENT_MOVE === gameState.COLS - 2 && !test_win()) {
 			disable_advance_button();
 		} else {
 			enable_advance_button();
@@ -157,10 +167,10 @@ function start_game(preset) {
 		}
 	}
 
-	timer.start();
+	gameState.timer.start();
 }
 
-function create_random_preset() {
+export function create_random_preset() {
 	var game = {}
 	game.rows = 8
 	game.columns = 8
@@ -184,23 +194,23 @@ function create_random_preset() {
 }
 
 // Move counter
-function nextMove() {
-	if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return
+export function nextMove() {
+	if (gameState.COOL_TRANSITIONS_ENABLED && gameState.is_cool_transitions_animating) return
 
-	if (CURRENT_MOVE < COLS - 1) {
-		MOVE_COUNT++
-		localStorage.move_count = MOVE_COUNT
+	if (gameState.CURRENT_MOVE < gameState.COLS - 1) {
+		gameState.MOVE_COUNT++
+		localStorage.move_count = gameState.MOVE_COUNT
 		updateMoveCounter()
 
 		// Record the move
-		moveHistory.push({ action: 'advance' });
-		localStorage.moveHistory = JSON.stringify(moveHistory);
+		gameState.moveHistory.push({ action: 'advance' });
+		localStorage.moveHistory = JSON.stringify(gameState.moveHistory);
 
-		CURRENT_MOVE++
-		localStorage.current_move = CURRENT_MOVE
+		gameState.CURRENT_MOVE++
+		localStorage.current_move = gameState.CURRENT_MOVE
 
 		enable_retreat_button()
-		if (CURRENT_MOVE == COLS - 2) {
+		if (gameState.CURRENT_MOVE == gameState.COLS - 2) {
 			if (!test_win()) {
 				disable_advance_button()
 			}
@@ -209,22 +219,22 @@ function nextMove() {
 		//if((PRESET==3||PRESET==4||PRESET==5)&&CURRENT_MOVE>0){
 		//	disable_advance_button()
 		//}
-		if (COOL_TRANSITIONS_ENABLED) {
+		if (gameState.COOL_TRANSITIONS_ENABLED) {
 			transition_states_animation(function () {
 				drawRows()
 
-				timer.start()
+				gameState.timer.start()
 
-				if (CURRENT_MOVE == COLS - 1 && test_win()) {
+				if (gameState.CURRENT_MOVE == gameState.COLS - 1 && test_win()) {
 					win()
 				}
 			}, true)
 		} else {
 			drawRows()
 
-			timer.start()
+			gameState.timer.start()
 
-			if (CURRENT_MOVE == COLS - 1 && test_win()) {
+			if (gameState.CURRENT_MOVE == gameState.COLS - 1 && test_win()) {
 				win()
 			}
 		}
@@ -232,57 +242,58 @@ function nextMove() {
 	}
 }
 
-function retreat() {
-	if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
 
-	if (moveHistory.length > 0) {
-		var lastMove = moveHistory.pop();
+export function retreat() {
+	if (gameState.COOL_TRANSITIONS_ENABLED && gameState.is_cool_transitions_animating) return;
+
+	if (gameState.moveHistory.length > 0) {
+		var lastMove = gameState.moveHistory.pop();
 
 		if (lastMove.action === 'advance') {
 			// Decrement MOVE_COUNT safely
-			if (MOVE_COUNT > 0) {
-				MOVE_COUNT--;
-				localStorage.move_count = MOVE_COUNT;
+			if (gameState.MOVE_COUNT > 0) {
+				gameState.MOVE_COUNT--;
+				localStorage.move_count = gameState.MOVE_COUNT;
 				updateMoveCounter();
 			}
 
 			// Undo the advance move safely
-			if (CURRENT_MOVE > 0) {
-				CURRENT_MOVE--;
-				localStorage.current_move = CURRENT_MOVE;
+			if (gameState.CURRENT_MOVE > 0) {
+				gameState.CURRENT_MOVE--;
+				localStorage.current_move = gameState.CURRENT_MOVE;
 			}
 
 			enable_advance_button();
 
 			// Recalculate CA_STATE_MATRIX from CURRENT_MOVE onwards
-			for (var i = 0; i < ROWS; i++) {
-				var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
-				for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
-					state = nextByRule(state, RULES[i]);
-					CA_STATE_MATRIX[i][j] = state;
+			for (let i = 0; i < gameState.ROWS; i++) {
+				let state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
+				for (let j = gameState.CURRENT_MOVE + 1; j < gameState.COLS; j++) {
+					state = nextByRule(state, gameState.RULES[i]);
+					gameState.CA_STATE_MATRIX[i][j] = state;
 				}
 			}
 
-			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+			localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX);
 
-			if (COOL_TRANSITIONS_ENABLED) {
+			if (gameState.COOL_TRANSITIONS_ENABLED) {
 				transition_states_animation(function () {
 					drawRows();
-					timer.start();
+					gameState.timer.start();
 
-					if (CURRENT_MOVE === COLS - 1 && test_win()) {
+					if (gameState.CURRENT_MOVE === gameState.COLS - 1 && test_win()) {
 						win();
 					}
 				}, false);
 			} else {
 				drawRows();
-				timer.start();
+				gameState.timer.start();
 			}
 		} else if (lastMove.action === 'ruleChange') {
 			// Decrement MOVE_COUNT safely
-			if (MOVE_COUNT > 0) {
-				MOVE_COUNT--;
-				localStorage.move_count = MOVE_COUNT;
+			if (gameState.MOVE_COUNT > 0) {
+				gameState.MOVE_COUNT--;
+				localStorage.move_count = gameState.MOVE_COUNT;
 				updateMoveCounter();
 			}
 
@@ -301,119 +312,22 @@ function retreat() {
 			display_rule(toIndex);
 
 			// Recalculate the CA_STATE_MATRIX for affected rows
-			for (var i = 0; i < ROWS; i++) {
-				var state = CA_STATE_MATRIX[i][0];
-				for (var j = 1; j < COLS; j++) {
-					state = nextByRule(state, RULES[i]);
-					CA_STATE_MATRIX[i][j] = state;
+			for (let i = 0; i < gameState.ROWS; i++) {
+				let state = gameState.CA_STATE_MATRIX[i][0];
+				for (let j = 1; j < gameState.COLS; j++) {
+					state = nextByRule(state, gameState.RULES[i]);
+					gameState.CA_STATE_MATRIX[i][j] = state;
 				}
 			}
 
-			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+			localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX);
 
 			drawRows();
-			timer.start();
+			gameState.timer.start();
 		}
 
 		// Disable the retreat button if MOVE_COUNT == 0
-		if (MOVE_COUNT === 0) {
-			disable_retreat_button();
-		} else {
-			enable_retreat_button();
-		}
-	} else {
-		// If moveHistory is empty, ensure buttons are correctly disabled
-		disable_retreat_button();
-		// Optionally, you can enable the advance button if needed
-		enable_advance_button();
-	}
-}// jscript/gamelogic.js
-
-function retreat() {
-	if (COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating) return;
-
-	if (moveHistory.length > 0) {
-		var lastMove = moveHistory.pop();
-
-		if (lastMove.action === 'advance') {
-			// Decrement MOVE_COUNT safely
-			if (MOVE_COUNT > 0) {
-				MOVE_COUNT--;
-				localStorage.move_count = MOVE_COUNT;
-				updateMoveCounter();
-			}
-
-			// Undo the advance move safely
-			if (CURRENT_MOVE > 0) {
-				CURRENT_MOVE--;
-				localStorage.current_move = CURRENT_MOVE;
-			}
-
-			enable_advance_button();
-
-			// Recalculate CA_STATE_MATRIX from CURRENT_MOVE onwards
-			for (var i = 0; i < ROWS; i++) {
-				var state = CA_STATE_MATRIX[i][CURRENT_MOVE];
-				for (var j = CURRENT_MOVE + 1; j < COLS; j++) {
-					state = nextByRule(state, RULES[i]);
-					CA_STATE_MATRIX[i][j] = state;
-				}
-			}
-
-			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
-
-			if (COOL_TRANSITIONS_ENABLED) {
-				transition_states_animation(function () {
-					drawRows();
-					timer.start();
-
-					if (CURRENT_MOVE === COLS - 1 && test_win()) {
-						win();
-					}
-				}, false);
-			} else {
-				drawRows();
-				timer.start();
-			}
-		} else if (lastMove.action === 'ruleChange') {
-			// Decrement MOVE_COUNT safely
-			if (MOVE_COUNT > 0) {
-				MOVE_COUNT--;
-				localStorage.move_count = MOVE_COUNT;
-				updateMoveCounter();
-			}
-
-			// Undo the rule change
-			var fromIndex = lastMove.fromIndex;
-			var toIndex = lastMove.toIndex;
-			var fromRule = lastMove.fromRule;
-			var toRule = lastMove.toRule;
-
-			// Swap back the rules
-			setRule(fromIndex, fromRule, true);
-			setRule(toIndex, toRule, true);
-
-			// Update the rule display
-			display_rule(fromIndex);
-			display_rule(toIndex);
-
-			// Recalculate the CA_STATE_MATRIX for affected rows
-			for (var i = 0; i < ROWS; i++) {
-				var state = CA_STATE_MATRIX[i][0];
-				for (var j = 1; j < COLS; j++) {
-					state = nextByRule(state, RULES[i]);
-					CA_STATE_MATRIX[i][j] = state;
-				}
-			}
-
-			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
-
-			drawRows();
-			timer.start();
-		}
-
-		// Disable the retreat button if MOVE_COUNT == 0
-		if (MOVE_COUNT === 0) {
+		if (gameState.MOVE_COUNT === 0) {
 			disable_retreat_button();
 		} else {
 			enable_retreat_button();
@@ -427,27 +341,38 @@ function retreat() {
 }
 
 
-function test_win() {
-	for (var i = 0; i < GOALS.length; i++) {
-		if (GOALS[i] != CA_STATE_MATRIX[i].slice(-1)[0]) {
+export function test_win() {
+	for (var i = 0; i < gameState.GOALS.length; i++) {
+		if (gameState.GOALS[i] != gameState.CA_STATE_MATRIX[i].slice(-1)[0]) {
 			return false
 		}
 	}
 	return true
 }
 
-function next_game_header() {
-	if (test_win()) {
-		solve()
-	} else {
-		next_game()
+export function next_game_header() {
+	let nextPresetIndex = gameState.PRESET + 1;
+
+	if (nextPresetIndex >= gameState.GAME_PRESETS.length) {
+		// If there are no more presets, handle accordingly
+		nextPresetIndex = 0; // or return; to prevent wrapping around
 	}
+
+	loadPreset(nextPresetIndex);
 }
 
-function next_game_win() {
+// export function next_game_header() {
+// 	if (test_win()) {
+// 		solve()
+// 	} else {
+// 		next_game()
+// 	}
+// }
+
+export function next_game_win() {
 	if (document.getElementById('name_input') != null &&
 		document.getElementById('name_input').value) {
-		send_win_data("moves=" + MOVE_COUNT + "&time=" + timer.get_time_str() + "&game=" + GAME_NAME + "&name=" +
+		send_win_data("moves=" + gameState.MOVE_COUNT + "&time=" + gameState.timer.get_time_str() + "&game=" + gameState.GAME_NAME + "&name=" +
 			document.getElementById('name_input').value
 		)
 		setTimeout(next_game, 1000)
@@ -456,77 +381,79 @@ function next_game_win() {
 	}
 }
 
-function next_game() {
-	PRESET++
-	if (PRESET == GAME_PRESETS.length) PRESET = 0
+export function next_game() {
+	gameState.PRESET++
+	if (gameState.PRESET == gameState.GAME_PRESETS.length) gameState.PRESET = 0
 	reset()
 }
 
-function prev_game() {
-	PRESET--
-	if (PRESET < 0) PRESET = 0
+export function prev_game() {
+	gameState.PRESET--
+	if (gameState.PRESET < 0) gameState.PRESET = 0
 	reset()
 }
 
-function setSeed(idx, seed) {
-	CA_STATE_MATRIX[idx][0] = seed
-	localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX)
+export function setSeed(idx, seed) {
+	gameState.CA_STATE_MATRIX[idx][0] = seed
+	localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX)
 }
 
-function resetSeeds() {
+export function resetSeeds() {
 	var i
-	for (i = 0; i < ROWS; i++) {
+	for (i = 0; i < gameState.ROWS; i++) {
 		setSeed(i, chooseSeed())
 	}
 }
 
-function setGoal(idx, goal) {
-	GOALS[idx] = goal
-	localStorage.goals = JSON.stringify(GOALS)
+export function setGoal(idx, goal) {
+	gameState.GOALS[idx] = goal
+	localStorage.goals = JSON.stringify(gameState.GOALS)
 }
 
-function resetGoals() {
+export function resetGoals() {
 	var i
-	for (i = 0; i < COLS; i++)
+	for (i = 0; i < gameState.COLS; i++)
 		setGoal(i, chooseGoal())
 }
 
-function resetRules() {
+export function resetRules() {
 	var i
-	for (i = 0; i < COLS; i++)
+	for (i = 0; i < gameState.COLS; i++)
 		setRule(i, chooseRule())
 }
 
-function setRule(idx, rule, recalculateFromStart = false) {
+export function setRule(idx, rule, recalculateFromStart = false) {
 	// Save the new rule
-	RULES[idx] = rule;
-	localStorage.rules = JSON.stringify(RULES);
+	gameState.RULES[idx] = rule;
+	localStorage.rules = JSON.stringify(gameState.RULES);
 
 	// Recalculate the state matrix starting from the appropriate point
-	var startMove = recalculateFromStart ? 0 : CURRENT_MOVE;
-	var state = CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
-	for (var i = startMove + 1; i < COLS; i++) {
+	var startMove = recalculateFromStart ? 0 : gameState.CURRENT_MOVE;
+	var state = gameState.CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
+	for (var i = startMove + 1; i < gameState.COLS; i++) {
 		state = nextByRule(state, rule);
-		CA_STATE_MATRIX[idx][i] = state;
+		gameState.CA_STATE_MATRIX[idx][i] = state;
 	}
-	localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
+	localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX);
 	display_rule(idx, rule);
 }
 
-function makeNewGame(is_random) {
-	timer.reset()
-	CURRENT_MOVE = 0
+export function makeNewGame(is_random) {
+	gameState.timer.reset()
+	gameState.timer.start()
 
-	MOVE_COUNT = 0;
-	localStorage.move_count = MOVE_COUNT;
+	gameState.CURRENT_MOVE = 0
 
-	localStorage.current_move = CURRENT_MOVE
+	gameState.MOVE_COUNT = 0;
+	localStorage.move_count = gameState.MOVE_COUNT;
 
-	DRAG_COUNT = 0
-	localStorage.drag_count = DRAG_COUNT
+	localStorage.current_move = gameState.CURRENT_MOVE
 
-	moveHistory = [];
-	localStorage.moveHistory = JSON.stringify(moveHistory);
+	gameState.DRAG_COUNT = 0
+	localStorage.drag_count = gameState.DRAG_COUNT
+
+	gameState.moveHistory = [];
+	localStorage.moveHistory = JSON.stringify(gameState.moveHistory);
 
 	disable_retreat_button()
 
@@ -539,54 +466,54 @@ function makeNewGame(is_random) {
 	hide_screens()
 	display_preset_features()
 
-	if (PRESET == -1) {
+	if (gameState.PRESET == -1) {
 		if (is_random) {
-			loadPreset(PRESET)
+			loadPreset(gameState.PRESET)
 		} else {
-			ROWS = initial_state.rows
-			localStorage.rows = ROWS
-			COLS = initial_state.columns
-			localStorage.cols = COLS
+			gameState.ROWS = gameState.initial_state.rows
+			localStorage.rows = gameState.ROWS
+			gameState.COLS = gameState.initial_state.columns
+			localStorage.cols = gameState.COLS
 
-			SEEDS = initial_state.seeds
+			gameState.SEEDS = gameState.initial_state.seeds
 
-			RULES = dereference(initial_state.rules)
-			localStorage.rules = JSON.stringify(RULES)
+			gameState.RULES = dereference(gameState.initial_state.rules)
+			localStorage.rules = JSON.stringify(gameState.RULES)
 
 			//init empty matrix
-			CA_STATE_MATRIX = []
-			for (i = 0; i < ROWS; i++) {
-				CA_STATE_MATRIX.push([])
-				for (var j = 0; j < COLS; j++) {
-					CA_STATE_MATRIX[i].push(0)
+			gameState.CA_STATE_MATRIX = []
+			for (i = 0; i < gameState.ROWS; i++) {
+				gameState.CA_STATE_MATRIX.push([])
+				for (var j = 0; j < gameState.COLS; j++) {
+					gameState.CA_STATE_MATRIX[i].push(0)
 				}
 			}
 
 			//fill matrix
-			for (var i = 0; i < ROWS; i++) {
-				CA_STATE_MATRIX[i][0] = SEEDS[i]
-				var state = CA_STATE_MATRIX[i][0]
-				for (var j = 1; j < COLS; j++) {
-					state = nextByRule(state, RULES[i])
-					CA_STATE_MATRIX[i][j] = state
+			for (var i = 0; i < gameState.ROWS; i++) {
+				gameState.CA_STATE_MATRIX[i][0] = gameState.SEEDS[i]
+				var state = gameState.CA_STATE_MATRIX[i][0]
+				for (var j = 1; j < gameState.COLS; j++) {
+					state = nextByRule(state, gameState.RULES[i])
+					gameState.CA_STATE_MATRIX[i][j] = state
 				}
 			}
-			localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX)
+			localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX)
 
-			GOALS = initial_state.goals
-			localStorage.goals = JSON.stringify(GOALS)
+			gameState.GOALS = gameState.initial_state.goals
+			localStorage.goals = JSON.stringify(gameState.GOALS)
 
-			SWAP_ENABLED = initial_state.swap_enabled
-			localStorage.swap_enabled = SWAP_ENABLED
+			gameState.SWAP_ENABLED = gameState.initial_state.swap_enabled
+			localStorage.swap_enabled = gameState.SWAP_ENABLED
 
-			show_rows_ahead = initial_state.show_rows_ahead
+			show_rows_ahead = gameState.initial_state.show_rows_ahead
 			localStorage.show_rows_ahead = show_rows_ahead
 
-			GAME_NAME = initial_state.name
-			localStorage.game_name = GAME_NAME
+			gameState.GAME_NAME = gameState.initial_state.name
+			localStorage.game_name = gameState.GAME_NAME
 
-			GAME_DESC = initial_state.desc
-			localStorage.game_desc = GAME_DESC
+			gameState.GAME_DESC = gameState.initial_state.desc
+			localStorage.game_desc = gameState.GAME_DESC
 
 			init_rows()
 			display_rules()
@@ -595,29 +522,29 @@ function makeNewGame(is_random) {
 			//display_preset_features()
 		}
 	} else {
-		loadPreset(PRESET)
+		loadPreset(gameState.PRESET)
 	}
 
 	set_preset_menu()
 }
 
-function reset() {
+export function reset() {
 	makeNewGame(false)
 }
 
-function random() {
+export function random() {
 	makeNewGame(true)
 }
 /****************************
 	Cellular Automata
 *****************************/
-function bitTest(value, bit) {
+export function bitTest(value, bit) {
 	return value & (1 << bit)
 }
-function bitSet(value, bit) {
+export function bitSet(value, bit) {
 	return value | (1 << bit)
 }
-function nextByRule(state, rule) {
+export function nextByRule(state, rule) {
 	//	if ( state == 0 ) return state;	// suppress grey cells
 	var n = 3
 	var newState = 0
@@ -636,35 +563,34 @@ function nextByRule(state, rule) {
 }
 
 // Utilities
-function rnd(N) {
+export function rnd(N) {
 	return Math.floor(Math.random() * (N))
 }
-function chooseRule() {
+export function chooseRule() {
 	// Choose a new rule at random
 	return Math.floor(Math.random() * (256))	// 256 is the number of CA rules.
 }
-function chooseGoal() {
+export function chooseGoal() {
 	// Choose a new goal at random
 	return Math.floor(Math.random() * (8))	// 8 is the number of possible states.
 }
-function chooseSeed() {
+export function chooseSeed() {
 	// There are 8 possible CA states, but gameplay requires that seeds
 	// cannot be 0 or 7.
 	// This routine returns a pseudo-random number between 1 and 6, inclusive.
 	return Math.floor(Math.random() * (6)) + 1
 }
 
-function enable_retreat_button() {
+export function enable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button';
 	retreat_btn.onclick = retreat;
 	retreat_btn.style.cursor = 'pointer';
 }
 
-function disable_retreat_button() {
+export function disable_retreat_button() {
 	var retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button_disabled';
 	retreat_btn.onclick = null;
 	retreat_btn.style.cursor = 'default';
 }
-

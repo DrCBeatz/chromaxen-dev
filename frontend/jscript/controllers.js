@@ -1,28 +1,44 @@
 // frontend/jscript/controllers.js
 
-var dragSrcEl_;
+import { gameState } from './state.js';
+import { drawRow, updateMoveCounter, enable_retreat_button, hide_solve_button, reveal_solve_button, disable_advance_button, enable_advance_button } from './gameUI.js';
+import { setRule, test_win } from './gamelogic.js';
+
 var draggedRule = null; // Global variable to store the dragged rule
 var prevRow = null;
 
-function rule_dragstart(e) {
+export function rule_dragstart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
     e.dataTransfer.setData('image/jpeg', e.currentTarget.style.backgroundImage);
     e.dataTransfer.setData('text/plain', ''); // For Safari
 
     draggedRule = e.currentTarget.getAttribute('data-rule'); // Store the rule
-    dragSrcEl_ = e.currentTarget;
+    gameState.dragSrcEl_ = e.currentTarget;
     e.currentTarget.classList.add('moving');
 }
 
-function rule_dragend(e) {
+// export function rule_dragend(e) {
+//     // Remove the 'moving' class from the dragged element
+//     e.currentTarget.classList.remove('moving');
+
+//     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
+//     var rows = document.getElementsByTagName('tr');
+//     for (var i = 1; i < rows.length; i++) {
+//         var row = i - 1;
+//         drawRow(row, 0);
+//     }
+
+//     // Clear the global variable
+//     draggedRule = null;
+// }
+
+export function rule_dragend(e) {
     // Remove the 'moving' class from the dragged element
     e.currentTarget.classList.remove('moving');
 
     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
-    var rows = document.getElementsByTagName('tr');
-    for (var i = 1; i < rows.length; i++) {
-        var row = i - 1;
+    for (var row = 0; row < gameState.ROWS; row++) {
         drawRow(row, 0);
     }
 
@@ -32,7 +48,7 @@ function rule_dragend(e) {
 
 
 
-function rule_dragover(e) {
+export function rule_dragover(e) {
     if (e.preventDefault) {
         e.preventDefault();
     }
@@ -44,24 +60,24 @@ function rule_dragover(e) {
     drawRow(row, 1, rule); // Pass the rule to drawRow
 }
 
-function rule_dragleave(e) {
+export function rule_dragleave(e) {
     e.currentTarget.classList.remove('over');
     var row = e.currentTarget.rowIndex - 1;
     drawRow(row, 0); // Redraw without the new rule
 }
 
-function rule_drop(e) {
+export function rule_drop(e) {
     if (e.stopPropagation) {
         e.stopPropagation();
     }
     if (e.preventDefault) {
         e.preventDefault();
     }
-    if (dragSrcEl_ != e.currentTarget) {
-        DRAG_COUNT++;
-        localStorage.dragCount = DRAG_COUNT;
-        MOVE_COUNT++;
-        localStorage.move_count = MOVE_COUNT;
+    if (gameState.dragSrcEl_ != e.currentTarget) {
+        gameState.DRAG_COUNT++;
+        localStorage.dragCount = gameState.DRAG_COUNT;
+        gameState.MOVE_COUNT++;
+        localStorage.move_count = gameState.MOVE_COUNT;
         updateMoveCounter();
 
         var targetDiv = e.currentTarget.querySelector('.row_label'); // The draggable element in the row
@@ -69,17 +85,17 @@ function rule_drop(e) {
         var prev_bg_img = targetDiv.style.backgroundImage;
         var prev_rule = targetDiv.getAttribute('data-rule');
 
-        var rule = dragSrcEl_.getAttribute('data-rule');
+        var rule = gameState.dragSrcEl_.getAttribute('data-rule');
 
         // Corrected moveHistory push
-        moveHistory.push({
+        gameState.moveHistory.push({
             action: 'ruleChange',
-            fromIndex: parseInt(dragSrcEl_.id.split('_')[1]),
+            fromIndex: parseInt(gameState.dragSrcEl_.id.split('_')[1]),
             toIndex: e.currentTarget.rowIndex - 1,
             fromRule: parseInt(rule),
             toRule: parseInt(prev_rule)
         });
-        localStorage.moveHistory = JSON.stringify(moveHistory);
+        localStorage.moveHistory = JSON.stringify(gameState.moveHistory);
 
         enable_retreat_button();
 
@@ -91,14 +107,14 @@ function rule_drop(e) {
         var idx = e.currentTarget.rowIndex - 1; // Row index
         setRule(idx, parseInt(rule));
 
-        if (SWAP_ENABLED) {
-            dragSrcEl_.setAttribute('data-rule', prev_rule);
-            dragSrcEl_.innerHTML = prev_html;
-            dragSrcEl_.style.backgroundImage = prev_bg_img;
-            setRule(parseInt(dragSrcEl_.id.split('_')[1]), parseInt(prev_rule));
+        if (gameState.SWAP_ENABLED) {
+            gameState.dragSrcEl_.setAttribute('data-rule', prev_rule);
+            gameState.dragSrcEl_.innerHTML = prev_html;
+            gameState.dragSrcEl_.style.backgroundImage = prev_bg_img;
+            setRule(parseInt(gameState.dragSrcEl_.id.split('_')[1]), parseInt(prev_rule));
         }
 
-        timer.start();
+        gameState.timer.start();
 
         // Remove the 'over' class and redraw the row without hint
         e.currentTarget.classList.remove('over');
@@ -106,29 +122,29 @@ function rule_drop(e) {
 
         if (test_win()) {
             reveal_solve_button();
-            if (CURRENT_MOVE == COLS - 2) {
+            if (gameState.CURRENT_MOVE == gameState.COLS - 2) {
                 enable_advance_button();
             }
         } else {
             hide_solve_button();
-            if (CURRENT_MOVE == COLS - 2) {
+            if (gameState.CURRENT_MOVE == gameState.COLS - 2) {
                 disable_advance_button();
             }
         }
     }
 }
 
-function rule_mousedown(e) {
+export function rule_mousedown(e) {
     var row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 1);
 }
 
-function rule_mouseup(e) {
+export function rule_mouseup(e) {
     var row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 0);
 }
 
-function rule_dragenter(e) {
+export function rule_dragenter(e) {
     if (e.preventDefault) {
         e.preventDefault();
     }

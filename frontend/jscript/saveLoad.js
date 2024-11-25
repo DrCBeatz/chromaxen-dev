@@ -1,22 +1,27 @@
 // jscript/saveLoad.js
 
-function saveGame() {
+import { gameState } from './state.js';
+import { updateMoveCounter, resize, init_rows, drawRows, display_rules, update_title_header, update_dragndrop_style_display, init_preset_menu, display_preset_features, enable_advance_button, hide_solve_button, reveal_solve_button, enable_retreat_button, disable_retreat_button } from './gameUI.js';
+import { test_win } from './gamelogic.js';
+import { Timer } from './timer.js';
+
+export function saveGame() {
     // Gather all necessary game data into an object
     var gameData = {
-        ROWS: ROWS,
-        COLS: COLS,
-        RULES: RULES,
-        GOALS: GOALS,
-        CA_STATE_MATRIX: CA_STATE_MATRIX,
-        CURRENT_MOVE: CURRENT_MOVE,
-        MOVE_COUNT: MOVE_COUNT,
-        TIME: timer.elapsed_ms, // Assuming you have a timer object
-        SWAP_ENABLED: SWAP_ENABLED,
-        show_rows_ahead: show_rows_ahead,
-        GAME_NAME: GAME_NAME,
-        GAME_DESC: GAME_DESC,
-        PRESET: PRESET,
-        moveHistory: moveHistory
+        ROWS: gameState.ROWS,
+        COLS: gameState.COLS,
+        RULES: gameState.RULES,
+        GOALS: gameState.GOALS,
+        CA_STATE_MATRIX: gameState.CA_STATE_MATRIX,
+        CURRENT_MOVE: gameState.CURRENT_MOVE,
+        MOVE_COUNT: gameState.MOVE_COUNT,
+        TIME: gameState.timer.elapsed_ms,
+        SWAP_ENABLED: gameState.SWAP_ENABLED,
+        show_rows_ahead: gameState.show_rows_ahead,
+        GAME_NAME: gameState.GAME_NAME,
+        GAME_DESC: gameState.GAME_DESC,
+        PRESET: gameState.PRESET,
+        moveHistory: gameState.moveHistory
     };
 
     // Serialize the game data to JSON
@@ -29,7 +34,7 @@ function saveGame() {
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'ChromaXen_SaveGame_' + GAME_NAME.replace(/\s+/g, '_') + '.json';
+    a.download = 'ChromaXen_SaveGame_' + gameState.GAME_NAME.replace(/\s+/g, '_') + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -38,7 +43,7 @@ function saveGame() {
 
 // In jscript/saveLoad.js
 
-function loadGame(event) {
+export function loadGame(event) {
     var file = event.target.files[0];
     if (!file) {
         return;
@@ -52,36 +57,36 @@ function loadGame(event) {
             // Validate the loaded data (optional but recommended)
             if (validateGameData(gameData)) {
                 // Update game variables
-                ROWS = gameData.ROWS;
-                COLS = gameData.COLS;
-                RULES = gameData.RULES;
-                GOALS = gameData.GOALS;
-                CA_STATE_MATRIX = gameData.CA_STATE_MATRIX;
-                CURRENT_MOVE = gameData.CURRENT_MOVE;
-                MOVE_COUNT = gameData.MOVE_COUNT;
-                TIME = gameData.TIME || 0;
-                SWAP_ENABLED = gameData.SWAP_ENABLED;
-                show_rows_ahead = gameData.show_rows_ahead;
-                GAME_NAME = gameData.GAME_NAME;
-                GAME_DESC = gameData.GAME_DESC;
-                PRESET = gameData.PRESET;
-                moveHistory = gameData.moveHistory || [];
+                gameState.ROWS = gameData.ROWS;
+                gameState.COLS = gameData.COLS;
+                gameState.RULES = gameData.RULES;
+                gameState.GOALS = gameData.GOALS;
+                gameState.CA_STATE_MATRIX = gameData.CA_STATE_MATRIX;
+                gameState.CURRENT_MOVE = gameData.CURRENT_MOVE;
+                gameState.MOVE_COUNT = gameData.MOVE_COUNT;
+                gameState.TIME = gameData.TIME || 0;
+                gameState.SWAP_ENABLED = gameData.SWAP_ENABLED;
+                gameState.show_rows_ahead = gameData.show_rows_ahead;
+                gameState.GAME_NAME = gameData.GAME_NAME;
+                gameState.GAME_DESC = gameData.GAME_DESC;
+                gameState.PRESET = gameData.PRESET;
+                gameState.moveHistory = gameData.moveHistory || [];
 
                 // Update localStorage if needed
-                localStorage.rows = ROWS;
-                localStorage.cols = COLS;
-                localStorage.rules = JSON.stringify(RULES);
-                localStorage.goals = JSON.stringify(GOALS);
-                localStorage.state_matrix = JSON.stringify(CA_STATE_MATRIX);
-                localStorage.current_move = CURRENT_MOVE;
-                localStorage.move_count = MOVE_COUNT;
-                localStorage.time = TIME;
-                localStorage.swap_enabled = SWAP_ENABLED;
-                localStorage.show_rows_ahead = show_rows_ahead;
-                localStorage.game_name = GAME_NAME;
-                localStorage.game_desc = GAME_DESC;
-                localStorage.preset = PRESET;
-                localStorage.moveHistory = JSON.stringify(moveHistory);
+                localStorage.rows = gameState.ROWS;
+                localStorage.cols = gameState.COLS;
+                localStorage.rules = JSON.stringify(gameState.RULES);
+                localStorage.goals = JSON.stringify(gameState.GOALS);
+                localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX);
+                localStorage.current_move = gameState.CURRENT_MOVE;
+                localStorage.move_count = gameState.MOVE_COUNT;
+                localStorage.time = gameState.TIME;
+                localStorage.swap_enabled = gameState.SWAP_ENABLED;
+                localStorage.show_rows_ahead = gameState.show_rows_ahead;
+                localStorage.game_name = gameState.GAME_NAME;
+                localStorage.game_desc = gameState.GAME_DESC;
+                localStorage.preset = gameState.PRESET;
+                localStorage.moveHistory = JSON.stringify(gameState.moveHistory);
 
                 // Re-initialize the game
                 init_game_after_load();
@@ -98,7 +103,7 @@ function loadGame(event) {
     reader.readAsText(file);
 }
 
-function validateGameData(data) {
+export function validateGameData(data) {
     // Basic validation to check for required properties
     if (typeof data !== 'object') return false;
     var requiredProperties = [
@@ -116,12 +121,12 @@ function validateGameData(data) {
     return true;
 }
 
-function init_game_after_load() {
-    timer = new Timer(document.getElementById('timer'), function (_this) {
+export function init_game_after_load() {
+    gameState.timer = new Timer(document.getElementById('timer'), function (_this) {
         localStorage.time = _this.elapsed_ms;
     });
 
-    timer.set_time(TIME);
+    gameState.timer.set_time(gameState.TIME);
 
     resize();
     init_rows();
@@ -135,12 +140,12 @@ function init_game_after_load() {
     updateMoveCounter();
 
     // Restore the state of advance and retreat buttons
-    if (CURRENT_MOVE === 0) {
+    if (gameState.CURRENT_MOVE === 0) {
         disable_retreat_button();
     } else {
         enable_retreat_button();
     }
-    if (CURRENT_MOVE === COLS - 2 && !test_win()) {
+    if (gameState.CURRENT_MOVE === gameState.COLS - 2 && !test_win()) {
         disable_advance_button();
     } else {
         enable_advance_button();
@@ -152,5 +157,5 @@ function init_game_after_load() {
         hide_solve_button();
     }
 
-    timer.start();
+    gameState.timer.start();
 }

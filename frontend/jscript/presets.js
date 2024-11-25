@@ -1,25 +1,22 @@
 // jscript/presets.js
 
-function getFirstChildByTagName(parent, tagName) {
+export function getFirstChildByTagName(parent, tagName) {
 	var nodes = parent.childNodes;
-	for(var i = 0; i<nodes.length; i++)
-	{
-		if ( nodes[i].nodeType == 1 && nodes[i].tagName == tagName )
-		{
+	for (var i = 0; i < nodes.length; i++) {
+		if (nodes[i].nodeType == 1 && nodes[i].tagName == tagName) {
 			return nodes[i];
 		}
 	}
 }
-function loadPresets(file_name,callback)
-{
+export function loadPresets(file_name, callback) {
 	var xhttp = new XMLHttpRequest();
-	xhttp.onreadystatechange = function(){
-		if(xhttp.readyState == 4 && xhttp.status == 200){
+	xhttp.onreadystatechange = function () {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
 			callback(xhttp.responseXML)
-        }
+		}
 	}
 	xhttp.open("GET", file_name, true);
-	xhttp.setRequestHeader("Cache-Control","no-cache")
+	xhttp.setRequestHeader("Cache-Control", "no-cache")
 	xhttp.send();
 	return xhttp.responseXML;
 }

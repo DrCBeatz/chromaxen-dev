@@ -1,6 +1,6 @@
 // jscript/get_rules.js
 
-function get_rules_list(el,callback){
+export function get_rules_list(el,callback){
     var xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function(){
         if(xhttp.readyState == 4 && xhttp.status == 200){
@@ -59,7 +59,7 @@ function get_rules_list(el,callback){
     xhttp.send()
 }
 
-function show_rule(rule_number){
+export function show_rule(rule_number){
     var rule_el = document.getElementById('rule'+rule_number)
 
     document.getElementById('all_rules_container').style.display = 'none'
@@ -98,7 +98,7 @@ function show_rule(rule_number){
     }
 }
 
-function show_prev_rule(){
+export function show_prev_rule(){
     get_rules_list(document.getElementById('all_rules_container'),function(){
         var rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
         if(rule_number>0){
@@ -109,7 +109,7 @@ function show_prev_rule(){
     })
 }
 
-function show_next_rule(){
+export function show_next_rule(){
     get_rules_list(document.getElementById('all_rules_container'),function(){
         var rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
         if(rule_number<255){
@@ -120,14 +120,14 @@ function show_next_rule(){
     })
 }
 
-function back_to_rules(){
+export function back_to_rules(){
     get_rules_list(document.getElementById('all_rules_container'),function(){
         document.getElementById('all_rules_container').style.display = 'block'
         document.getElementById('tester_container').style.display = 'none'
     })
 }
 
-function refresh_rule(){
+export function refresh_rule(){
     get_rules_list(document.getElementById('all_rules_container'),function(){
         var rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
         show_rule(rule_number)
