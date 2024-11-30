@@ -1,7 +1,7 @@
 // jscript/win.js
 
-import { gameState } from "./state";
-import { hide_solve_button } from "./gameUI";
+import { gameState } from "./state.js";
+import { hide_solve_button } from "./gameUI.js";
 
 export var HIGH_SCORE_LENGTH = 10
 export var API_BASE_URL = "";
