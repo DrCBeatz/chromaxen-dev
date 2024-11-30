@@ -7,6 +7,7 @@ export const entry_page = {
     continue_game: function () {
         document.getElementById('container').style.display = "block";
         document.getElementById('entry_page').style.display = "none";
+        document.getElementById('credits').style.display = "none";
         history.pushState({}, "Game", "#game");
         window.onpopstate = this.back_to_menu;
 
@@ -22,6 +23,7 @@ export const entry_page = {
     start_game: function () {
         document.getElementById('container').style.display = "block";
         document.getElementById('entry_page').style.display = "none";
+        document.getElementById('credits').style.display = "none";
         history.pushState({}, "Game", "#game");
         window.onpopstate = this.back_to_menu;
 
@@ -31,6 +33,7 @@ export const entry_page = {
     random_game: function () {
         document.getElementById('container').style.display = "block";
         document.getElementById('entry_page').style.display = "none";
+        document.getElementById('credits').style.display = "none";
         history.pushState({}, "Random Game", "#random_game");
         window.onpopstate = this.back_to_menu;
 
@@ -45,6 +48,7 @@ export const entry_page = {
         if (this !== window) history.back();
         document.getElementById('container').style.display = "none";
         document.getElementById('entry_page').style.display = "block";
+        document.getElementById('credits').style.display = "inline";
 
         window.onpopstate = null;
     },

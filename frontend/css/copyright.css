@@ -1,7 +1,9 @@
-#copyright{
-    position: fixed;
-    font-size: 12px;
-    bottom:0px;
-    left:0px;
-    margin:2px;
+/* frontend/css/copyright.css */
+
+#copyright {
+  position: fixed;
+  font-size: 12px;
+  bottom: 0px;
+  left: 0px;
+  margin: 2px;
 }
