@@ -4,8 +4,9 @@ import { gameState } from './state.js';
 import { drawRow, updateMoveCounter, enable_retreat_button, hide_solve_button, reveal_solve_button, disable_advance_button, enable_advance_button } from './gameUI.js';
 import { setRule, test_win } from './gamelogic.js';
 
-var draggedRule = null; // Global variable to store the dragged rule
-var prevRow = null;
+let draggedRule = null; // Global variable to store the dragged rule
+
+/* Note: The 'function' keyword is used here instead of arrow functions to preserve the 'this' context as it refers to the DOM element that triggered the event. */
 
 export function rule_dragstart(e) {
     e.dataTransfer.effectAllowed = 'move';
@@ -18,27 +19,12 @@ export function rule_dragstart(e) {
     e.currentTarget.classList.add('moving');
 }
 
-// export function rule_dragend(e) {
-//     // Remove the 'moving' class from the dragged element
-//     e.currentTarget.classList.remove('moving');
-
-//     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
-//     var rows = document.getElementsByTagName('tr');
-//     for (var i = 1; i < rows.length; i++) {
-//         var row = i - 1;
-//         drawRow(row, 0);
-//     }
-
-//     // Clear the global variable
-//     draggedRule = null;
-// }
-
 export function rule_dragend(e) {
     // Remove the 'moving' class from the dragged element
     e.currentTarget.classList.remove('moving');
 
     // Clear the 'over' class from all rows to ensure no visual artifacts remain after dragging ends
-    for (var row = 0; row < gameState.ROWS; row++) {
+    for (let row = 0; row < gameState.ROWS; row++) {
         drawRow(row, 0);
     }
 
@@ -55,14 +41,14 @@ export function rule_dragover(e) {
     e.dataTransfer.dropEffect = 'move';
     e.currentTarget.classList.add('over');
 
-    var row = e.currentTarget.rowIndex - 1; // Adjust for header row
-    var rule = draggedRule; // Use the global variable
+    const row = e.currentTarget.rowIndex - 1; // Adjust for header row
+    const rule = draggedRule; // Use the global variable
     drawRow(row, 1, rule); // Pass the rule to drawRow
 }
 
 export function rule_dragleave(e) {
     e.currentTarget.classList.remove('over');
-    var row = e.currentTarget.rowIndex - 1;
+    const row = e.currentTarget.rowIndex - 1;
     drawRow(row, 0); // Redraw without the new rule
 }
 
@@ -80,12 +66,12 @@ export function rule_drop(e) {
         localStorage.move_count = gameState.MOVE_COUNT;
         updateMoveCounter();
 
-        var targetDiv = e.currentTarget.querySelector('.row_label'); // The draggable element in the row
-        var prev_html = targetDiv.innerHTML;
-        var prev_bg_img = targetDiv.style.backgroundImage;
-        var prev_rule = targetDiv.getAttribute('data-rule');
+        const targetDiv = e.currentTarget.querySelector('.row_label'); // The draggable element in the row
+        const prev_html = targetDiv.innerHTML;
+        const prev_bg_img = targetDiv.style.backgroundImage;
+        const prev_rule = targetDiv.getAttribute('data-rule');
 
-        var rule = gameState.dragSrcEl_.getAttribute('data-rule');
+        const rule = gameState.dragSrcEl_.getAttribute('data-rule');
 
         // Corrected moveHistory push
         gameState.moveHistory.push({
@@ -104,7 +90,7 @@ export function rule_drop(e) {
         targetDiv.style.backgroundImage = e.dataTransfer.getData('image/jpeg');
         targetDiv.setAttribute('data-rule', rule);
 
-        var idx = e.currentTarget.rowIndex - 1; // Row index
+        const idx = e.currentTarget.rowIndex - 1; // Row index
         setRule(idx, parseInt(rule));
 
         if (gameState.SWAP_ENABLED) {
@@ -135,12 +121,12 @@ export function rule_drop(e) {
 }
 
 export function rule_mousedown(e) {
-    var row = parseInt(e.currentTarget.id.split('_')[1]);
+    const row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 1);
 }
 
 export function rule_mouseup(e) {
-    var row = parseInt(e.currentTarget.id.split('_')[1]);
+    const row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 0);
 }
 
