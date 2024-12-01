@@ -6,8 +6,13 @@ import { setRule, test_win } from './gamelogic.js';
 
 let draggedRule = null; // Global variable to store the dragged rule
 
-/* Note: The 'function' keyword is used here instead of arrow functions to preserve the 'this' context as it refers to the DOM element that triggered the event. */
-
+/**
+ * Handles the dragstart event for draggable rules.
+ * Sets up the necessary data transfer attributes for the drag operation
+ * and marks the source element as the active draggable item.
+ *
+ * @param {DragEvent} e - The dragstart event object.
+ */
 export function rule_dragstart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', e.currentTarget.innerHTML);
@@ -19,6 +24,12 @@ export function rule_dragstart(e) {
     e.currentTarget.classList.add('moving');
 }
 
+/**
+ * Handles the dragend event for draggable rules.
+ * Removes visual artifacts and clears the dragged rule state.
+ *
+ * @param {DragEvent} e - The dragend event object.
+ */
 export function rule_dragend(e) {
     // Remove the 'moving' class from the dragged element
     e.currentTarget.classList.remove('moving');
@@ -33,7 +44,12 @@ export function rule_dragend(e) {
 }
 
 
-
+/**
+ * Handles the dragover event for rows.
+ * Prevents default behavior and updates the visual feedback for the row.
+ *
+ * @param {DragEvent} e - The dragover event object.
+ */
 export function rule_dragover(e) {
     if (e.preventDefault) {
         e.preventDefault();
@@ -46,12 +62,25 @@ export function rule_dragover(e) {
     drawRow(row, 1, rule); // Pass the rule to drawRow
 }
 
+
+/**
+ * Handles the dragleave event for rows.
+ * Removes the visual feedback from the row.
+ *
+ * @param {DragEvent} e - The dragleave event object.
+ */
 export function rule_dragleave(e) {
     e.currentTarget.classList.remove('over');
     const row = e.currentTarget.rowIndex - 1;
     drawRow(row, 0); // Redraw without the new rule
 }
 
+/**
+ * Handles the drop event for rows.
+ * Updates the game state and visual representation based on the dropped rule.
+ *
+ * @param {DragEvent} e - The drop event object.
+ */
 export function rule_drop(e) {
     if (e.stopPropagation) {
         e.stopPropagation();
@@ -120,20 +149,37 @@ export function rule_drop(e) {
     }
 }
 
+/**
+ * Handles the mousedown event for a row.
+ * Provides visual feedback for the clicked row.
+ *
+ * @param {MouseEvent} e - The mousedown event object.
+ */
 export function rule_mousedown(e) {
     const row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 1);
 }
 
+/**
+ * Handles the mouseup event for a row.
+ * Removes visual feedback from the clicked row.
+ *
+ * @param {MouseEvent} e - The mouseup event object.
+ */
 export function rule_mouseup(e) {
     const row = parseInt(e.currentTarget.id.split('_')[1]);
     drawRow(row, 0);
 }
 
+/**
+ * Handles the dragenter event for rows.
+ * Provides visual feedback when a draggable item enters a row.
+ *
+ * @param {DragEvent} e - The dragenter event object.
+ */
 export function rule_dragenter(e) {
     if (e.preventDefault) {
         e.preventDefault();
     }
     e.dataTransfer.dropEffect = 'move';
 }
-
