@@ -1,5 +1,12 @@
 // frontend/jscript/controllers.js
 
+/**
+ * Manages drag-and-drop interactions for game rules.
+ * Provides event handlers for user interactions like dragging, dropping, and clicking rules.
+ * Includes logic for updating the game state, UI, and validating win conditions.
+ * @module Controllers
+ */
+
 import { gameState } from './state.js';
 import { drawRow, updateMoveCounter, enable_retreat_button, hide_solve_button, reveal_solve_button, disable_advance_button, enable_advance_button } from './gameUI.js';
 import { setRule, test_win } from './gamelogic.js';
