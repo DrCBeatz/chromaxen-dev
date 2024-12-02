@@ -88,3 +88,11 @@ body {
     align-items: center;
   }
 }
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}

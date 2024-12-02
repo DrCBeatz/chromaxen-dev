@@ -43,15 +43,16 @@ gameState.SEEDS
 gameState.initial_state = {}
 
 export function init_game() {
-	if (localStorage.current_move != undefined) {
+	// if (localStorage.current_move != undefined) {
+	if (localStorage.current_move !== undefined) {
 		document.getElementById('entry_continue_button').style.display = "block"
 	}
 
 	get_rules_list(document.getElementById('all_rules'))
 	loadPresets("games/" + gameState.GAME_XML_URL, function (xml) {
-		var game_nodes = xml.getElementsByTagName("game")
-		for (var i = 0; i < game_nodes.length; i++) {
-			var game = {
+		const game_nodes = xml.getElementsByTagName("game")
+		for (let i = 0; i < game_nodes.length; i++) {
+			const game = {
 				id: parseInt(
 					game_nodes[i].getElementsByTagName("id")[0].childNodes[0].nodeValue),
 				name: game_nodes[i].getElementsByTagName("name")[0].childNodes[0].nodeValue,
@@ -81,15 +82,15 @@ export function init_game() {
 }
 
 export function parse_comma_number_list(str) {
-	var str_split = str.split(",")
-	var new_array = []
-	for (var i = 0; i < str_split.length; i++) {
-		var match = str_split[i].match(/\d+/)
-		var int_str = ""
-		for (var j = 0; j < match.length; j++) {
+	const str_split = str.split(",")
+	const new_array = []
+	for (let i = 0; i < str_split.length; i++) {
+		const match = str_split[i].match(/\d+/)
+		let int_str = ""
+		for (let j = 0; j < match.length; j++) {
 			int_str += match[j]
 		}
-		var parsed_int = parseInt(int_str)
+		const parsed_int = parseInt(int_str)
 		new_array.push(parsed_int)
 	}
 	return new_array
@@ -171,19 +172,19 @@ export function start_game(preset) {
 }
 
 export function create_random_preset() {
-	var game = {}
+	const game = {}
 	game.rows = 8
 	game.columns = 8
 	game.seeds = []
-	for (var i = 0; i < game.rows; i++) {
+	for (let i = 0; i < game.rows; i++) {
 		game.seeds.push(Math.floor(Math.random() * 6) + 1)
 	}
 	game.rules = []
-	for (var i = 0; i < game.rows; i++) {
+	for (let i = 0; i < game.rows; i++) {
 		game.rules.push(Math.floor(Math.random() * 256))
 	}
 	game.goals = []
-	for (var i = 0; i < game.rows; i++) {
+	for (let i = 0; i < game.rows; i++) {
 		game.goals.push(Math.floor(Math.random() * 8))
 	}
 	game.swap_enabled = false
@@ -215,10 +216,7 @@ export function nextMove() {
 				disable_advance_button()
 			}
 		}
-		//disable advance after first step
-		//if((PRESET==3||PRESET==4||PRESET==5)&&CURRENT_MOVE>0){
-		//	disable_advance_button()
-		//}
+
 		if (gameState.COOL_TRANSITIONS_ENABLED) {
 			transition_states_animation(function () {
 				drawRows()
@@ -247,7 +245,7 @@ export function retreat() {
 	if (gameState.COOL_TRANSITIONS_ENABLED && gameState.is_cool_transitions_animating) return;
 
 	if (gameState.moveHistory.length > 0) {
-		var lastMove = gameState.moveHistory.pop();
+		const lastMove = gameState.moveHistory.pop();
 
 		if (lastMove.action === 'advance') {
 			// Decrement MOVE_COUNT safely
@@ -298,10 +296,10 @@ export function retreat() {
 			}
 
 			// Undo the rule change
-			var fromIndex = lastMove.fromIndex;
-			var toIndex = lastMove.toIndex;
-			var fromRule = lastMove.fromRule;
-			var toRule = lastMove.toRule;
+			const fromIndex = lastMove.fromIndex;
+			const toIndex = lastMove.toIndex;
+			const fromRule = lastMove.fromRule;
+			const toRule = lastMove.toRule;
 
 			// Swap back the rules
 			setRule(fromIndex, fromRule, true);
@@ -342,7 +340,7 @@ export function retreat() {
 
 
 export function test_win() {
-	for (var i = 0; i < gameState.GOALS.length; i++) {
+	for (let i = 0; i < gameState.GOALS.length; i++) {
 		if (gameState.GOALS[i] != gameState.CA_STATE_MATRIX[i].slice(-1)[0]) {
 			return false
 		}
@@ -361,20 +359,10 @@ export function next_game_header() {
 	loadPreset(nextPresetIndex);
 }
 
-// export function next_game_header() {
-// 	if (test_win()) {
-// 		solve()
-// 	} else {
-// 		next_game()
-// 	}
-// }
-
 export function next_game_win() {
 	if (document.getElementById('name_input') != null &&
 		document.getElementById('name_input').value) {
-		send_win_data("moves=" + gameState.MOVE_COUNT + "&time=" + gameState.timer.get_time_str() + "&game=" + gameState.GAME_NAME + "&name=" +
-			document.getElementById('name_input').value
-		)
+		send_win_data(`moves=${gameState.MOVE_COUNT}&time=${gameState.timer.get_time_str()}&game=${gameState.GAME_NAME}&name=${document.getElementById('name_input').value}`);
 		setTimeout(next_game, 1000)
 	} else {
 		next_game()
@@ -399,8 +387,7 @@ export function setSeed(idx, seed) {
 }
 
 export function resetSeeds() {
-	var i
-	for (i = 0; i < gameState.ROWS; i++) {
+	for (let i = 0; i < gameState.ROWS; i++) {
 		setSeed(i, chooseSeed())
 	}
 }
@@ -411,14 +398,12 @@ export function setGoal(idx, goal) {
 }
 
 export function resetGoals() {
-	var i
-	for (i = 0; i < gameState.COLS; i++)
+	for (let i = 0; i < gameState.COLS; i++)
 		setGoal(i, chooseGoal())
 }
 
 export function resetRules() {
-	var i
-	for (i = 0; i < gameState.COLS; i++)
+	for (let i = 0; i < gameState.COLS; i++)
 		setRule(i, chooseRule())
 }
 
@@ -428,9 +413,9 @@ export function setRule(idx, rule, recalculateFromStart = false) {
 	localStorage.rules = JSON.stringify(gameState.RULES);
 
 	// Recalculate the state matrix starting from the appropriate point
-	var startMove = recalculateFromStart ? 0 : gameState.CURRENT_MOVE;
-	var state = gameState.CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
-	for (var i = startMove + 1; i < gameState.COLS; i++) {
+	const startMove = recalculateFromStart ? 0 : gameState.CURRENT_MOVE;
+	let state = gameState.CA_STATE_MATRIX[idx][startMove]; // Start from the seed or current move
+	for (let i = startMove + 1; i < gameState.COLS; i++) {
 		state = nextByRule(state, rule);
 		gameState.CA_STATE_MATRIX[idx][i] = state;
 	}
@@ -482,18 +467,18 @@ export function makeNewGame(is_random) {
 
 			//init empty matrix
 			gameState.CA_STATE_MATRIX = []
-			for (i = 0; i < gameState.ROWS; i++) {
+			for (let i = 0; i < gameState.ROWS; i++) {
 				gameState.CA_STATE_MATRIX.push([])
-				for (var j = 0; j < gameState.COLS; j++) {
+				for (let j = 0; j < gameState.COLS; j++) {
 					gameState.CA_STATE_MATRIX[i].push(0)
 				}
 			}
 
 			//fill matrix
-			for (var i = 0; i < gameState.ROWS; i++) {
+			for (let i = 0; i < gameState.ROWS; i++) {
 				gameState.CA_STATE_MATRIX[i][0] = gameState.SEEDS[i]
-				var state = gameState.CA_STATE_MATRIX[i][0]
-				for (var j = 1; j < gameState.COLS; j++) {
+				let state = gameState.CA_STATE_MATRIX[i][0]
+				for (let j = 1; j < gameState.COLS; j++) {
 					state = nextByRule(state, gameState.RULES[i])
 					gameState.CA_STATE_MATRIX[i][j] = state
 				}
@@ -546,13 +531,13 @@ export function bitSet(value, bit) {
 }
 export function nextByRule(state, rule) {
 	//	if ( state == 0 ) return state;	// suppress grey cells
-	var n = 3
-	var newState = 0
-	for (var i = 0; i < n; i++) {
-		var n1 = bitTest(state, i)
-		var n2 = bitTest(state, (i + 1) % n)
-		var n3 = bitTest(state, (i + 2) % n)
-		var ri = 0
+	const n = 3
+	let newState = 0
+	for (let i = 0; i < n; i++) {
+		const n1 = bitTest(state, i)
+		const n2 = bitTest(state, (i + 1) % n)
+		const n3 = bitTest(state, (i + 2) % n)
+		let ri = 0
 		if (n1) ri = 1
 		if (n2) ri += 2
 		if (n3) ri += 4
@@ -582,14 +567,14 @@ export function chooseSeed() {
 }
 
 export function enable_retreat_button() {
-	var retreat_btn = document.getElementById('retreat_button');
+	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button';
 	retreat_btn.onclick = retreat;
 	retreat_btn.style.cursor = 'pointer';
 }
 
 export function disable_retreat_button() {
-	var retreat_btn = document.getElementById('retreat_button');
+	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button_disabled';
 	retreat_btn.onclick = null;
 	retreat_btn.style.cursor = 'default';

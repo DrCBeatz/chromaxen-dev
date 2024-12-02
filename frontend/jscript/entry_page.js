@@ -43,16 +43,17 @@ export const entry_page = {
     },
 
     /**
-     * Starts a new game (preset 0) and navigates to the game screen.
+     * Starts a new game with a given preset and navigates to the game screen.
+     * @param {number} [preset=0] - The preset to use for starting the game.
      */
-    start_game: function () {
+    start_game: function (preset = 0) {
         container.style.display = "block";
         entryPage.style.display = "none";
         credits.style.display = "none";
         history.pushState({}, "Game", "#game");
         window.onpopstate = this.back_to_menu;
 
-        start_game(0); // Start a new game with preset 0
+        start_game(preset);
     },
 
     /**
@@ -100,7 +101,24 @@ export const entry_page = {
         }, 4000);
     },
 
+    /**
+     * Stops the color animation for the entry page.
+     */
+    stop_color_animation: function () {
+        if (this.anim_interval) {
+            clearInterval(this.anim_interval);
+            this.anim_interval = null;
+        }
+    },
+
+    /**
+     * Updates the colors of various entry page elements based on the current state.
+     */
     change_color: function () {
+        if (!this.state || !Array.isArray(this.state)) {
+            console.error("Invalid state for color animation");
+            return;
+        }
         updateColors(this.state);
     }
 };
