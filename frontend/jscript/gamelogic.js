@@ -43,7 +43,6 @@ gameState.SEEDS
 gameState.initial_state = {}
 
 export function init_game() {
-	// if (localStorage.current_move != undefined) {
 	if (localStorage.current_move !== undefined) {
 		document.getElementById('entry_continue_button').style.display = "block"
 	}
@@ -423,7 +422,7 @@ export function setRule(idx, rule, recalculateFromStart = false) {
 	display_rule(idx, rule);
 }
 
-export function makeNewGame(is_random) {
+export function makeNewGame(is_random = false) {
 	gameState.timer.reset()
 	gameState.timer.start()
 
@@ -569,13 +568,13 @@ export function chooseSeed() {
 export function enable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button';
-	retreat_btn.onclick = retreat;
+	retreat_btn.addEventListener('click', retreat);
 	retreat_btn.style.cursor = 'pointer';
 }
 
 export function disable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button_disabled';
-	retreat_btn.onclick = null;
+	retreat_btn.removeEventListener('click', retreat);
 	retreat_btn.style.cursor = 'default';
 }
