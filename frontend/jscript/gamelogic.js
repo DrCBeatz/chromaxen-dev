@@ -1,5 +1,12 @@
 // jscript/gamelogic.js
 
+/**
+ * Game logic module.
+ * Manages game state, presets, transitions, and utility functions for Cellular Automata games.
+ * This module provides functionality for starting, resetting, and transitioning between game states.
+ * @module GameLogic
+ */
+
 import { gameState } from './state.js';
 import { get_rules_list } from './get_rules.js';
 import { loadPresets } from './presets.js';
@@ -42,6 +49,10 @@ gameState.SEEDS
 
 gameState.initial_state = {}
 
+/**
+ * Initializes the game by loading presets and setting up the initial game state.
+ * Displays the "Continue" button if a previous game state exists in localStorage.
+ */
 export function init_game() {
 	if (localStorage.current_move !== undefined) {
 		document.getElementById('entry_continue_button').style.display = "block"
@@ -80,6 +91,11 @@ export function init_game() {
 	})
 }
 
+/**
+ * Parses a string of comma-separated numbers and returns an array of integers.
+ * @param {string} str - The input string containing comma-separated numbers.
+ * @returns {number[]} An array of parsed integers.
+ */
 export function parse_comma_number_list(str) {
 	const str_split = str.split(",")
 	const new_array = []
@@ -95,6 +111,11 @@ export function parse_comma_number_list(str) {
 	return new_array
 }
 
+/**
+ * Starts a new game or resumes an existing one based on the preset or localStorage state.
+ * Updates the game board, initializes timers, and restores UI elements.
+ * @param {number} [preset] - The preset to use for initializing the game. If undefined, resumes the saved game state.
+ */
 export function start_game(preset) {
 	gameState.timer = new Timer(document.getElementById('timer'), function (_this) {
 		localStorage.time = _this.elapsed_ms;
@@ -170,6 +191,20 @@ export function start_game(preset) {
 	gameState.timer.start();
 }
 
+/**
+ * Creates a random game preset with default rows, columns, and randomized rules, seeds, and goals.
+ * This function is used to generate a game configuration dynamically.
+ * @returns {Object} An object representing the random game preset.
+ * @property {number} rows - The number of rows in the game (default: 8).
+ * @property {number} columns - The number of columns in the game (default: 8).
+ * @property {number[]} seeds - An array of random initial seed values for each row.
+ * @property {number[]} rules - An array of random rules for each row.
+ * @property {number[]} goals - An array of random goal states for each row.
+ * @property {boolean} swap_enabled - Whether swapping is enabled (default: false).
+ * @property {boolean} show_rows_ahead - Whether to show rows ahead (default: false).
+ * @property {string} name - The name of the game (default: "Random Game").
+ * @property {string} desc - The description of the game (default: empty string).
+ */
 export function create_random_preset() {
 	const game = {}
 	game.rows = 8
@@ -193,7 +228,10 @@ export function create_random_preset() {
 	return game
 }
 
-// Move counter
+/**
+ * Advances the game to the next move.
+ * Updates the game state, move count, and UI. Handles transitions if enabled.
+ */
 export function nextMove() {
 	if (gameState.COOL_TRANSITIONS_ENABLED && gameState.is_cool_transitions_animating) return
 
@@ -239,7 +277,11 @@ export function nextMove() {
 	}
 }
 
-
+/**
+ * Moves the game back one step in the move history.
+ * Handles undoing the last action, updating the game state, and recalculating the Cellular Automata state matrix.
+ * Skips action if animations are in progress.
+ */
 export function retreat() {
 	if (gameState.COOL_TRANSITIONS_ENABLED && gameState.is_cool_transitions_animating) return;
 
@@ -337,7 +379,10 @@ export function retreat() {
 	}
 }
 
-
+/**
+ * Checks if the current game state matches the goal state.
+ * @returns {boolean} True if the current game state meets all goals; otherwise, false.
+ */
 export function test_win() {
 	for (let i = 0; i < gameState.GOALS.length; i++) {
 		if (gameState.GOALS[i] != gameState.CA_STATE_MATRIX[i].slice(-1)[0]) {
@@ -347,6 +392,10 @@ export function test_win() {
 	return true
 }
 
+/**
+ * Advances the game to the next preset header.
+ * Loads the next game preset, wrapping around to the first preset if the end is reached.
+ */
 export function next_game_header() {
 	let nextPresetIndex = gameState.PRESET + 1;
 
@@ -358,6 +407,10 @@ export function next_game_header() {
 	loadPreset(nextPresetIndex);
 }
 
+/**
+ * Handles the transition to the next game after a win.
+ * Sends the win data if a name is provided, then starts the next game.
+ */
 export function next_game_win() {
 	if (document.getElementById('name_input') != null &&
 		document.getElementById('name_input').value) {
@@ -368,44 +421,83 @@ export function next_game_win() {
 	}
 }
 
+/**
+ * Advances to the next game preset.
+ * Resets the game state if the last preset is reached.
+ */
 export function next_game() {
 	gameState.PRESET++
 	if (gameState.PRESET == gameState.GAME_PRESETS.length) gameState.PRESET = 0
 	reset()
 }
 
+/**
+ * Moves back to the previous game preset.
+ * Prevents navigating before the first preset.
+ */
 export function prev_game() {
 	gameState.PRESET--
 	if (gameState.PRESET < 0) gameState.PRESET = 0
 	reset()
 }
 
+/**
+ * Sets the initial seed value for a specific row in the Cellular Automata state matrix.
+ * Updates the corresponding state in localStorage.
+ * @param {number} idx - The index of the row to set the seed for.
+ * @param {number} seed - The seed value to set.
+ */
 export function setSeed(idx, seed) {
 	gameState.CA_STATE_MATRIX[idx][0] = seed
 	localStorage.state_matrix = JSON.stringify(gameState.CA_STATE_MATRIX)
 }
 
+/**
+ * Resets the seed values for all rows in the Cellular Automata state matrix.
+ * Assigns a random seed to each row using the `chooseSeed` function.
+ */
 export function resetSeeds() {
 	for (let i = 0; i < gameState.ROWS; i++) {
 		setSeed(i, chooseSeed())
 	}
 }
 
+/**
+ * Sets the goal state for a specific column in the game.
+ * Updates the corresponding goal in localStorage.
+ * @param {number} idx - The index of the column to set the goal for.
+ * @param {number} goal - The goal value to set.
+ */
 export function setGoal(idx, goal) {
 	gameState.GOALS[idx] = goal
 	localStorage.goals = JSON.stringify(gameState.GOALS)
 }
 
+/**
+ * Resets the goal values for all columns in the game.
+ * Assigns a random goal to each column using the `chooseGoal` function.
+ */
 export function resetGoals() {
 	for (let i = 0; i < gameState.COLS; i++)
 		setGoal(i, chooseGoal())
 }
 
+/**
+ * Resets the rules for all rows in the Cellular Automata.
+ * Assigns a random rule to each row using the `chooseRule` function.
+ */
 export function resetRules() {
 	for (let i = 0; i < gameState.COLS; i++)
 		setRule(i, chooseRule())
 }
 
+/**
+ * Sets a rule for a specific row in the Cellular Automata.
+ * Updates the rule in localStorage and recalculates the state matrix from the specified move onwards.
+ * @param {number} idx - The index of the row to set the rule for.
+ * @param {number} rule - The rule value to set.
+ * @param {boolean} [recalculateFromStart=false] - Whether to recalculate the state matrix from the first move.
+ */
 export function setRule(idx, rule, recalculateFromStart = false) {
 	// Save the new rule
 	gameState.RULES[idx] = rule;
@@ -422,6 +514,11 @@ export function setRule(idx, rule, recalculateFromStart = false) {
 	display_rule(idx, rule);
 }
 
+/**
+ * Resets the game state and initializes a new game.
+ * Configures either a random game or a preset game based on the provided parameter.
+ * @param {boolean} [is_random=false] - Whether to create a random game. Defaults to `false` for a preset game.
+ */
 export function makeNewGame(is_random = false) {
 	gameState.timer.reset()
 	gameState.timer.start()
@@ -512,22 +609,51 @@ export function makeNewGame(is_random = false) {
 	set_preset_menu()
 }
 
+/**
+ * Resets the game state and initializes a new preset game.
+ */
 export function reset() {
 	makeNewGame(false)
 }
 
+/**
+ * Resets the game state and initializes a new random game.
+ */
 export function random() {
 	makeNewGame(true)
 }
+
 /****************************
 	Cellular Automata
 *****************************/
+
+/**
+ * Tests whether a specific bit is set in a value.
+ * @param {number} value - The number to test.
+ * @param {number} bit - The bit position to check (0-indexed).
+ * @returns {number} - A non-zero value if the bit is set; otherwise, 0.
+ */
 export function bitTest(value, bit) {
 	return value & (1 << bit)
 }
+
+/**
+ * Sets a specific bit in a value.
+ * @param {number} value - The number to modify.
+ * @param {number} bit - The bit position to set (0-indexed).
+ * @returns {number} - The new value with the specified bit set.
+ */
 export function bitSet(value, bit) {
 	return value | (1 << bit)
 }
+
+/**
+ * Calculates the next state of a Cellular Automata row based on the given rule.
+ * Applies a 3-cell neighborhood rule to determine the new state.
+ * @param {number} state - The current state of the row as a bitmask.
+ * @param {number} rule - The rule to apply, represented as an 8-bit number.
+ * @returns {number} - The new state of the row as a bitmask.
+ */
 export function nextByRule(state, rule) {
 	//	if ( state == 0 ) return state;	// suppress grey cells
 	const n = 3
@@ -547,17 +673,39 @@ export function nextByRule(state, rule) {
 }
 
 // Utilities
+
+/**
+ * Generates a random integer from 0 to N-1.
+ * @param {number} N - The upper limit (exclusive) for the random number.
+ * @returns {number} - A random integer in the range [0, N).
+ */
 export function rnd(N) {
 	return Math.floor(Math.random() * (N))
 }
+
+/**
+ * Chooses a random Cellular Automata rule.
+ * @returns {number} - A random rule represented as an integer from 0 to 255.
+ */
 export function chooseRule() {
 	// Choose a new rule at random
 	return Math.floor(Math.random() * (256))	// 256 is the number of CA rules.
 }
+
+/**
+ * Chooses a random goal for a Cellular Automata column.
+ * @returns {number} - A random goal value represented as an integer from 0 to 7.
+ */
 export function chooseGoal() {
 	// Choose a new goal at random
 	return Math.floor(Math.random() * (8))	// 8 is the number of possible states.
 }
+
+/**
+ * Chooses a random seed for a Cellular Automata row.
+ * Seeds cannot be 0 or 7, so this function returns a value between 1 and 6.
+ * @returns {number} - A random seed value between 1 and 6 (inclusive).
+ */
 export function chooseSeed() {
 	// There are 8 possible CA states, but gameplay requires that seeds
 	// cannot be 0 or 7.
@@ -565,6 +713,10 @@ export function chooseSeed() {
 	return Math.floor(Math.random() * (6)) + 1
 }
 
+/**
+ * Enables the retreat button, allowing the user to move back in the game.
+ * Attaches a click event listener to the button.
+ */
 export function enable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button';
@@ -572,6 +724,10 @@ export function enable_retreat_button() {
 	retreat_btn.style.cursor = 'pointer';
 }
 
+/**
+ * Disables the retreat button, preventing the user from moving back in the game.
+ * Removes the click event listener from the button.
+ */
 export function disable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = 'button_disabled';
