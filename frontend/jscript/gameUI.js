@@ -10,15 +10,15 @@ export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'p
 export const current_cell_overlay_left_offset = 11.46
 
 export function init_rows() {
-	var gameboard_el = document.getElementById('gameboard');
+	const gameboard_el = document.getElementById('gameboard');
 	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
 
 
 	clearInterval(entry_page.anim_interval)
 	document.body.style.backgroundColor = "#bdcfcf"
 
-	for (var i = 0; i < gameState.ROWS; i++) {
-		var row_tr = document.createElement('TR');
+	for (let i = 0; i < gameState.ROWS; i++) {
+		const row_tr = document.createElement('TR');
 
 		// Attach event listeners to the table row
 		row_tr.addEventListener('dragenter', rule_dragenter);
@@ -26,9 +26,9 @@ export function init_rows() {
 		row_tr.addEventListener('dragleave', rule_dragleave);
 		row_tr.addEventListener('drop', rule_drop);
 
-		var row_label_td = document.createElement('TD');
+		const row_label_td = document.createElement('TD');
 
-		var row_label_div = document.createElement('DIV');
+		const row_label_div = document.createElement('DIV');
 		row_label_div.id = "label_" + i;
 		row_label_div.draggable = "true"; // Draggable element
 		row_label_div.className = "row_label";
@@ -42,10 +42,10 @@ export function init_rows() {
 		row_label_td.appendChild(row_label_div);
 		row_tr.appendChild(row_label_td);
 
-		for (var j = 0; j < gameState.COLS; j++) {
-			var cell_td = document.createElement('TD')
+		for (let j = 0; j < gameState.COLS; j++) {
+			const cell_td = document.createElement('TD')
 			cell_td.className = "game_cell_td"
-			var cell_div = document.createElement('DIV')
+			const cell_div = document.createElement('DIV')
 			if (j == gameState.CURRENT_MOVE) {
 				if (gameState.COOL_TRANSITIONS_ENABLED) {
 					cell_div.className = "game_cell_invisible"
@@ -72,18 +72,18 @@ export function init_rows() {
 	}
 
 	//////////////////////////////
-	var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
+	const gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
 	gameboard_overlay_el.innerHTML = ""
 	gameboard_overlay_el.style.top = (-11.7 * gameState.ROWS) + "em"
 	gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
-	for (var i = 0; i < gameState.ROWS; i++) {
-		var cell_overlay_container_el = document.createElement('DIV')
+	for (let i = 0; i < gameState.ROWS; i++) {
+		const cell_overlay_container_el = document.createElement('DIV')
 		cell_overlay_container_el.className = "gameboard_overlay_cell"
 
-		var cell_overlay_el = document.createElement('DIV')
+		const cell_overlay_el = document.createElement('DIV')
 		cell_overlay_el.className = "game_cell_current"
 		cell_overlay_el.id = "current_cell_" + i
-		var state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
+		const state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
 		cell_overlay_el.style.backgroundColor = COLORS[state]
 		cell_overlay_container_el.appendChild(cell_overlay_el)
 		gameboard_overlay_el.appendChild(cell_overlay_container_el)
