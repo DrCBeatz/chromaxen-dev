@@ -14,6 +14,7 @@ import { loadPreset } from './presetMenu.js';
 import { Timer } from './timer.js';
 import { updateMoveCounter, resize, init_rows, drawRows, display_rules, update_title_header, update_dragndrop_style_display, init_preset_menu, display_preset_features, enable_advance_button, hide_solve_button, display_rule, transition_states_animation, hide_screens, set_preset_menu, reveal_solve_button, solve, disable_advance_button } from './gameUI.js';
 import { win } from './win.js';
+import { dereference } from './utility.js';
 
 // Game play globals.
 gameState.ROWS = 8
