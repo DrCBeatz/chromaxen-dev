@@ -188,69 +188,68 @@ export function drawRows() {
 }
 
 export function update_title_header() {
-	//update title header
-	const header_el = document.getElementById('game_title_display')
-	header_el.innerHTML = gameState.GAME_NAME
+	const header_el = document.getElementById('game_title_display');
+	header_el.innerHTML = gameState.GAME_NAME;
 
-	const desc_el = document.getElementById('game_desc_display')
-	desc_el.innerHTML = gameState.GAME_DESC
+	const desc_el = document.getElementById('game_desc_display');
+	desc_el.innerHTML = gameState.GAME_DESC;
 }
 
 export function disable_retreat_button() {
-	const retreat_btn = document.getElementById('retreat_button')
-	retreat_btn.className = "button_disabled"
+	const retreat_btn = document.getElementById('retreat_button');
+	retreat_btn.className = "button_disabled";
 	retreat_btn.style.cursor = 'default';
 }
 
 export function enable_retreat_button() {
-	const retreat_btn = document.getElementById('retreat_button')
-	retreat_btn.className = "button"
+	const retreat_btn = document.getElementById('retreat_button');
+	retreat_btn.className = "button";
 	retreat_btn.style.cursor = 'pointer';
 }
 
 export function disable_advance_button() {
-	const advance_btn = document.getElementById('update_button')
-	advance_btn.className = "button_disabled"
-	advance_btn.onclick = function () { return false }
+	const advance_btn = document.getElementById('update_button');
+	advance_btn.className = "button_disabled";
+	advance_btn.onclick = function () { return false };
 }
 
 export function enable_advance_button() {
-	const advance_btn = document.getElementById('update_button')
-	advance_btn.className = "button"
-	advance_btn.onclick = nextMove
+	const advance_btn = document.getElementById('update_button');
+	advance_btn.className = "button";
+	advance_btn.onclick = nextMove;
 }
 
 export function reveal_solve_button() {
-	document.getElementById('solve_button').style.display = "block"
+	document.getElementById('solve_button').style.display = "block";
 }
 
 export function hide_solve_button() {
-	document.getElementById('solve_button').style.display = "none"
+	document.getElementById('solve_button').style.display = "none";
 }
 
 export function update_dragndrop_style_display() {
-	const style_display_el = document.getElementById('dragndrop_style_display')
+	const style_display_el = document.getElementById('dragndrop_style_display');
 	if (gameState.SWAP_ENABLED) {
-		style_display_el.innerHTML = "Style: Swap"
+		style_display_el.innerHTML = "Style: Swap";
 	} else {
-		style_display_el.innerHTML = "Style: Copy and Replace"
+		style_display_el.innerHTML = "Style: Copy and Replace";
 	}
 }
 
 export function solve() {
-	disable_retreat_button()
-	nextMove()
-	--gameState.MOVE_COUNT
+	disable_retreat_button();
+	nextMove();
+	--gameState.MOVE_COUNT;
 	let interval = setInterval(function () {
-		nextMove()
-		--gameState.MOVE_COUNT
+		nextMove();
+		--gameState.MOVE_COUNT;
 		if (gameState.CURRENT_MOVE == gameState.COLS - 1) { clearInterval(interval) }
 	}, 850)
 }
 
 export function display_rules() {
 	for (let i = 0; i < gameState.ROWS; i++) {
-		display_rule(i)
+		display_rule(i);
 	}
 }
 
@@ -266,42 +265,42 @@ export function display_rule(idx) {
 	theDiv.style.backgroundImage = `url(${image}`;
 	theDiv.innerHTML = `<header id='header_${idx}'>${rule}</header>`;
 
-	theDiv.setAttribute('data-rule', rule)
+	theDiv.setAttribute('data-rule', rule);
 }
 
 export function transition_states_animation(callback, is_forwards) {
-	gameState.is_cool_transitions_animating = true
+	gameState.is_cool_transitions_animating = true;
 
 	if (is_forwards) {
 		for (let i = 0; i < gameState.ROWS; i++) {
 			const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
-			const next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
+			const next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
 
-			next_el.style.display = "none"
+			next_el.style.display = "none";
 
 			const overlay_el = document.getElementById(`current_cell_${i}`);
-			overlay_el.className += " stretch_and_move"
-			overlay_el.style.transition = "background-color .8s"
-			overlay_el.style.backgroundColor = COLORS[next_state]
+			overlay_el.className += " stretch_and_move";
+			overlay_el.style.transition = "background-color .8s";
+			overlay_el.style.backgroundColor = COLORS[next_state];
 		}
 		setTimeout(function () {
 			for (let i = 0; i < gameState.ROWS; i++) {
 				const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
-				next_el.style.display = "block"
+				next_el.style.display = "block";
 
 				const overlay_el = document.getElementById(`current_cell_${i}`);
-				overlay_el.style.transition = "none"
-				overlay_el.className = "game_cell_current"
+				overlay_el.style.transition = "none";
+				overlay_el.className = "game_cell_current";
 			}
 
-			const gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
+			const gameboard_overlay_el = document.getElementById('gameboard_overlay_container');
 			gameboard_overlay_el.style.left = `${current_cell_overlay_left_offset * gameState.CURRENT_MOVE}em`;
 
-			gameState.is_cool_transitions_animating = false
+			gameState.is_cool_transitions_animating = false;
 
-			callback()
+			callback();
 			if (gameState.CURRENT_MOVE == (gameState.COLS - 1)) {
-				document.getElementById('gameboard_overlay_container').style.opacity = '0'
+				document.getElementById('gameboard_overlay_container').style.opacity = '0';
 			}
 		}, 800)
 	} else {
@@ -309,43 +308,43 @@ export function transition_states_animation(callback, is_forwards) {
 			const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
 			const next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
 
-			next_el.style.display = "none"
+			next_el.style.display = "none";
 
 			const overlay_el = document.getElementById(`current_cell_${i}`);
-			overlay_el.className += " stretch_and_move_backward"
-			overlay_el.style.transition = "background-color .8s"
-			overlay_el.style.backgroundColor = COLORS[next_state]
+			overlay_el.className += " stretch_and_move_backward";
+			overlay_el.style.transition = "background-color .8s";
+			overlay_el.style.backgroundColor = COLORS[next_state];
 		}
 		setTimeout( () => {
 			for (let i = 0; i < gameState.ROWS; i++) {
 				const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
-				next_el.style.display = "block"
+				next_el.style.display = "block";
 
 				const overlay_el = document.getElementById(`current_cell_${i}`);
-				overlay_el.style.transition = "none"
-				overlay_el.className = "game_cell_current"
+				overlay_el.style.transition = "none";
+				overlay_el.className = "game_cell_current";
 			}
 
 			const gameboard_overlay_el = document.getElementById('gameboard_overlay_container');
 			gameboard_overlay_el.style.left = `${current_cell_overlay_left_offset * gameState.CURRENT_MOVE}em`;
 
-			gameState.is_cool_transitions_animating = false
+			gameState.is_cool_transitions_animating = false;
 
-			callback()
+			callback();
 		}, 800)
 	}
 }
 
 export function hide_screens() {
-	var win_screen_element = document.getElementById('win_screen_container')
-	win_screen_element.style.display = 'none'
-	var lose_screen_element = document.getElementById('lose_screen_container')
-	lose_screen_element.style.display = 'none'
+	const win_screen_element = document.getElementById('win_screen_container');
+	win_screen_element.style.display = 'none';
+	const lose_screen_element = document.getElementById('lose_screen_container');
+	lose_screen_element.style.display = 'none';
 }
 
 export function set_preset_menu() {
 	var select_el = document.getElementById('preset_select_el')
-	select_el.value = gameState.GAME_NAME//"Game "+(PRESET+1)
+	select_el.value = gameState.GAME_NAME
 }
 
 export function init_preset_menu() {
