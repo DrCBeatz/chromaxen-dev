@@ -256,19 +256,15 @@ export function display_rules() {
 
 export function display_rule(idx) {
 	// Set the display.
-	var rule = gameState.RULES[idx]
+	const rule = gameState.RULES[idx];
 
-	var div_id = "label_" + idx
-	var theDiv = document.getElementById(div_id)
-	//var rule_onebased = rule + 1
+	const div_id = `label_${idx}`;
+	const theDiv = document.getElementById(div_id);
 
-	var image = "img/rule_images_svg/rule" + rule + ".svg"
-	//var image = "img/xRuleImages_80x80xx/xrule" + rule_onebased + ".jpg"
+	const image = `img/rule_images_svg/rule${rule}.svg`;
 
-	theDiv.style.backgroundImage = "url(" + image + ")"
-	//if(PRESET>9 || PRESET == -1){
-	theDiv.innerHTML = "<header id='header_" + idx + "'>" + rule + "</header>"
-	//}
+	theDiv.style.backgroundImage = `url(${image}`;
+	theDiv.innerHTML = `<header id='header_${idx}'>${rule}</header>`;
 
 	theDiv.setAttribute('data-rule', rule)
 }
