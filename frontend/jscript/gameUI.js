@@ -219,7 +219,13 @@ export function drawRows() {
 	}
 }
 
-
+/**
+ * Updates the game title and description displayed at the top of the page.
+ * It retrieves the game's name and description from `gameState` and
+ * sets them as the innerHTML of the corresponding elements.
+ *
+ * @returns {void}
+ */
 export function update_title_header() {
 	const header_el = document.getElementById('game_title_display');
 	header_el.innerHTML = gameState.GAME_NAME;
@@ -228,18 +234,37 @@ export function update_title_header() {
 	desc_el.innerHTML = gameState.GAME_DESC;
 }
 
+/**
+ * Disables the "retreat" button, preventing the user from moving backwards in the game state.
+ * The button's CSS class and cursor style are updated to visually indicate its disabled state.
+ *
+ * @returns {void}
+ */
 export function disable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = "button_disabled";
 	retreat_btn.style.cursor = 'default';
 }
 
+/**
+ * Enables the "retreat" button, allowing the user to move backwards in the game state.
+ * The button's CSS class and cursor style are updated to visually indicate it is interactive.
+ *
+ * @returns {void}
+ */
 export function enable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = "button";
 	retreat_btn.style.cursor = 'pointer';
 }
 
+/**
+ * Disables the "advance" button, preventing the user from moving forwards in the game state.
+ * The button's CSS class is updated, and its onclick handler is replaced with a function returning false,
+ * effectively blocking the advance action.
+ *
+ * @returns {void}
+ */
 export function disable_advance_button() {
 	const advance_btn = document.getElementById('update_button');
 	advance_btn.className = "button_disabled";
@@ -257,16 +282,35 @@ export function enable_advance_button() {
 	advance_btn.onclick = nextMove;
 }
 
+/**
+ * Reveals the "Solve" button by changing its display style to "block".
+ * This allows the user to see and potentially click on it to solve the puzzle.
+ *
+ * @returns {void}
+ */
 export function reveal_solve_button() {
 	const solve_btn = document.getElementById('solve_button');
 	solve_btn.style.display = "block";
 }
 
+/**
+ * Hides the "Solve" button by changing its display style to "none".
+ * This is typically done when the solve action is not currently available.
+ *
+ * @returns {void}
+ */
 export function hide_solve_button() {
 	const solve_btn = document.getElementById('solve_button');
 	solve_btn.style.display = "none";
 }
 
+/**
+ * Updates the drag-and-drop style display text based on the current game state.
+ * If swapping is enabled (`gameState.SWAP_ENABLED` is true), it shows "Style: Swap";
+ * otherwise, it displays "Style: Copy and Replace".
+ *
+ * @returns {void}
+ */
 export function update_dragndrop_style_display() {
 	const style_display_el = document.getElementById('dragndrop_style_display');
 	if (gameState.SWAP_ENABLED) {
@@ -276,6 +320,13 @@ export function update_dragndrop_style_display() {
 	}
 }
 
+/**
+ * Initiates a "solve" operation for the game. Disables the retreat button, then 
+ * triggers moves forward at timed intervals until the final move is reached.
+ * Each step decrements `gameState.MOVE_COUNT` and updates the board.
+ *
+ * @returns {void}
+ */
 export function solve() {
 	disable_retreat_button();
 	nextMove();
@@ -287,12 +338,25 @@ export function solve() {
 	}, 850)
 }
 
+/**
+ * Displays all the rules for each row in the game by calling `display_rule(i)` for each row.
+ * This populates the UI with images and text representing the rules in `gameState.RULES`.
+ *
+ * @returns {void}
+ */
 export function display_rules() {
 	for (let i = 0; i < gameState.ROWS; i++) {
 		display_rule(i);
 	}
 }
 
+/**
+ * Displays the rule for a specific row index by setting its background image,
+ * text header, and a `data-rule` attribute corresponding to the rule from `gameState.RULES`.
+ *
+ * @param {number} idx - The index of the rule (row) to display.
+ * @returns {void}
+ */
 export function display_rule(idx) {
 	// Set the display.
 	const rule = gameState.RULES[idx];
