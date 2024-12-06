@@ -27,9 +27,9 @@ export function init_rows() {
 		row_tr.addEventListener('drop', rule_drop);
 
 		const row_label_td = document.createElement('TD');
-
 		const row_label_div = document.createElement('DIV');
-		row_label_div.id = "label_" + i;
+
+		row_label_div.id = `label_${i}`;
 		row_label_div.draggable = "true"; // Draggable element
 		row_label_div.className = "row_label";
 
@@ -46,7 +46,8 @@ export function init_rows() {
 			const cell_td = document.createElement('TD');
 			cell_td.className = "game_cell_td";
 			const cell_div = document.createElement('DIV');
-			if (j == gameState.CURRENT_MOVE) {
+
+			if (j === gameState.CURRENT_MOVE) {
 				if (gameState.COOL_TRANSITIONS_ENABLED) {
 					cell_div.className = "game_cell_invisible";
 					document.getElementById('gameboard_overlay_container').style.opacity = "1";
@@ -54,7 +55,7 @@ export function init_rows() {
 					cell_div.className = "game_cell_current";
 				}
 				////////////////////
-			} else if (j == gameState.COLS - 1) {
+			} else if (j === gameState.COLS - 1) {
 				cell_div.className = "game_cell_goal";
 				cell_div.style.backgroundColor = COLORS[gameState.GOALS[i]];
 			} else if (j < gameState.CURRENT_MOVE) {
@@ -62,8 +63,8 @@ export function init_rows() {
 			} else {
 				cell_div.className = "game_cell_future";
 			}
-			cell_div.id = "cell_" + i + "_" + j;
 
+			cell_div.id = `cell_${i}_${j}`;
 			cell_td.appendChild(cell_div);
 			row_tr.appendChild(cell_td);
 		}
@@ -82,7 +83,7 @@ export function init_rows() {
 
 		const cell_overlay_el = document.createElement('DIV');
 		cell_overlay_el.className = "game_cell_current";
-		cell_overlay_el.id = "current_cell_" + i;
+		cell_overlay_el.id = `current_cell_${i}`;
 		const state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
 		cell_overlay_el.style.backgroundColor = COLORS[state];
 		cell_overlay_container_el.appendChild(cell_overlay_el);
