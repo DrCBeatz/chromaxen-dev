@@ -368,44 +368,42 @@ export function toggle_preset_menu() {
 }
 
 export function display_preset_features() {
-	if (gameState.PRESET == 0) {
-		document.getElementById('prev_button').style.display = 'none'
-		document.getElementById('next_button').style.display = 'block'
-	} else if (gameState.PRESET == -1) {
-		document.getElementById('prev_button').style.display = 'none'
-		document.getElementById('next_button').style.display = 'none'
-	} else if (gameState.PRESET == (gameState.GAME_PRESETS.length - 1)) {
-		document.getElementById('next_button').style.display = 'none'
+	const preset = gameState.PRESET;
+	const gamePresetsLength = gameState.GAME_PRESETS.length;
+
+	const prevButton = document.getElementById('prev_button');
+	const nextButton = document.getElementById('next_button');
+	const randomButton = document.getElementById('random_button');
+	const presetSelect = document.getElementById('preset_select_el');
+	const updateButton = document.getElementById('update_button');
+	const retreatButton = document.getElementById('retreat_button');
+
+	// Handle prev/next button visibility
+	if (preset === 0) {
+		prevButton.style.display = 'none';
+		nextButton.style.display = 'block';
+	} else if (preset === -1) {
+		prevButton.style.display = 'none';
+		nextButton.style.display = 'none';
+	} else if (preset === (gamePresetsLength - 1)) {
+		nextButton.style.display = 'none';
 	} else {
-		document.getElementById('prev_button').style.display = 'block'
-		document.getElementById('next_button').style.display = 'block'
+		prevButton.style.display = 'block';
+		nextButton.style.display = 'block';
 	}
 
-	if (gameState.PRESET == -1) {
-		document.getElementById('random_button').style.display = 'block'
-		document.getElementById('preset_select_el').style.display = 'none'
+	// Handle random/preset select visibility
+	if (preset === -1) {
+		randomButton.style.display = 'block';
+		presetSelect.style.display = 'none';
 	} else {
-		document.getElementById('random_button').style.display = 'none'
-		document.getElementById('preset_select_el').style.display = 'block'
+		randomButton.style.display = 'none';
+		presetSelect.style.display = 'block';
 	}
 
-	//if(PRESET>2 || PRESET == -1){//add advance and retreat button
-	document.getElementById('update_button').style.display = 'block'
-	document.getElementById('retreat_button').style.display = 'block'
-	//}else{
-	//	document.getElementById('update_button').style.display = 'none'
-	//	document.getElementById('retreat_button').style.display = 'none'
-	//}
-	//if(PRESET>6){//add game style display
-	//	document.getElementById('dragndrop_style_display').style.display = 'block'
-	//}else{
-	//	document.getElementById('dragndrop_style_display').style.display = 'none'
-	//}
-	//if(PRESET>9){//add timer display
-	//	document.getElementById('timer_display').style.display = 'block'
-	//}else{
-	//	document.getElementById('timer_display').style.display = 'none'
-	//}
+	// Show update and retreat buttons
+	updateButton.style.display = 'block';
+	retreatButton.style.display = 'block';
 }
 
 export function resize() {
