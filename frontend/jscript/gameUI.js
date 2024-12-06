@@ -190,7 +190,7 @@ export function drawRows() {
 export function update_title_header() {
 	//update title header
 	const header_el = document.getElementById('game_title_display')
-	header_el.innerHTML = gameState.GAME_NAME//"Game "+(PRESET+1)
+	header_el.innerHTML = gameState.GAME_NAME
 
 	const desc_el = document.getElementById('game_desc_display')
 	desc_el.innerHTML = gameState.GAME_DESC
@@ -271,32 +271,31 @@ export function display_rule(idx) {
 
 export function transition_states_animation(callback, is_forwards) {
 	gameState.is_cool_transitions_animating = true
-	if (is_forwards) {
-		for (var i = 0; i < gameState.ROWS; i++) {
-			var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
 
-			var next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
+	if (is_forwards) {
+		for (let i = 0; i < gameState.ROWS; i++) {
+			const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
+			const next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
 
 			next_el.style.display = "none"
 
-			var overlay_el = document.getElementById('current_cell_' + i)
+			const overlay_el = document.getElementById(`current_cell_${i}`);
 			overlay_el.className += " stretch_and_move"
 			overlay_el.style.transition = "background-color .8s"
 			overlay_el.style.backgroundColor = COLORS[next_state]
 		}
 		setTimeout(function () {
-			for (var i = 0; i < gameState.ROWS; i++) {
-				var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
-
+			for (let i = 0; i < gameState.ROWS; i++) {
+				const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
 				next_el.style.display = "block"
 
-
-				var overlay_el = document.getElementById('current_cell_' + i)
+				const overlay_el = document.getElementById(`current_cell_${i}`);
 				overlay_el.style.transition = "none"
 				overlay_el.className = "game_cell_current"
 			}
-			var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
-			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
+
+			const gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
+			gameboard_overlay_el.style.left = `${current_cell_overlay_left_offset * gameState.CURRENT_MOVE}em`;
 
 			gameState.is_cool_transitions_animating = false
 
@@ -307,29 +306,28 @@ export function transition_states_animation(callback, is_forwards) {
 		}, 800)
 	} else {
 		for (let i = 0; i < gameState.ROWS; i++) {
-			var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
-
-			var next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
+			const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
+			const next_state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
 
 			next_el.style.display = "none"
 
-			var overlay_el = document.getElementById('current_cell_' + i)
+			const overlay_el = document.getElementById(`current_cell_${i}`);
 			overlay_el.className += " stretch_and_move_backward"
 			overlay_el.style.transition = "background-color .8s"
 			overlay_el.style.backgroundColor = COLORS[next_state]
 		}
-		setTimeout(function () {
-			for (var i = 0; i < gameState.ROWS; i++) {
-				var next_el = document.getElementById('cell_' + i + '_' + (gameState.CURRENT_MOVE))
-
+		setTimeout( () => {
+			for (let i = 0; i < gameState.ROWS; i++) {
+				const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
 				next_el.style.display = "block"
 
-				var overlay_el = document.getElementById('current_cell_' + i)
+				const overlay_el = document.getElementById(`current_cell_${i}`);
 				overlay_el.style.transition = "none"
 				overlay_el.className = "game_cell_current"
 			}
-			var gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
-			gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
+
+			const gameboard_overlay_el = document.getElementById('gameboard_overlay_container');
+			gameboard_overlay_el.style.left = `${current_cell_overlay_left_offset * gameState.CURRENT_MOVE}em`;
 
 			gameState.is_cool_transitions_animating = false
 
