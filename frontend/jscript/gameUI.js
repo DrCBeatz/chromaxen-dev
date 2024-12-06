@@ -4,18 +4,18 @@ import { gameState } from './state.js';
 import { rule_dragenter, rule_dragover, rule_dragleave, rule_drop, rule_dragstart, rule_dragend, rule_mousedown, rule_mouseup } from './controllers.js';
 import { nextMove, nextByRule } from './gamelogic.js';
 
-export const COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742']
-export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black']
+export const COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742'];
+export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black'];
 
-export const current_cell_overlay_left_offset = 11.46
+export const current_cell_overlay_left_offset = 11.46;
 
 export function init_rows() {
 	const gameboard_el = document.getElementById('gameboard');
 	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
 
 
-	clearInterval(entry_page.anim_interval)
-	document.body.style.backgroundColor = "#bdcfcf"
+	clearInterval(entry_page.anim_interval);
+	document.body.style.backgroundColor = "#bdcfcf";
 
 	for (let i = 0; i < gameState.ROWS; i++) {
 		const row_tr = document.createElement('TR');
@@ -43,50 +43,50 @@ export function init_rows() {
 		row_tr.appendChild(row_label_td);
 
 		for (let j = 0; j < gameState.COLS; j++) {
-			const cell_td = document.createElement('TD')
-			cell_td.className = "game_cell_td"
-			const cell_div = document.createElement('DIV')
+			const cell_td = document.createElement('TD');
+			cell_td.className = "game_cell_td";
+			const cell_div = document.createElement('DIV');
 			if (j == gameState.CURRENT_MOVE) {
 				if (gameState.COOL_TRANSITIONS_ENABLED) {
-					cell_div.className = "game_cell_invisible"
-					document.getElementById('gameboard_overlay_container').style.opacity = "1"
+					cell_div.className = "game_cell_invisible";
+					document.getElementById('gameboard_overlay_container').style.opacity = "1";
 				} else {
-					cell_div.className = "game_cell_current"
+					cell_div.className = "game_cell_current";
 				}
 				////////////////////
 			} else if (j == gameState.COLS - 1) {
-				cell_div.className = "game_cell_goal"
-				cell_div.style.backgroundColor = COLORS[gameState.GOALS[i]]
+				cell_div.className = "game_cell_goal";
+				cell_div.style.backgroundColor = COLORS[gameState.GOALS[i]];
 			} else if (j < gameState.CURRENT_MOVE) {
-				cell_div.className = "game_cell_past"
+				cell_div.className = "game_cell_past";
 			} else {
-				cell_div.className = "game_cell_future"
+				cell_div.className = "game_cell_future";
 			}
-			cell_div.id = "cell_" + i + "_" + j
+			cell_div.id = "cell_" + i + "_" + j;
 
-			cell_td.appendChild(cell_div)
-			row_tr.appendChild(cell_td)
+			cell_td.appendChild(cell_div);
+			row_tr.appendChild(cell_td);
 		}
 
-		gameboard_el.appendChild(row_tr)
+		gameboard_el.appendChild(row_tr);
 	}
 
 	//////////////////////////////
-	const gameboard_overlay_el = document.getElementById('gameboard_overlay_container')
-	gameboard_overlay_el.innerHTML = ""
-	gameboard_overlay_el.style.top = (-11.7 * gameState.ROWS) + "em"
-	gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em"
+	const gameboard_overlay_el = document.getElementById('gameboard_overlay_container');
+	gameboard_overlay_el.innerHTML = "";
+	gameboard_overlay_el.style.top = (-11.7 * gameState.ROWS) + "em";
+	gameboard_overlay_el.style.left = (current_cell_overlay_left_offset * gameState.CURRENT_MOVE) + "em";
 	for (let i = 0; i < gameState.ROWS; i++) {
-		const cell_overlay_container_el = document.createElement('DIV')
-		cell_overlay_container_el.className = "gameboard_overlay_cell"
+		const cell_overlay_container_el = document.createElement('DIV');
+		cell_overlay_container_el.className = "gameboard_overlay_cell";
 
-		const cell_overlay_el = document.createElement('DIV')
-		cell_overlay_el.className = "game_cell_current"
-		cell_overlay_el.id = "current_cell_" + i
-		const state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE]
-		cell_overlay_el.style.backgroundColor = COLORS[state]
-		cell_overlay_container_el.appendChild(cell_overlay_el)
-		gameboard_overlay_el.appendChild(cell_overlay_container_el)
+		const cell_overlay_el = document.createElement('DIV');
+		cell_overlay_el.className = "game_cell_current";
+		cell_overlay_el.id = "current_cell_" + i;
+		const state = gameState.CA_STATE_MATRIX[i][gameState.CURRENT_MOVE];
+		cell_overlay_el.style.backgroundColor = COLORS[state];
+		cell_overlay_container_el.appendChild(cell_overlay_el);
+		gameboard_overlay_el.appendChild(cell_overlay_container_el);
 	}
 	////////////////////////////////
 }
@@ -220,11 +220,13 @@ export function enable_advance_button() {
 }
 
 export function reveal_solve_button() {
-	document.getElementById('solve_button').style.display = "block";
+	const solve_btn = document.getElementById('solve_button');
+	solve_btn.style.display = "block";
 }
 
 export function hide_solve_button() {
-	document.getElementById('solve_button').style.display = "none";
+	const solve_btn = document.getElementById('solve_button');
+	solve_btn.style.display = "none";
 }
 
 export function update_dragndrop_style_display() {
@@ -408,16 +410,17 @@ export function display_preset_features() {
 
 export function resize() {
 	if (gameState.ROWS > 4) {
-		document.body.style.fontSize = (14 - (gameState.ROWS - 4)) + 'px'
+		document.body.style.fontSize = (14 - (gameState.ROWS - 4)) + 'px';
 	} else {
-		document.body.style.fontSize = '14px'
+		document.body.style.fontSize = '14px';
 	}
 }
 
 export function updateMoveCounter() {
-	document.getElementById("update_counter").innerHTML = gameState.MOVE_COUNT
+	document.getElementById("update_counter").innerHTML = gameState.MOVE_COUNT;
 }
+
 export function showSolvedRows(flag) {
-	gameState.SHOW_SOLVED_ROWS = flag
-	drawRows()
+	gameState.SHOW_SOLVED_ROWS = flag;
+	drawRows();
 }
