@@ -229,7 +229,7 @@ export function hide_solve_button() {
 }
 
 export function update_dragndrop_style_display() {
-	var style_display_el = document.getElementById('dragndrop_style_display')
+	const style_display_el = document.getElementById('dragndrop_style_display')
 	if (gameState.SWAP_ENABLED) {
 		style_display_el.innerHTML = "Style: Swap"
 	} else {
@@ -241,7 +241,7 @@ export function solve() {
 	disable_retreat_button()
 	nextMove()
 	--gameState.MOVE_COUNT
-	var interval = setInterval(function () {
+	let interval = setInterval(function () {
 		nextMove()
 		--gameState.MOVE_COUNT
 		if (gameState.CURRENT_MOVE == gameState.COLS - 1) { clearInterval(interval) }
@@ -249,7 +249,7 @@ export function solve() {
 }
 
 export function display_rules() {
-	for (var i = 0; i < gameState.ROWS; i++) {
+	for (let i = 0; i < gameState.ROWS; i++) {
 		display_rule(i)
 	}
 }
