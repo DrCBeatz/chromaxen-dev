@@ -182,22 +182,22 @@ export function drawRow(id, hint, new_rule) {
 }
 
 export function drawRows() {
-	for (var i = 0; i < gameState.ROWS; i++) {
+	for (let i = 0; i < gameState.ROWS; i++) {
 		drawRow(i, 0);	// draw row, hint=0
 	}
 }
 
 export function update_title_header() {
 	//update title header
-	var header_el = document.getElementById('game_title_display')
+	const header_el = document.getElementById('game_title_display')
 	header_el.innerHTML = gameState.GAME_NAME//"Game "+(PRESET+1)
 
-	var desc_el = document.getElementById('game_desc_display')
+	const desc_el = document.getElementById('game_desc_display')
 	desc_el.innerHTML = gameState.GAME_DESC
 }
 
 export function disable_retreat_button() {
-	var retreat_btn = document.getElementById('retreat_button')
+	const retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button_disabled"
 	retreat_btn.style.cursor = 'default';
 }
