@@ -92,11 +92,11 @@ export function init_rows() {
 }
 
 export function drawRow(id, hint, new_rule) {
-	var states = [];
-	var wouldBeSolved = false;
+	let states = [];
+	let wouldBeSolved = false;
 
 	// Check if we're dragging over the source row
-	var isSourceRow = (gameState.dragSrcEl_ && parseInt(gameState.dragSrcEl_.id.split('_')[1]) === id);
+	const isSourceRow = (gameState.dragSrcEl_ && parseInt(gameState.dragSrcEl_.id.split('_')[1]) === id);
 
 	// **Add this check to ensure CA_STATE_MATRIX[id] exists**
 	if (!gameState.CA_STATE_MATRIX[id]) {
@@ -111,17 +111,17 @@ export function drawRow(id, hint, new_rule) {
 	}
 
 	// Determine if the row is already solved
-	var isAlreadySolved = gameState.CA_STATE_MATRIX[id][gameState.COLS - 1] === gameState.GOALS[id];
+	const isAlreadySolved = gameState.CA_STATE_MATRIX[id][gameState.COLS - 1] === gameState.GOALS[id];
 
 	if (new_rule !== undefined && !isSourceRow) {
 		// Use existing states up to the current move
-		for (var i = 0; i <= gameState.CURRENT_MOVE; i++) {
+		for (let i = 0; i <= gameState.CURRENT_MOVE; i++) {
 			states.push(gameState.CA_STATE_MATRIX[id][i]);
 		}
 
 		// Recalculate future states starting from the current move using the new rule
-		var state = gameState.CA_STATE_MATRIX[id][gameState.CURRENT_MOVE];
-		for (var j = gameState.CURRENT_MOVE + 1; j < gameState.COLS; j++) {
+		let state = gameState.CA_STATE_MATRIX[id][gameState.CURRENT_MOVE];
+		for (let j = gameState.CURRENT_MOVE + 1; j < gameState.COLS; j++) {
 			state = nextByRule(state, new_rule);
 			states.push(state);
 		}
@@ -134,7 +134,7 @@ export function drawRow(id, hint, new_rule) {
 	}
 
 	// Update the goal cell display based on whether the row is solved or would be solved
-	var goalCell = document.getElementById('cell_' + id + '_' + (gameState.COLS - 1));
+	const goalCell = document.getElementById('cell_' + id + '_' + (gameState.COLS - 1));
 
 	if (isAlreadySolved) {
 		// If the row is already solved, ensure it retains the 'Solved' appearance
@@ -154,10 +154,10 @@ export function drawRow(id, hint, new_rule) {
 	}
 
 	// Update the cell colors for each state
-	for (var i = 0; i < gameState.COLS - 1; i++) {
-		var state = states[i];
-		var cell_id = 'cell_' + id + '_' + i;
-		var cell_el = document.getElementById(cell_id);
+	for (let i = 0; i < gameState.COLS - 1; i++) {
+		const state = states[i];
+		const cell_id = 'cell_' + id + '_' + i;
+		const cell_el = document.getElementById(cell_id);
 		cell_el.style.backgroundColor = COLORS[state];
 
 		if (i === gameState.CURRENT_MOVE) {
