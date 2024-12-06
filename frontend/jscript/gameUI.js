@@ -372,6 +372,19 @@ export function display_rule(idx) {
 	theDiv.setAttribute('data-rule', rule);
 }
 
+/**
+ * Animates the transition of the game states (cells) either forwards or backwards.
+ * When moving forwards, the current state cells become invisible and an overlay
+ * expands into place, transitioning to the next state. After the animation, the cells
+ * are made visible again and the overlay is reset. When moving backwards, a similar
+ * animation occurs in reverse. This function relies on `gameState` for its current
+ * move and state data.
+ *
+ * @param {Function} callback - A function to call once the transition animation completes.
+ * @param {boolean} is_forwards - Determines the direction of the transition. If true, 
+ *   transitions forward; if false, transitions backward.
+ * @returns {void}
+ */
 export function transition_states_animation(callback, is_forwards) {
 	gameState.is_cool_transitions_animating = true;
 
@@ -439,6 +452,12 @@ export function transition_states_animation(callback, is_forwards) {
 	}
 }
 
+/**
+ * Hides any on-screen overlays such as "win" or "lose" screens, ensuring they
+ * are not visible to the player.
+ *
+ * @returns {void}
+ */
 export function hide_screens() {
 	const win_screen_element = document.getElementById('win_screen_container');
 	win_screen_element.style.display = 'none';
@@ -446,11 +465,23 @@ export function hide_screens() {
 	lose_screen_element.style.display = 'none';
 }
 
+/**
+ * Sets the value of the preset selection menu to the current `gameState.GAME_NAME`.
+ * This function is typically called when initializing or resetting the game UI.
+ *
+ * @returns {void}
+ */
 export function set_preset_menu() {
 	const select_el = document.getElementById('preset_select_el');
 	select_el.value = gameState.GAME_NAME;
 }
 
+/**
+ * Initializes the preset selection menu by populating it with the available game presets
+ * from `gameState.GAME_PRESETS`. It also selects the current preset based on `gameState.PRESET`.
+ *
+ * @returns {void}
+ */
 export function init_preset_menu() {
 	const select_el = document.getElementById('preset_select_el');
 	select_el.innerHTML = "";
@@ -462,6 +493,12 @@ export function init_preset_menu() {
 	select_el.selectedIndex = gameState.PRESET;
 }
 
+/**
+ * Toggles the visibility of the preset selection menu. If the menu is currently
+ * displayed as "block", it will be hidden, and vice versa.
+ *
+ * @returns {void}
+ */
 export function toggle_preset_menu() {
 	const preset_el = document.getElementById('preset_select_el');
 	if (preset_el.style.display == 'block') {
@@ -471,6 +508,22 @@ export function toggle_preset_menu() {
 	}
 }
 
+/**
+ * Adjusts the visibility and layout of various preset-related UI elements (previous/next buttons,
+ * random/preset select menu, update/retreat buttons) based on the current `gameState.PRESET` value
+ * and the total number of game presets available.
+ *
+ * If the preset is:
+ * - 0: Hides the 'previous' button, shows 'next'.
+ * - -1: Hides both 'previous' and 'next', shows the random button.
+ * - The last preset: Hides the 'next' button.
+ * - Any other preset: Shows both 'previous' and 'next'.
+ *
+ * Also toggles between showing the random button or the preset select dropdown depending on 
+ * whether a valid preset is chosen, and ensures the update and retreat buttons are visible.
+ *
+ * @returns {void}
+ */
 export function display_preset_features() {
 	const preset = gameState.PRESET;
 	const gamePresetsLength = gameState.GAME_PRESETS.length;
@@ -510,6 +563,12 @@ export function display_preset_features() {
 	retreatButton.style.display = 'block';
 }
 
+/**
+ * Resizes the game's font size based on the number of rows in `gameState.ROWS`.
+ * If there are more than 4 rows, it reduces the font size proportionally.
+ *
+ * @returns {void}
+ */
 export function resize() {
 	if (gameState.ROWS > 4) {
 		document.body.style.fontSize = (14 - (gameState.ROWS - 4)) + 'px';
@@ -518,10 +577,22 @@ export function resize() {
 	}
 }
 
+/**
+ * Updates the displayed move counter in the UI to reflect `gameState.MOVE_COUNT`.
+ *
+ * @returns {void}
+ */
 export function updateMoveCounter() {
 	document.getElementById("update_counter").innerHTML = gameState.MOVE_COUNT;
 }
 
+/**
+ * Toggles the visibility of solved rows in the game board by setting `gameState.SHOW_SOLVED_ROWS`
+ * to the provided flag and then redrawing all rows.
+ *
+ * @param {boolean} flag - If true, shows solved rows; if false, hides them.
+ * @returns {void}
+ */
 export function showSolvedRows(flag) {
 	gameState.SHOW_SOLVED_ROWS = flag;
 	drawRows();
