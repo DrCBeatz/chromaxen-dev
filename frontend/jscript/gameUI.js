@@ -4,11 +4,27 @@ import { gameState } from './state.js';
 import { rule_dragenter, rule_dragover, rule_dragleave, rule_drop, rule_dragstart, rule_dragend, rule_mousedown, rule_mouseup } from './controllers.js';
 import { nextMove, nextByRule } from './gamelogic.js';
 
+/**
+ * Array of color hex codes used by the game to represent cell states.
+ * @type {string[]}
+ */
 export const COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742'];
+
+/**
+ * Keys for the colors array, providing a human-readable identifier for each color.
+ * @type {string[]}
+ */
 export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black'];
 
 export const current_cell_overlay_left_offset = 11.46;
 
+/**
+ * Initializes the gameboard rows and their corresponding DOM elements.
+ * It clears the current board, sets up rows, attaches event listeners, and 
+ * updates the overlay that represents the current state.
+ *
+ * @returns {void}
+ */
 export function init_rows() {
 	const gameboard_el = document.getElementById('gameboard');
 	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
@@ -92,6 +108,17 @@ export function init_rows() {
 	////////////////////////////////
 }
 
+/**
+ * Redraws a single row of the game board, updating cell states, applying styling
+ * for current, future, or solved states, and previewing potential "would-be-solved" states
+ * based on a new rule.
+ *
+ * @param {number} id - The index of the row to draw.
+ * @param {number} hint - Indicates whether hints (e.g., future states) should be displayed.
+ * @param {number|undefined} [new_rule] - Optional new rule to apply when recalculating future states. 
+ * If not provided, the current rule from the game state is used.
+ * @returns {void}
+ */
 export function drawRow(id, hint, new_rule) {
 	let states = [];
 	let wouldBeSolved = false;
@@ -181,11 +208,17 @@ export function drawRow(id, hint, new_rule) {
 	}
 }
 
+/**
+ * Redraws all rows on the board using the current game state.
+ *
+ * @returns {void}
+ */
 export function drawRows() {
 	for (let i = 0; i < gameState.ROWS; i++) {
 		drawRow(i, 0);	// draw row, hint=0
 	}
 }
+
 
 export function update_title_header() {
 	const header_el = document.getElementById('game_title_display');
@@ -213,6 +246,11 @@ export function disable_advance_button() {
 	advance_btn.onclick = function () { return false };
 }
 
+/**
+ * Enables the "advance" button, allowing the user to proceed to the next move.
+ *
+ * @returns {void}
+ */
 export function enable_advance_button() {
 	const advance_btn = document.getElementById('update_button');
 	advance_btn.className = "button";
