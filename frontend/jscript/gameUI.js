@@ -343,8 +343,8 @@ export function hide_screens() {
 }
 
 export function set_preset_menu() {
-	const select_el = document.getElementById('preset_select_el')
-	select_el.value = gameState.GAME_NAME
+	const select_el = document.getElementById('preset_select_el');
+	select_el.value = gameState.GAME_NAME;
 }
 
 export function init_preset_menu() {
@@ -359,11 +359,11 @@ export function init_preset_menu() {
 }
 
 export function toggle_preset_menu() {
-	var preset_el = document.getElementById('preset_select_el')
+	const preset_el = document.getElementById('preset_select_el');
 	if (preset_el.style.display == 'block') {
-		preset_el.style.display = 'none'
+		preset_el.style.display = 'none';
 	} else {
-		preset_el.style.display = 'block'
+		preset_el.style.display = 'block';
 	}
 }
 
