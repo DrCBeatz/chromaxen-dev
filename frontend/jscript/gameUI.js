@@ -343,15 +343,15 @@ export function hide_screens() {
 }
 
 export function set_preset_menu() {
-	var select_el = document.getElementById('preset_select_el')
+	const select_el = document.getElementById('preset_select_el')
 	select_el.value = gameState.GAME_NAME
 }
 
 export function init_preset_menu() {
-	var select_el = document.getElementById('preset_select_el');
+	const select_el = document.getElementById('preset_select_el');
 	select_el.innerHTML = "";
-	for (var i = 0; i < gameState.GAME_PRESETS.length; i++) {
-		var option_el = document.createElement('OPTION');
+	for (let i = 0; i < gameState.GAME_PRESETS.length; i++) {
+		const option_el = document.createElement('OPTION');
 		option_el.innerHTML = gameState.GAME_PRESETS[i].name; // or use "Game " + (i + 1) if you prefer
 		select_el.appendChild(option_el);
 	}
