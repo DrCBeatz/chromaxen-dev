@@ -135,7 +135,7 @@ export function drawRow(id, hint, new_rule) {
 	}
 
 	// Update the goal cell display based on whether the row is solved or would be solved
-	const goalCell = document.getElementById('cell_' + id + '_' + (gameState.COLS - 1));
+	const goalCell = document.getElementById(`cell_${id}_${gameState.COLS - 1}`);
 
 	if (isAlreadySolved) {
 		// If the row is already solved, ensure it retains the 'Solved' appearance
@@ -157,8 +157,7 @@ export function drawRow(id, hint, new_rule) {
 	// Update the cell colors for each state
 	for (let i = 0; i < gameState.COLS - 1; i++) {
 		const state = states[i];
-		const cell_id = 'cell_' + id + '_' + i;
-		const cell_el = document.getElementById(cell_id);
+		const cell_el = document.getElementById(`cell_${id}_${i}`);
 		cell_el.style.backgroundColor = COLORS[state];
 
 		if (i === gameState.CURRENT_MOVE) {
