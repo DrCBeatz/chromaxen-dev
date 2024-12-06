@@ -4,11 +4,27 @@ import { gameState } from './state.js';
 import { rule_dragenter, rule_dragover, rule_dragleave, rule_drop, rule_dragstart, rule_dragend, rule_mousedown, rule_mouseup } from './controllers.js';
 import { nextMove, nextByRule } from './gamelogic.js';
 
+/**
+ * Array of color hex codes used by the game to represent cell states.
+ * @type {string[]}
+ */
 export const COLORS = ['#9f9eb1', '#e33a3a', '#ff8026', '#e1d943', '#55d55a', '#56aaee', '#9d65d5', '#523742'];
+
+/**
+ * Keys for the colors array, providing a human-readable identifier for each color.
+ * @type {string[]}
+ */
 export const COLOR_KEY = ['grey', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'black'];
 
 export const current_cell_overlay_left_offset = 11.46;
 
+/**
+ * Initializes the gameboard rows and their corresponding DOM elements.
+ * It clears the current board, sets up rows, attaches event listeners, and 
+ * updates the overlay that represents the current state.
+ *
+ * @returns {void}
+ */
 export function init_rows() {
 	const gameboard_el = document.getElementById('gameboard');
 	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
@@ -92,6 +108,17 @@ export function init_rows() {
 	////////////////////////////////
 }
 
+/**
+ * Redraws a single row of the game board, updating cell states, applying styling
+ * for current, future, or solved states, and previewing potential "would-be-solved" states
+ * based on a new rule.
+ *
+ * @param {number} id - The index of the row to draw.
+ * @param {number} hint - Indicates whether hints (e.g., future states) should be displayed.
+ * @param {number|undefined} [new_rule] - Optional new rule to apply when recalculating future states. 
+ * If not provided, the current rule from the game state is used.
+ * @returns {void}
+ */
 export function drawRow(id, hint, new_rule) {
 	let states = [];
 	let wouldBeSolved = false;
@@ -181,12 +208,24 @@ export function drawRow(id, hint, new_rule) {
 	}
 }
 
+/**
+ * Redraws all rows on the board using the current game state.
+ *
+ * @returns {void}
+ */
 export function drawRows() {
 	for (let i = 0; i < gameState.ROWS; i++) {
 		drawRow(i, 0);	// draw row, hint=0
 	}
 }
 
+/**
+ * Updates the game title and description displayed at the top of the page.
+ * It retrieves the game's name and description from `gameState` and
+ * sets them as the innerHTML of the corresponding elements.
+ *
+ * @returns {void}
+ */
 export function update_title_header() {
 	const header_el = document.getElementById('game_title_display');
 	header_el.innerHTML = gameState.GAME_NAME;
@@ -195,40 +234,83 @@ export function update_title_header() {
 	desc_el.innerHTML = gameState.GAME_DESC;
 }
 
+/**
+ * Disables the "retreat" button, preventing the user from moving backwards in the game state.
+ * The button's CSS class and cursor style are updated to visually indicate its disabled state.
+ *
+ * @returns {void}
+ */
 export function disable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = "button_disabled";
 	retreat_btn.style.cursor = 'default';
 }
 
+/**
+ * Enables the "retreat" button, allowing the user to move backwards in the game state.
+ * The button's CSS class and cursor style are updated to visually indicate it is interactive.
+ *
+ * @returns {void}
+ */
 export function enable_retreat_button() {
 	const retreat_btn = document.getElementById('retreat_button');
 	retreat_btn.className = "button";
 	retreat_btn.style.cursor = 'pointer';
 }
 
+/**
+ * Disables the "advance" button, preventing the user from moving forwards in the game state.
+ * The button's CSS class is updated, and its onclick handler is replaced with a function returning false,
+ * effectively blocking the advance action.
+ *
+ * @returns {void}
+ */
 export function disable_advance_button() {
 	const advance_btn = document.getElementById('update_button');
 	advance_btn.className = "button_disabled";
 	advance_btn.onclick = function () { return false };
 }
 
+/**
+ * Enables the "advance" button, allowing the user to proceed to the next move.
+ *
+ * @returns {void}
+ */
 export function enable_advance_button() {
 	const advance_btn = document.getElementById('update_button');
 	advance_btn.className = "button";
 	advance_btn.onclick = nextMove;
 }
 
+/**
+ * Reveals the "Solve" button by changing its display style to "block".
+ * This allows the user to see and potentially click on it to solve the puzzle.
+ *
+ * @returns {void}
+ */
 export function reveal_solve_button() {
 	const solve_btn = document.getElementById('solve_button');
 	solve_btn.style.display = "block";
 }
 
+/**
+ * Hides the "Solve" button by changing its display style to "none".
+ * This is typically done when the solve action is not currently available.
+ *
+ * @returns {void}
+ */
 export function hide_solve_button() {
 	const solve_btn = document.getElementById('solve_button');
 	solve_btn.style.display = "none";
 }
 
+/**
+ * Updates the drag-and-drop style display text based on the current game state.
+ * If swapping is enabled (`gameState.SWAP_ENABLED` is true), it shows "Style: Swap";
+ * otherwise, it displays "Style: Copy and Replace".
+ *
+ * @returns {void}
+ */
 export function update_dragndrop_style_display() {
 	const style_display_el = document.getElementById('dragndrop_style_display');
 	if (gameState.SWAP_ENABLED) {
@@ -238,6 +320,13 @@ export function update_dragndrop_style_display() {
 	}
 }
 
+/**
+ * Initiates a "solve" operation for the game. Disables the retreat button, then 
+ * triggers moves forward at timed intervals until the final move is reached.
+ * Each step decrements `gameState.MOVE_COUNT` and updates the board.
+ *
+ * @returns {void}
+ */
 export function solve() {
 	disable_retreat_button();
 	nextMove();
@@ -249,12 +338,25 @@ export function solve() {
 	}, 850)
 }
 
+/**
+ * Displays all the rules for each row in the game by calling `display_rule(i)` for each row.
+ * This populates the UI with images and text representing the rules in `gameState.RULES`.
+ *
+ * @returns {void}
+ */
 export function display_rules() {
 	for (let i = 0; i < gameState.ROWS; i++) {
 		display_rule(i);
 	}
 }
 
+/**
+ * Displays the rule for a specific row index by setting its background image,
+ * text header, and a `data-rule` attribute corresponding to the rule from `gameState.RULES`.
+ *
+ * @param {number} idx - The index of the rule (row) to display.
+ * @returns {void}
+ */
 export function display_rule(idx) {
 	// Set the display.
 	const rule = gameState.RULES[idx];
@@ -270,6 +372,19 @@ export function display_rule(idx) {
 	theDiv.setAttribute('data-rule', rule);
 }
 
+/**
+ * Animates the transition of the game states (cells) either forwards or backwards.
+ * When moving forwards, the current state cells become invisible and an overlay
+ * expands into place, transitioning to the next state. After the animation, the cells
+ * are made visible again and the overlay is reset. When moving backwards, a similar
+ * animation occurs in reverse. This function relies on `gameState` for its current
+ * move and state data.
+ *
+ * @param {Function} callback - A function to call once the transition animation completes.
+ * @param {boolean} is_forwards - Determines the direction of the transition. If true, 
+ *   transitions forward; if false, transitions backward.
+ * @returns {void}
+ */
 export function transition_states_animation(callback, is_forwards) {
 	gameState.is_cool_transitions_animating = true;
 
@@ -337,6 +452,12 @@ export function transition_states_animation(callback, is_forwards) {
 	}
 }
 
+/**
+ * Hides any on-screen overlays such as "win" or "lose" screens, ensuring they
+ * are not visible to the player.
+ *
+ * @returns {void}
+ */
 export function hide_screens() {
 	const win_screen_element = document.getElementById('win_screen_container');
 	win_screen_element.style.display = 'none';
@@ -344,11 +465,23 @@ export function hide_screens() {
 	lose_screen_element.style.display = 'none';
 }
 
+/**
+ * Sets the value of the preset selection menu to the current `gameState.GAME_NAME`.
+ * This function is typically called when initializing or resetting the game UI.
+ *
+ * @returns {void}
+ */
 export function set_preset_menu() {
 	const select_el = document.getElementById('preset_select_el');
 	select_el.value = gameState.GAME_NAME;
 }
 
+/**
+ * Initializes the preset selection menu by populating it with the available game presets
+ * from `gameState.GAME_PRESETS`. It also selects the current preset based on `gameState.PRESET`.
+ *
+ * @returns {void}
+ */
 export function init_preset_menu() {
 	const select_el = document.getElementById('preset_select_el');
 	select_el.innerHTML = "";
@@ -360,6 +493,12 @@ export function init_preset_menu() {
 	select_el.selectedIndex = gameState.PRESET;
 }
 
+/**
+ * Toggles the visibility of the preset selection menu. If the menu is currently
+ * displayed as "block", it will be hidden, and vice versa.
+ *
+ * @returns {void}
+ */
 export function toggle_preset_menu() {
 	const preset_el = document.getElementById('preset_select_el');
 	if (preset_el.style.display == 'block') {
@@ -369,6 +508,22 @@ export function toggle_preset_menu() {
 	}
 }
 
+/**
+ * Adjusts the visibility and layout of various preset-related UI elements (previous/next buttons,
+ * random/preset select menu, update/retreat buttons) based on the current `gameState.PRESET` value
+ * and the total number of game presets available.
+ *
+ * If the preset is:
+ * - 0: Hides the 'previous' button, shows 'next'.
+ * - -1: Hides both 'previous' and 'next', shows the random button.
+ * - The last preset: Hides the 'next' button.
+ * - Any other preset: Shows both 'previous' and 'next'.
+ *
+ * Also toggles between showing the random button or the preset select dropdown depending on 
+ * whether a valid preset is chosen, and ensures the update and retreat buttons are visible.
+ *
+ * @returns {void}
+ */
 export function display_preset_features() {
 	const preset = gameState.PRESET;
 	const gamePresetsLength = gameState.GAME_PRESETS.length;
@@ -408,6 +563,12 @@ export function display_preset_features() {
 	retreatButton.style.display = 'block';
 }
 
+/**
+ * Resizes the game's font size based on the number of rows in `gameState.ROWS`.
+ * If there are more than 4 rows, it reduces the font size proportionally.
+ *
+ * @returns {void}
+ */
 export function resize() {
 	if (gameState.ROWS > 4) {
 		document.body.style.fontSize = (14 - (gameState.ROWS - 4)) + 'px';
@@ -416,10 +577,22 @@ export function resize() {
 	}
 }
 
+/**
+ * Updates the displayed move counter in the UI to reflect `gameState.MOVE_COUNT`.
+ *
+ * @returns {void}
+ */
 export function updateMoveCounter() {
 	document.getElementById("update_counter").innerHTML = gameState.MOVE_COUNT;
 }
 
+/**
+ * Toggles the visibility of solved rows in the game board by setting `gameState.SHOW_SOLVED_ROWS`
+ * to the provided flag and then redrawing all rows.
+ *
+ * @param {boolean} flag - If true, shows solved rows; if false, hides them.
+ * @returns {void}
+ */
 export function showSolvedRows(flag) {
 	gameState.SHOW_SOLVED_ROWS = flag;
 	drawRows();
