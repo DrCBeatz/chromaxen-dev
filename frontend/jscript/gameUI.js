@@ -203,19 +203,19 @@ export function disable_retreat_button() {
 }
 
 export function enable_retreat_button() {
-	var retreat_btn = document.getElementById('retreat_button')
+	const retreat_btn = document.getElementById('retreat_button')
 	retreat_btn.className = "button"
 	retreat_btn.style.cursor = 'pointer';
 }
 
 export function disable_advance_button() {
-	var advance_btn = document.getElementById('update_button')
+	const advance_btn = document.getElementById('update_button')
 	advance_btn.className = "button_disabled"
 	advance_btn.onclick = function () { return false }
 }
 
 export function enable_advance_button() {
-	var advance_btn = document.getElementById('update_button')
+	const advance_btn = document.getElementById('update_button')
 	advance_btn.className = "button"
 	advance_btn.onclick = nextMove
 }
