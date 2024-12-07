@@ -4,13 +4,13 @@ import { COLORS } from './gameUI.js';
 import { nextByRule } from './gamelogic.js';
 
 export function get_rules_list(el, callback) {
-    var xhttp = new XMLHttpRequest()
+    const xhttp = new XMLHttpRequest()
     xhttp.onreadystatechange = function () {
         if (xhttp.readyState == 4 && xhttp.status == 200) {
-            var json = JSON.parse(xhttp.responseText)
+            const json = JSON.parse(xhttp.responseText)
             json.sort(function (n1, n2) {
-                var number1 = parseInt(n1.split("/")[2].match(/\d+/)[0])
-                var number2 = parseInt(n2.split("/")[2].match(/\d+/)[0])
+                const number1 = parseInt(n1.split("/")[2].match(/\d+/)[0])
+                const number2 = parseInt(n2.split("/")[2].match(/\d+/)[0])
                 if (number1 > number2) {
                     return 1
                 } else {
@@ -19,23 +19,23 @@ export function get_rules_list(el, callback) {
             })
 
             el.innerHTML = ""
-            for (var i = 0; i < json.length; i++) {
-                var url = json[i]
-                var is_finished = false
+            for (let i = 0; i < json.length; i++) {
+                const url = json[i]
+                let is_finished = false
                 if (url.match(/svg/)) {
                     is_finished = true
                 } else {
                     is_finished = false
                 }
 
-                var title = json[i].split(".")[0]
+                let title = json[i].split(".")[0]
                 title = title.split("/")[2]
 
-                var rule_number = /\d+/.exec(title)
+                const rule_number = /\d+/.exec(title)
 
-                var old_url = "img/old_images/x" + title + ".jpg"
+                const old_url = "img/old_images/x" + title + ".jpg"
 
-                var rule_el = document.createElement('DIV')
+                const rule_el = document.createElement('DIV')
                 rule_el.style.backgroundImage = "url(" + url + ")"
                 rule_el.innerHTML = "<header>" + title + "</header>"
                 rule_el.className = "rule"
@@ -63,7 +63,7 @@ export function get_rules_list(el, callback) {
 }
 
 export function show_rule(rule_number) {
-    var rule_el = document.getElementById('rule' + rule_number)
+    const rule_el = document.getElementById('rule' + rule_number)
 
     document.getElementById('all_rules_container').style.display = 'none'
     document.getElementById('tester_container').style.display = 'block'
@@ -76,21 +76,21 @@ export function show_rule(rule_number) {
         document.getElementById('old_img_display').style.backgroundImage = "url(" + rule_el.dataset.old_url + ")"
     }
 
-    var table = document.getElementById('color_test_table')
+    const table = document.getElementById('color_test_table')
     table.innerHTML = ""
 
-    var state = [0, 1, 2, 3, 4, 5, 6, 7]
-    for (var i = 0; i < 8; i++) {
-        var tr = document.createElement('TR')
+    let state = [0, 1, 2, 3, 4, 5, 6, 7]
+    for (let i = 0; i < 8; i++) {
+        const tr = document.createElement('TR')
 
-        var td = document.createElement('TD')
+        const td = document.createElement('TD')
         td.style.backgroundColor = COLORS[i]
         td.style.width = "2em"
         td.style.height = "2em"
         tr.appendChild(td)
-        for (var j = 0; j < state.length; j++) {
-            var td = document.createElement('TD')
-            var next = nextByRule(state[i], rule_el.dataset.rule_number)
+        for (let j = 0; j < state.length; j++) {
+            const td = document.createElement('TD')
+            const next = nextByRule(state[i], rule_el.dataset.rule_number)
             state[i] = next
             td.style.backgroundColor = COLORS[next]
             td.style.width = "2em"
@@ -103,7 +103,7 @@ export function show_rule(rule_number) {
 
 export function show_prev_rule() {
     get_rules_list(document.getElementById('all_rules_container'), function () {
-        var rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
+        const rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
         if (rule_number > 0) {
             show_rule(--rule_number)
         } else {
@@ -114,7 +114,9 @@ export function show_prev_rule() {
 
 export function show_next_rule() {
     get_rules_list(document.getElementById('all_rules_container'), function () {
-        var rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
+        // const rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
+        const rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML);
+        let rule_number = rule_number_match ? parseInt(rule_number_match[0], 10) : 0;
         if (rule_number < 255) {
             show_rule(++rule_number)
         } else {

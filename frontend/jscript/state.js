@@ -5,6 +5,7 @@
  * Stores configuration, gameplay variables, and state data shared across the application.
  * @module GameState
  */
+
 export const gameState = {
   /**
    * Number of rows in the game grid.
@@ -91,7 +92,7 @@ export const gameState = {
    * @default true
    */
   SWAP_ENABLED: true,
-  
+
   /**
    * Whether solved rows should be visually highlighted.
    * @type {boolean}
