@@ -1,5 +1,17 @@
 // jscript/win.js
 
+/**
+ * @module win
+ * @description This module handles the end-game scenarios for Chromaxen.
+ * It displays the win or lose screens, interacts with a remote API to fetch and store
+ * high scores, and updates the leaderboard based on the player's performance.
+ * 
+ * Exports:
+ * - Constants: `HIGH_SCORE_LENGTH`
+ * - Variables: `API_BASE_URL`
+ * - Functions: `setApiBaseUrl`, `win`, `lose`, `send_win_data`, `get_leader_board`, `process_leaderboard`, `draw_leaderboard`, `create_enter_name_form`
+ */
+
 import { gameState } from "./state.js";
 import { hide_solve_button } from "./gameUI.js";
 
@@ -59,49 +71,56 @@ export function lose() {
 }
 
 /**
- * Sends the player's win data to the server.
+ * Sends the player's win data to the server using Fetch.
  * @function send_win_data
  * @param {Object} win_data - The win data to send.
- * @returns {void}
+ * @returns {Promise<void>} A promise that resolves once the request completes.
  */
-export function send_win_data(win_data) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (xhttp.readyState === 4) {
-            if (xhttp.status === 200) {
-                console.log(xhttp.responseText);
-            } else {
-                console.error("Error sending win data:", xhttp.statusText);
-            }
+export async function send_win_data(win_data) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/win_state`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(win_data)
+        });
+
+        if (!response.ok) {
+            console.error("Error sending win data:", response.statusText);
+        } else {
+            const text = await response.text();
+            console.log(text);
         }
-    };
-    xhttp.open("POST", API_BASE_URL + "/api/win_state", true);
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.send(JSON.stringify(win_data));
+    } catch (error) {
+        console.error("Error sending win data:", error);
+    }
 }
 
 /**
- * Fetches the leaderboard from the server and processes it.
+ * Fetches the leaderboard from the server and processes it using Fetch.
  * @function get_leader_board
- * @returns {void}
+ * @returns {Promise<void>} A promise that resolves once the leaderboard is fetched and processed.
  */
-export function get_leader_board() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (xhttp.readyState === 4) {
-            if (xhttp.status === 200) {
-                const high_score_header_el = document.getElementById('high_score_table_header');
-                high_score_header_el.innerHTML = "High Score for " + gameState.GAME_NAME;
+export async function get_leader_board() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/win_states?game=${encodeURIComponent(gameState.GAME_NAME)}`, {
+            method: "GET"
+        });
 
-                const high_scores = JSON.parse(xhttp.responseText) || [];
-                process_leaderboard(high_scores);
-            } else {
-                console.error("Error fetching leaderboard:", xhttp.statusText);
-            }
+        if (!response.ok) {
+            console.error("Error fetching leaderboard:", response.statusText);
+            return;
         }
-    };
-    xhttp.open("GET", API_BASE_URL + "/api/win_states?game=" + encodeURIComponent(gameState.GAME_NAME), true);
-    xhttp.send();
+
+        const high_scores = await response.json();
+        const high_score_header_el = document.getElementById('high_score_table_header');
+        high_score_header_el.innerHTML = "High Score for " + gameState.GAME_NAME;
+
+        process_leaderboard(high_scores || []);
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+    }
 }
 
 /**
@@ -124,7 +143,7 @@ export function process_leaderboard(high_scores) {
             if (
                 win_data.moves < high_scores[i].moves ||
                 (win_data.moves === high_scores[i].moves &&
-                (gameState.timer.t_string_to_sec(win_data.time) < gameState.timer.t_string_to_sec(high_scores[i].time)))
+                 (gameState.timer.t_string_to_sec(win_data.time) < gameState.timer.t_string_to_sec(high_scores[i].time)))
             ) {
                 high_scores.splice(i, 0, win_data);
                 is_highscore = true;
@@ -230,7 +249,7 @@ export function create_enter_name_form(win_data) {
     const button = document.createElement('BUTTON');
     button.innerHTML = "send";
 
-    button.onclick = function (event) {
+    button.onclick = async function (event) {
         event.preventDefault(); // Prevent form submission
         const name = document.getElementById('name_input').value;
 
@@ -241,7 +260,7 @@ export function create_enter_name_form(win_data) {
             name: name
         };
 
-        send_win_data(updated_win_data);
+        await send_win_data(updated_win_data);
 
         // Update the form to display the name
         document.getElementById('your_name').innerHTML = name;
