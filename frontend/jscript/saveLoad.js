@@ -1,13 +1,34 @@
 // jscript/saveLoad.js
 
+/**
+ * @module saveLoad
+ * @description This module provides functionality for saving and loading the game state 
+ * for the Chromaxen game. It includes methods to serialize the current game state into a 
+ * file, load it back into the game, validate the loaded data, and re-initialize the game 
+ * after loading.
+ */
+
 import { gameState } from './state.js';
-import { updateMoveCounter, resize, init_rows, drawRows, display_rules, update_title_header, update_dragndrop_style_display, init_preset_menu, display_preset_features, enable_advance_button, hide_solve_button, reveal_solve_button, enable_retreat_button, disable_retreat_button } from './gameUI.js';
+import { 
+    updateMoveCounter, resize, init_rows, drawRows, display_rules, 
+    update_title_header, update_dragndrop_style_display, init_preset_menu, 
+    display_preset_features, enable_advance_button, hide_solve_button, 
+    reveal_solve_button, enable_retreat_button, disable_retreat_button 
+} from './gameUI.js';
 import { test_win } from './gamelogic.js';
 import { Timer } from './timer.js';
 
+/**
+ * Saves the current game state to a downloadable JSON file. 
+ * The file includes all necessary game data (rows, columns, rules, goals, current moves, etc.)
+ * and can be later reloaded to restore the game's state.
+ * 
+ * @function saveGame
+ * @returns {void} This function triggers a file download of the current game state JSON.
+ */
 export function saveGame() {
     // Gather all necessary game data into an object
-    var gameData = {
+    const gameData = {
         ROWS: gameState.ROWS,
         COLS: gameState.COLS,
         RULES: gameState.RULES,
@@ -25,14 +46,14 @@ export function saveGame() {
     };
 
     // Serialize the game data to JSON
-    var gameDataJSON = JSON.stringify(gameData);
+    const gameDataJSON = JSON.stringify(gameData);
 
     // Create a Blob with the JSON data
-    var blob = new Blob([gameDataJSON], { type: "application/json" });
+    const blob = new Blob([gameDataJSON], { type: "application/json" });
 
     // Create a link to download the Blob as a file
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
     a.href = url;
     a.download = 'ChromaXen_SaveGame_' + gameState.GAME_NAME.replace(/\s+/g, '_') + '.json';
     document.body.appendChild(a);
@@ -41,20 +62,27 @@ export function saveGame() {
     URL.revokeObjectURL(url);
 }
 
-// In jscript/saveLoad.js
-
+/**
+ * Loads a previously saved game state from a selected JSON file. 
+ * After validation, it updates the current `gameState` with the loaded data 
+ * and re-initializes the game UI and logic.
+ * 
+ * @function loadGame
+ * @param {Event} event - The file input change event containing the file to load.
+ * @returns {void} This function does not return a value but updates the global `gameState` and UI.
+ */
 export function loadGame(event) {
-    var file = event.target.files[0];
+    const file = event.target.files[0];
     if (!file) {
         return;
     }
 
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function (e) {
         try {
-            var gameData = JSON.parse(e.target.result);
+            const gameData = JSON.parse(e.target.result);
 
-            // Validate the loaded data (optional but recommended)
+            // Validate the loaded data
             if (validateGameData(gameData)) {
                 // Update game variables
                 gameState.ROWS = gameData.ROWS;
@@ -103,15 +131,24 @@ export function loadGame(event) {
     reader.readAsText(file);
 }
 
+/**
+ * Validates the integrity of the loaded game data object. 
+ * Checks if all required properties are present and logs an error for any that are missing.
+ * Additional validation checks can be added as needed.
+ * 
+ * @function validateGameData
+ * @param {Object} data - The parsed JSON object representing the game data.
+ * @returns {boolean} Returns `true` if all required properties are present; otherwise `false`.
+ */
 export function validateGameData(data) {
     // Basic validation to check for required properties
     if (typeof data !== 'object') return false;
-    var requiredProperties = [
+    const requiredProperties = [
         'ROWS', 'COLS', 'RULES', 'GOALS', 'CA_STATE_MATRIX',
         'CURRENT_MOVE', 'MOVE_COUNT', 'SWAP_ENABLED',
         'show_rows_ahead', 'GAME_NAME', 'GAME_DESC', 'moveHistory'
     ];
-    for (var i = 0; i < requiredProperties.length; i++) {
+    for (let i = 0; i < requiredProperties.length; i++) {
         if (!(requiredProperties[i] in data)) {
             console.error('Missing property:', requiredProperties[i]);
             return false;
