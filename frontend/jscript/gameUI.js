@@ -1,5 +1,40 @@
 // jscript/gameUI.js
 
+/**
+ * @module gameUI
+ * @description This module manages the visual presentation and interactivity of the Chromaxen game board UI. 
+ * It handles the initialization and updating of rows, cells, buttons, and overlays that display game rules, 
+ * current state, and goal states. It also provides functions for enabling or disabling movement through the game’s 
+ * sequence, toggling special features like swaps, and handling preset selections.
+ * 
+ * Exports:
+ * - Constants: `COLORS`, `COLOR_KEY`, `current_cell_overlay_left_offset`
+ * - Functions: 
+ *   `init_rows`, 
+ *   `drawRow`, 
+ *   `drawRows`, 
+ *   `update_title_header`, 
+ *   `disable_retreat_button`, 
+ *   `enable_retreat_button`, 
+ *   `disable_advance_button`, 
+ *   `enable_advance_button`, 
+ *   `reveal_solve_button`, 
+ *   `hide_solve_button`, 
+ *   `update_dragndrop_style_display`, 
+ *   `solve`, 
+ *   `display_rules`, 
+ *   `display_rule`, 
+ *   `transition_states_animation`, 
+ *   `hide_screens`, 
+ *   `set_preset_menu`, 
+ *   `init_preset_menu`, 
+ *   `toggle_preset_menu`, 
+ *   `display_preset_features`, 
+ *   `resize`, 
+ *   `updateMoveCounter`, 
+ *   `showSolvedRows`
+ */
+
 import { gameState } from './state.js';
 import { rule_dragenter, rule_dragover, rule_dragleave, rule_drop, rule_dragstart, rule_dragend, rule_mousedown, rule_mouseup } from './controllers.js';
 import { nextMove, nextByRule } from './gamelogic.js';
@@ -432,7 +467,7 @@ export function transition_states_animation(callback, is_forwards) {
 			overlay_el.style.transition = "background-color .8s";
 			overlay_el.style.backgroundColor = COLORS[next_state];
 		}
-		setTimeout( () => {
+		setTimeout(() => {
 			for (let i = 0; i < gameState.ROWS; i++) {
 				const next_el = document.getElementById(`cell_${i}_${gameState.CURRENT_MOVE}`);
 				next_el.style.display = "block";
