@@ -1,7 +1,7 @@
 // jscript/__tests__/timer.test.js
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { Timer } from '../Timer.js'
+import { Timer } from '../timer.js'
 
 describe('Timer', () => {
   let displayEl
