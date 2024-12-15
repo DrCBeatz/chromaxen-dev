@@ -1,4 +1,4 @@
-// Timer.js
+// frontend/jscript/timer.js
 
 /**
  * @module TimerModule
@@ -99,6 +99,9 @@ export class Timer {
      * @returns {void}
      */
     update() {
+        if (!this.is_running) {
+            return;
+        }
         const now = new Date();
         this.elapsed_ms = this.start_ms + (now.getTime() - this.then.getTime());
         if (this.callback) this.callback(this);
