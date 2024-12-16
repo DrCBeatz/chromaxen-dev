@@ -48,7 +48,9 @@ export function loadPresets(file_name, callback) {
                 throw new Error("Error parsing XML.");
             }
 
-            callback(xmlDoc);
+            if (typeof callback === 'function') {
+                callback(xmlDoc);
+              }              
         })
         .catch(error => {
             console.error("Error loading presets:", error);
