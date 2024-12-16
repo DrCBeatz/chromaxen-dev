@@ -123,8 +123,9 @@ export function show_rule(rule_number) {
  * @function show_prev_rule
  */
 export function show_prev_rule() {
-    get_rules_list(document.getElementById('all_rules_container'), function () {
-        const rule_number = /\d+/.exec(document.getElementById('rule_display').innerHTML)
+    return get_rules_list(document.getElementById('all_rules_container'), function () {
+        let rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML)
+        let rule_number = rule_number_match ? parseInt(rule_number_match[0], 10) : 0
         if (rule_number > 0) {
             show_rule(--rule_number)
         } else {
@@ -133,6 +134,7 @@ export function show_prev_rule() {
     })
 }
 
+
 /**
  * Shows the next rule based on the currently displayed rule. If the current rule number
  * is less than 255, it increments it; otherwise, it wraps around to 0.
@@ -140,8 +142,8 @@ export function show_prev_rule() {
  * @function show_next_rule
  */
 export function show_next_rule() {
-    get_rules_list(document.getElementById('all_rules_container'), function () {
-        const rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML);
+    return get_rules_list(document.getElementById('all_rules_container'), function () {
+        let rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML);
         let rule_number = rule_number_match ? parseInt(rule_number_match[0], 10) : 0;
         if (rule_number < 255) {
             show_rule(++rule_number)
@@ -158,7 +160,7 @@ export function show_next_rule() {
  * @function back_to_rules
  */
 export function back_to_rules() {
-    get_rules_list(document.getElementById('all_rules_container'), function () {
+    return get_rules_list(document.getElementById('all_rules_container'), function () {
         document.getElementById('all_rules_container').style.display = 'block'
         document.getElementById('tester_container').style.display = 'none'
     })
@@ -171,9 +173,9 @@ export function back_to_rules() {
  * @function refresh_rule
  */
 export function refresh_rule() {
-    get_rules_list(document.getElementById('all_rules_container'), function () {
-        const rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML);
-        const rule_number = rule_number_match ? parseInt(rule_number_match[0], 10) : 0;
+    return get_rules_list(document.getElementById('all_rules_container'), function () {
+        let rule_number_match = /\d+/.exec(document.getElementById('rule_display').innerHTML);
+        let rule_number = rule_number_match ? parseInt(rule_number_match[0], 10) : 0;
         show_rule(rule_number)
     })
 }
