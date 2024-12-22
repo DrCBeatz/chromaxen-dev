@@ -20,6 +20,7 @@ import { nextByRule } from './gamelogic.js';
  * @returns {Promise<void>} A promise that resolves once the rules have been fetched and appended.
  */
 export async function get_rules_list(el, callback) {
+    console.log('[Real get_rules_list called!]')
     try {
         const response = await fetch("json/get_rule_img_list.json")
         if (!response.ok) {

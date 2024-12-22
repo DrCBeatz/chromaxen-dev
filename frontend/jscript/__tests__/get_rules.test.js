@@ -1,6 +1,6 @@
 // frontend/jscript/__tests__/get_rules.test.js
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import * as GetRulesModule from '../get_rules.js'
 
 // Mock imports
@@ -160,6 +160,77 @@ describe('get_rules.js', () => {
     // after back_to_rules executes, all_rules_container should be visible, tester_container hidden
     expect(document.getElementById('all_rules_container').style.display).toBe('block')
     expect(document.getElementById('tester_container').style.display).toBe('none')
-  })
+  }),
 
+  describe('show_next_rule', () => {
+    beforeEach(() => {
+      // Always return a successful, empty array for the rule list
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => [],
+      })
+    })
+    
+    it('increments the rule number if < 255', async () => {
+      document.getElementById('rule_display').innerHTML = 'Rule 5'
+      
+      const rule6 = document.createElement('div')
+      rule6.id = 'rule6'
+      rule6.dataset.title = 'rule6'
+      rule6.dataset.url = 'img/rules/rule6.jpg'
+      rule6.dataset.old_url = 'img/old_images/xrule6.jpg'
+      rule6.dataset.is_finished = 'false'
+      document.body.appendChild(rule6)
+    
+      mockFetch.mockResolvedValue({ ok: true, json: async () => [] })
+    
+      await GetRulesModule.show_next_rule()
+    
+    }),
+
+    it('wraps around to 0 if the rule is 255', async () => {
+      // Suppose the current rule is 255
+      document.getElementById('rule_display').innerHTML = 'Rule 255'
+  
+      // show_next_rule will call show_rule(0),
+      // so let's create <div id="rule0"> in the DOM
+      const rule0 = document.createElement('div')
+      rule0.id = 'rule0'
+      rule0.dataset.title = 'rule0'
+      rule0.dataset.url = 'img/rules/rule0.jpg'
+      rule0.dataset.old_url = 'img/old_images/xrule0.jpg'
+      rule0.dataset.is_finished = 'false'
+      document.body.appendChild(rule0)
+  
+      await GetRulesModule.show_next_rule()
+  
+      // Now it should show rule0
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule0')
+      expect(document.getElementById('all_rules_container').style.display).toBe('none')
+      expect(document.getElementById('tester_container').style.display).toBe('block')
+    }),
+
+    it('handles missing or non-numeric rule_display gracefully', async () => {
+      // Suppose rule_display is nonsense like "No rule here!"
+      document.getElementById('rule_display').innerHTML = 'No rule here!'
+  
+      // If the code sees no valid rule number, it defaults to 0, then increments => 1
+      // So eventually, it will call show_rule(1).
+      // Therefore, let's create <div id="rule1">
+      const rule1 = document.createElement('div')
+      rule1.id = 'rule1'
+      rule1.dataset.title = 'rule1'
+      rule1.dataset.url = 'img/rules/rule1.jpg'
+      rule1.dataset.old_url = 'img/old_images/xrule1.jpg'
+      rule1.dataset.is_finished = 'false'
+      document.body.appendChild(rule1)
+  
+      await GetRulesModule.show_next_rule()
+  
+      // Now it should show rule1
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule1')
+    })
+    
+  })
+  
 })
