@@ -303,6 +303,113 @@ describe('get_rules.js', () => {
       // Now it should show 'rule255'
       expect(document.getElementById('rule_display').innerHTML).toBe('rule255')
     })
+  }),
+
+  describe('refresh_rule', () => {
+    let mockFetch
+  
+    beforeEach(() => {
+      vi.resetAllMocks()
+      document.body.innerHTML = ''
+      
+      // Basic DOM setup
+      const allRulesContainer = document.createElement('div')
+      allRulesContainer.id = 'all_rules_container'
+      document.body.appendChild(allRulesContainer)
+  
+      const testerContainer = document.createElement('div')
+      testerContainer.id = 'tester_container'
+      document.body.appendChild(testerContainer)
+  
+      const ruleDisplay = document.createElement('div')
+      ruleDisplay.id = 'rule_display'
+      document.body.appendChild(ruleDisplay)
+  
+      const imgDisplay = document.createElement('div')
+      imgDisplay.id = 'img_display'
+      document.body.appendChild(imgDisplay)
+  
+      const oldImgDisplay = document.createElement('div')
+      oldImgDisplay.id = 'old_img_display'
+      document.body.appendChild(oldImgDisplay)
+  
+      const colorTestTable = document.createElement('table')
+      colorTestTable.id = 'color_test_table'
+      document.body.appendChild(colorTestTable)
+  
+      // Mock fetch to always return a successful response
+      mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => []
+      })
+      global.fetch = mockFetch
+    })
+  
+    it('re-displays the same rule if the current rule_display is valid', async () => {
+      // 1) Suppose the user is currently viewing "Rule 5"
+      document.getElementById('rule_display').innerHTML = 'Rule 5'
+  
+      // 2) Because refresh_rule calls show_rule(5), we must create #rule5 in the DOM
+      const rule5 = document.createElement('div')
+      rule5.id = 'rule5'
+      rule5.dataset.title = 'rule5'
+      rule5.dataset.url = 'img/rules/rule5.jpg'
+      rule5.dataset.old_url = 'img/old_images/xrule5.jpg'
+      rule5.dataset.is_finished = 'false'
+      document.body.appendChild(rule5)
+  
+      // 3) Call the actual refresh_rule
+      await GetRulesModule.refresh_rule()
+  
+      // 4) The code calls get_rules_list(...), then show_rule(5).
+      // We can verify that rule_display is updated to "rule5",
+      // and that the tester_container is shown, etc.
+  
+      // Check fetch was called once
+      expect(mockFetch).toHaveBeenCalledWith('json/get_rule_img_list.json')
+  
+      // After calling show_rule(5), rule_display should show 'rule5'
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule5')
+      expect(document.getElementById('all_rules_container').style.display).toBe('none')
+      expect(document.getElementById('tester_container').style.display).toBe('block')
+    })
+  
+    it('wraps to 0 if the rule_display is non-numeric', async () => {
+      // If parseInt can’t find a number in "XYZ", we get 0 => refresh_rule calls show_rule(0).
+      document.getElementById('rule_display').innerHTML = 'XYZ not a rule'
+  
+      // So we must add #rule0 to the DOM
+      const rule0 = document.createElement('div')
+      rule0.id = 'rule0'
+      rule0.dataset.title = 'rule0'
+      rule0.dataset.url = 'img/rules/rule0.jpg'
+      rule0.dataset.old_url = 'img/old_images/xrule0.jpg'
+      rule0.dataset.is_finished = 'false'
+      document.body.appendChild(rule0)
+  
+      await GetRulesModule.refresh_rule()
+  
+      expect(mockFetch).toHaveBeenCalledWith('json/get_rule_img_list.json')
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule0')
+    })
+  
+    it('re-displays rule 0 if that’s what is currently shown', async () => {
+      document.getElementById('rule_display').innerHTML = 'Rule 0'
+  
+      // Must have #rule0
+      const rule0 = document.createElement('div')
+      rule0.id = 'rule0'
+      rule0.dataset.title = 'rule0'
+      rule0.dataset.url = 'img/rules/rule0.jpg'
+      rule0.dataset.old_url = 'img/old_images/xrule0.jpg'
+      rule0.dataset.is_finished = 'false'
+      document.body.appendChild(rule0)
+  
+      await GetRulesModule.refresh_rule()
+  
+      // It's still going to show rule0
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule0')
+    })
   })
   
 })
