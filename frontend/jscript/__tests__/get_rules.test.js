@@ -231,6 +231,78 @@ describe('get_rules.js', () => {
       expect(document.getElementById('rule_display').innerHTML).toBe('rule1')
     })
     
+  }),
+
+  describe('show_prev_rule', () => {
+    beforeEach(() => {
+      // Always return a successful, empty array for get_rules_list
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => [],
+      })
+    })
+  
+    it('decrements if rule_number > 0', async () => {
+      // Suppose the current rule is 5
+      document.getElementById('rule_display').innerHTML = 'Rule 5'
+  
+      // show_prev_rule will attempt to show_rule(4).
+      // So we must create <div id="rule4"> in the DOM
+      const rule4 = document.createElement('div')
+      rule4.id = 'rule4'
+      rule4.dataset.title = 'rule4'
+      rule4.dataset.url = 'img/rules/rule4.jpg'
+      rule4.dataset.old_url = 'img/old_images/xrule4.jpg'
+      rule4.dataset.is_finished = 'false'
+      document.body.appendChild(rule4)
+  
+      await GetRulesModule.show_prev_rule()
+  
+      // The code should now display 'rule4'
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule4')
+      expect(document.getElementById('all_rules_container').style.display).toBe('none')
+      expect(document.getElementById('tester_container').style.display).toBe('block')
+    })
+  
+    it('wraps around to 255 if the current rule is 0', async () => {
+      document.getElementById('rule_display').innerHTML = 'Rule 0'
+  
+      // If the code sees 0, it calls show_rule(255).
+      // So we must create <div id="rule255">.
+      const rule255 = document.createElement('div')
+      rule255.id = 'rule255'
+      rule255.dataset.title = 'rule255'
+      rule255.dataset.url = 'img/rules/rule255.jpg'
+      rule255.dataset.old_url = 'img/old_images/xrule255.jpg'
+      rule255.dataset.is_finished = 'false'
+      document.body.appendChild(rule255)
+  
+      await GetRulesModule.show_prev_rule()
+  
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule255')
+      expect(document.getElementById('all_rules_container').style.display).toBe('none')
+      expect(document.getElementById('tester_container').style.display).toBe('block')
+    })
+  
+    it('handles missing or non-numeric rule_display gracefully', async () => {
+      // If rule_display does not contain a valid number,
+      // parseInt defaults to 0 => code calls show_rule(255).
+      document.getElementById('rule_display').innerHTML = 'No rule here!'
+  
+      // So we must create #rule255
+      const rule255 = document.createElement('div')
+      rule255.id = 'rule255'
+      rule255.dataset.title = 'rule255'
+      rule255.dataset.url = 'img/rules/rule255.jpg'
+      rule255.dataset.old_url = 'img/old_images/xrule255.jpg'
+      rule255.dataset.is_finished = 'false'
+      document.body.appendChild(rule255)
+  
+      await GetRulesModule.show_prev_rule()
+  
+      // Now it should show 'rule255'
+      expect(document.getElementById('rule_display').innerHTML).toBe('rule255')
+    })
   })
   
 })
