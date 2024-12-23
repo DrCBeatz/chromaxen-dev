@@ -127,7 +127,7 @@ describe('win.js', () => {
         expect(row1Cells[2].innerHTML).toBe('00:20') // time
         expect(row1Cells[3].innerHTML).toBe('Alpha') // name
     })
-    
+
 })
 
 describe('win.js - get_leader_board()', () => {
@@ -222,70 +222,144 @@ describe('win.js - get_leader_board()', () => {
 
 describe('process_leaderboard', () => {
     beforeEach(() => {
-      vi.restoreAllMocks()
-      setupDom()
+        vi.restoreAllMocks()
+        setupDom()
     })
-  
+
     afterEach(() => {
-      document.body.innerHTML = ''
+        document.body.innerHTML = ''
     })
-  
+
     it('inserts current player’s score in correct spot for better moves/time', () => {
-      // ARRANGE
-      // Suppose we have some existing scores:
-      const existingScores = [
-        { moves: 25, time: '00:15', name: 'Alice' },
-        { moves: 30, time: '00:20', name: 'Bob' },
-      ]
-      // Mock the current game state
-      gameState.MOVE_COUNT = 20
-      gameState.timer.get_time_str.mockReturnValue('00:10')
-  
-      // ACT
-      WinModule.process_leaderboard(existingScores)
-  
-      // ASSERT
-      // Now, the DOM should have new rows from draw_leaderboard
-      // The new score should appear at index 0 if it’s best
-      const rows = document
-        .getElementById('high_score_table')
-        .querySelectorAll('tr')
-  
-      // Typically, the first <tr> might be a header row,
-      // so the new score might appear in the second row
-      // (Depending on how your draw_leaderboard is structured)
-      const rowCells = rows[1].querySelectorAll('td')
-  
-      expect(rowCells[1].textContent).toBe('20')    // moves
-      expect(rowCells[2].textContent).toBe('00:10') // time
+        // ARRANGE
+        // Suppose we have some existing scores:
+        const existingScores = [
+            { moves: 25, time: '00:15', name: 'Alice' },
+            { moves: 30, time: '00:20', name: 'Bob' },
+        ]
+        // Mock the current game state
+        gameState.MOVE_COUNT = 20
+        gameState.timer.get_time_str.mockReturnValue('00:10')
+
+        // ACT
+        WinModule.process_leaderboard(existingScores)
+
+        // ASSERT
+        // Now, the DOM should have new rows from draw_leaderboard
+        // The new score should appear at index 0 if it’s best
+        const rows = document
+            .getElementById('high_score_table')
+            .querySelectorAll('tr')
+
+        // Typically, the first <tr> might be a header row,
+        // so the new score might appear in the second row
+        // (Depending on how your draw_leaderboard is structured)
+        const rowCells = rows[1].querySelectorAll('td')
+
+        expect(rowCells[1].textContent).toBe('20')    // moves
+        expect(rowCells[2].textContent).toBe('00:10') // time
     })
-  
+
     it('appends player score if it’s NOT a new high score but list is not full', () => {
-      // ARRANGE
-      const existingScores = [
-        { moves: 10, time: '00:05', name: 'Speedy' },
-      ]
-      // e.g. we do worse than existing
-      gameState.MOVE_COUNT = 50
-      gameState.timer.get_time_str.mockReturnValue('01:00')
-  
-      // ACT
-      WinModule.process_leaderboard(existingScores)
-  
-      // ASSERT
-      const rows = document
-        .getElementById('high_score_table')
-        .querySelectorAll('tr')
-      // The first row is a header, second is Speedy, third is our new row
-      const rowCells = rows[2].querySelectorAll('td')
-  
-      expect(rowCells[1].textContent).toBe('50')     // moves
-      expect(rowCells[2].textContent).toBe('01:00')  // time
+        // ARRANGE
+        const existingScores = [
+            { moves: 10, time: '00:05', name: 'Speedy' },
+        ]
+        // e.g. we do worse than existing
+        gameState.MOVE_COUNT = 50
+        gameState.timer.get_time_str.mockReturnValue('01:00')
+
+        // ACT
+        WinModule.process_leaderboard(existingScores)
+
+        // ASSERT
+        const rows = document
+            .getElementById('high_score_table')
+            .querySelectorAll('tr')
+        // The first row is a header, second is Speedy, third is our new row
+        const rowCells = rows[2].querySelectorAll('td')
+
+        expect(rowCells[1].textContent).toBe('50')     // moves
+        expect(rowCells[2].textContent).toBe('01:00')  // time
     })
-  
-  })
 
-  
+})
+
+describe('create_enter_name_form', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks()
+        // Clear the DOM so each test starts fresh
+        document.body.innerHTML = ''
+        // Mock fetch so we can see if code is calling the network
+        global.fetch = vi.fn()
+    })
+
+    afterEach(() => {
+        // Clean up after the test
+        document.body.innerHTML = ''
+    })
+
+    it('returns a form with #name_input and a send button', () => {
+        const form = WinModule.create_enter_name_form({
+            moves: 10,
+            time: '00:30',
+            game: 'Game 1'
+        })
+
+        // It should be an HTMLFormElement
+        expect(form).toBeInstanceOf(HTMLFormElement)
+        expect(form.id).toBe('your_name')
+
+        // It should have an input with id="name_input"
+        const input = form.querySelector('#name_input')
+        expect(input).toBeTruthy()
+
+        // It should have a button
+        const button = form.querySelector('button')
+        expect(button).toBeTruthy()
+        expect(button.textContent).toBe('send')
+    })
+
+    it('clicking the button calls fetch with the correct data and updates the form', async () => {
+        // Mock fetch
+        global.fetch.mockResolvedValueOnce({
+          ok: true,
+          text: async () => 'OK'
+        })
+      
+        // 1. Create form & add to DOM
+        const winData = { moves: 10, time: '00:30', game: 'Game 1' }
+        const form = WinModule.create_enter_name_form(winData)
+        document.body.appendChild(form)
+      
+        // 2. Fill input & click
+        const input = document.getElementById('name_input')
+        input.value = 'MyPlayerName'
+        const button = form.querySelector('button')
+        button.click()
+      
+        // 3. Flush all timers & microtasks
+        await vi.runAllTimersAsync()
+      
+        // 4. Check fetch was called
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/win_state'),
+          expect.objectContaining({
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moves: 10,
+              time: '00:30',
+              game: 'Game 1',
+              name: 'MyPlayerName'
+            })
+          })
+        )
+      
+        // 5. Check form text updated
+        expect(document.getElementById('your_name').textContent).toBe('MyPlayerName')
+      })
+      
+})
 
 
-  
