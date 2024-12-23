@@ -1,8 +1,8 @@
 // frontend/jscript/__tests__/win.test.js
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { gameState } from '../state.js'
 import * as WinModule from '../win.js'
+import { gameState } from '../state.js'
 
 // Mock the modules that win.js imports
 vi.mock('../gameUI.js', () => ({
@@ -219,3 +219,73 @@ describe('win.js - get_leader_board()', () => {
         consoleErrorSpy.mockRestore()
     })
 })
+
+describe('process_leaderboard', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks()
+      setupDom()
+    })
+  
+    afterEach(() => {
+      document.body.innerHTML = ''
+    })
+  
+    it('inserts current player’s score in correct spot for better moves/time', () => {
+      // ARRANGE
+      // Suppose we have some existing scores:
+      const existingScores = [
+        { moves: 25, time: '00:15', name: 'Alice' },
+        { moves: 30, time: '00:20', name: 'Bob' },
+      ]
+      // Mock the current game state
+      gameState.MOVE_COUNT = 20
+      gameState.timer.get_time_str.mockReturnValue('00:10')
+  
+      // ACT
+      WinModule.process_leaderboard(existingScores)
+  
+      // ASSERT
+      // Now, the DOM should have new rows from draw_leaderboard
+      // The new score should appear at index 0 if it’s best
+      const rows = document
+        .getElementById('high_score_table')
+        .querySelectorAll('tr')
+  
+      // Typically, the first <tr> might be a header row,
+      // so the new score might appear in the second row
+      // (Depending on how your draw_leaderboard is structured)
+      const rowCells = rows[1].querySelectorAll('td')
+  
+      expect(rowCells[1].textContent).toBe('20')    // moves
+      expect(rowCells[2].textContent).toBe('00:10') // time
+    })
+  
+    it('appends player score if it’s NOT a new high score but list is not full', () => {
+      // ARRANGE
+      const existingScores = [
+        { moves: 10, time: '00:05', name: 'Speedy' },
+      ]
+      // e.g. we do worse than existing
+      gameState.MOVE_COUNT = 50
+      gameState.timer.get_time_str.mockReturnValue('01:00')
+  
+      // ACT
+      WinModule.process_leaderboard(existingScores)
+  
+      // ASSERT
+      const rows = document
+        .getElementById('high_score_table')
+        .querySelectorAll('tr')
+      // The first row is a header, second is Speedy, third is our new row
+      const rowCells = rows[2].querySelectorAll('td')
+  
+      expect(rowCells[1].textContent).toBe('50')     // moves
+      expect(rowCells[2].textContent).toBe('01:00')  // time
+    })
+  
+  })
+
+  
+
+
+  
