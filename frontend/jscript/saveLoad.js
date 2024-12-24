@@ -143,6 +143,9 @@ export function loadGame(event) {
 export function validateGameData(data) {
     // Basic validation to check for required properties
     if (typeof data !== 'object') return false;
+    if (!data || typeof data !== 'object') {
+        return false;
+      }
     const requiredProperties = [
         'ROWS', 'COLS', 'RULES', 'GOALS', 'CA_STATE_MATRIX',
         'CURRENT_MOVE', 'MOVE_COUNT', 'SWAP_ENABLED',

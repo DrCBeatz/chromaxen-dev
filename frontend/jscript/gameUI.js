@@ -65,7 +65,9 @@ export function init_rows() {
 	gameboard_el.innerHTML = "<tr><th>Rules</th><th colspan='" + (gameState.COLS - 1) + "'>Sequence</th><th>Goal</th></tr>";
 
 
-	clearInterval(entry_page.anim_interval);
+	if (typeof entry_page !== 'undefined' && entry_page.anim_interval) {
+		clearInterval(entry_page.anim_interval);
+	  }
 	document.body.style.backgroundColor = "#bdcfcf";
 
 	for (let i = 0; i < gameState.ROWS; i++) {
