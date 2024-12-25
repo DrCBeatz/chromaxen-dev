@@ -1,7 +1,7 @@
 // tests/gamelogic.test.js
 
 import { describe, it, expect, vi } from 'vitest';
-import { bitTest, bitSet, nextByRule, rnd, chooseRule, chooseGoal, chooseSeed } from '../gamelogic.js';
+import { bitTest, bitSet, nextByRule, rnd, chooseRule, chooseGoal, chooseSeed, parse_comma_number_list } from '../gamelogic.js';
 
 describe('bitTest()', () => {
     it('should return non-zero if a bit is set', () => {
@@ -148,4 +148,48 @@ describe('rnd(N)', () => {
       expect(chooseSeed()).toBe(6);
       spy.mockRestore();
     });
+  });
+
+  describe('parse_comma_number_list()', () => {
+
+    it('should parse a simple comma-separated list of digits', () => {
+      const input = '1,2,3';
+      const result = parse_comma_number_list(input);
+      expect(result).toEqual([1, 2, 3]);
+    });
+  
+    it('should parse numbers with extra spaces', () => {
+      const input = ' 10,  20 ,30 ';
+      const result = parse_comma_number_list(input);
+      expect(result).toEqual([10, 20, 30]);
+    });
+  
+    it('should parse a single value (no commas)', () => {
+      const input = '42';
+      const result = parse_comma_number_list(input);
+      expect(result).toEqual([42]);
+    });
+  
+    it('should parse zeros correctly', () => {
+      const input = '0, 0, 123';
+      const result = parse_comma_number_list(input);
+      expect(result).toEqual([0, 0, 123]);
+    });
+  
+    it('should handle an empty string', () => {
+      const input = '';
+      expect(() => parse_comma_number_list(input)).toThrow();
+    });
+  
+    it('should ignore non-digit characters in each split part', () => {
+      const input = 'abc123, 456def, 78!@#';
+      const result = parse_comma_number_list(input);
+      // For each comma-delimited substring, the regex /\d+/ picks out digits only:
+      // 'abc123' => '123'
+      // ' 456def' => '456'
+      // ' 78!@#' => '78'
+      // So the result should be [123, 456, 78]
+      expect(result).toEqual([123, 456, 78]);
+    });
+  
   });
