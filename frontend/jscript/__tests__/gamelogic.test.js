@@ -1,8 +1,8 @@
 // tests/gamelogic.test.js
 
-import { describe, it, expect, vi } from 'vitest';
-import { bitTest, bitSet, nextByRule, rnd, chooseRule, chooseGoal, chooseSeed, parse_comma_number_list, create_random_preset } from '../gamelogic.js';
-
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { bitTest, bitSet, nextByRule, rnd, chooseRule, chooseGoal, chooseSeed, parse_comma_number_list, create_random_preset, test_win } from '../gamelogic.js';
+import { gameState } from '../state.js';
 describe('bitTest()', () => {
   it('should return non-zero if a bit is set', () => {
     // 0b1010 is decimal 10. Bits are [1,0,1,0] from LSB to MSB
@@ -257,5 +257,49 @@ describe('create_random_preset()', () => {
     expect(preset.goals).toEqual([0, 0, 0, 0, 0, 0, 0, 0]);
 
     mockRandom.mockRestore();
+  });
+});
+
+describe('test_win()', () => {
+  beforeEach(() => {
+    // Optionally, reset or stub out relevant parts of gameState before each test
+    gameState.GOALS = [];
+    gameState.CA_STATE_MATRIX = [];
+  });
+
+  it('should return true when CA_STATE_MATRIX matches GOALS for every row', () => {
+    // Suppose we have 3 rows
+    gameState.GOALS = [1, 2, 3];
+    // The last element of each row in CA_STATE_MATRIX should match the corresponding goal.
+    gameState.CA_STATE_MATRIX = [
+      [0, 1],   // row 0 ends in 1
+      [5, 2],   // row 1 ends in 2
+      [7, 3],   // row 2 ends in 3
+    ];
+
+    const result = test_win();
+    expect(result).toBe(true);
+  });
+
+  it('should return false if at least one row’s final state does not match its goal', () => {
+    // Suppose we have 3 rows again
+    gameState.GOALS = [1, 2, 3];
+    gameState.CA_STATE_MATRIX = [
+      [0, 1],  // row 0 ends in 1
+      [5, 2],  // row 1 ends in 2
+      [7, 9],  // row 2 ends in 9 <-- mismatch!
+    ];
+
+    const result = test_win();
+    expect(result).toBe(false);
+  });
+
+  it('should handle an empty goals array or matrix gracefully (likely return true)', () => {
+    // Edge case: no goals => trivially "won" or depends on your logic
+    gameState.GOALS = [];
+    gameState.CA_STATE_MATRIX = [];
+    // Currently, test_win() loops over `i < gameState.GOALS.length`, so an empty array won’t fail the loop
+    // The function will just return true. This might be the expected or default behavior.
+    expect(test_win()).toBe(true);
   });
 });
