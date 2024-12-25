@@ -1,6 +1,6 @@
 // tests/saveLoad.test.js
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach, vi } from 'vitest';
 import { saveGame, loadGame, validateGameData, init_game_after_load } from '../saveLoad.js';
 import { gameState } from '../state.js';
 
@@ -248,6 +248,16 @@ describe('saveLoad.js', () => {
     // Test loadGame()
     // -------------------------
     describe('loadGame()', () => {
+        let consoleErrorSpy;
+
+        beforeAll(() => {
+            consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+        });
+
+        afterAll(() => {
+            consoleErrorSpy.mockRestore();
+        });
+
         // A helper to create a mock File instance for the event
         function createMockFile(contents, name = 'testSave.json') {
             return new File([contents], name, { type: 'application/json' });

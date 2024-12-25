@@ -1,6 +1,7 @@
 {
     "name": "chromaxen-frontend",
     "version": "1.0.0",
+    "type": "module",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
@@ -10,7 +11,7 @@
     "devDependencies": {
         "@vitest/coverage-v8": "^2.1.8",
         "jsdom": "^25.0.1",
-        "vite": "^4.5.5",
+        "vite": "^6.0.5",
         "vitest": "^2.1.8"
     },
     "main": "index.js",
