@@ -67,7 +67,7 @@ export function init_rows() {
 
 	if (typeof entry_page !== 'undefined' && entry_page.anim_interval) {
 		clearInterval(entry_page.anim_interval);
-	  }
+	}
 	document.body.style.backgroundColor = "#bdcfcf";
 
 	for (let i = 0; i < gameState.ROWS; i++) {
