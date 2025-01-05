@@ -311,6 +311,32 @@ describe('gameUI module tests', () => {
         expect(document.body.style.fontSize).toBe('14px');
     });
 
+    it('transition_states_animation() forward calls callback after 800ms and updates classes', () => {
+        const callback = vi.fn();
+      
+        // Make sure ROWS, COLS, CURRENT_MOVE, etc. are set
+        gameState.CURRENT_MOVE = 1;
+        gameState.ROWS = 3;
+        gameState.COLS = 4;
+        // Or whatever config you need
+      
+        // 1. Initialize rows so the DOM actually has the <td> and <div> elements
+        gameUI.init_rows();
+        
+        // 2. Now run the animation
+        vi.useFakeTimers();
+        gameUI.transition_states_animation(callback, true);
+      
+        // 3. Immediately after calling, the code sets those elements to display="none"
+        //    Then after 800ms, callback is invoked
+      
+        vi.advanceTimersByTime(800);
+        expect(callback).toHaveBeenCalledTimes(1);
+      
+        vi.useRealTimers();
+      });
+        
+
 });
 
 describe('gameUI DOM side effects', () => {
