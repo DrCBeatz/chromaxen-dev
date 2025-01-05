@@ -246,6 +246,25 @@ describe('gameUI module tests', () => {
         expect(loseScreen.style.display).toBe('none');
     });
 
+    it('set_preset_menu() should set the select value to GAME_NAME', () => {
+        // Suppose we know gameState.GAME_NAME = "Test Game"
+
+        const selectEl = document.getElementById('preset_select_el');
+        // Add an option whose value matches "Test Game"
+        const option = document.createElement('option');
+        option.value = "Test Game";
+        option.textContent = "Test Game";
+        selectEl.appendChild(option);
+
+        // Start with no selection
+        selectEl.value = '';
+
+        gameUI.set_preset_menu();
+
+        // Now it should work
+        expect(selectEl.value).toBe('Test Game');
+    });
+
     it('init_preset_menu() should populate the select with GAME_PRESETS', () => {
         // e.g. gameState.GAME_PRESETS has 3 items
         const selectEl = document.getElementById('preset_select_el');
