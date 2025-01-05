@@ -5,17 +5,12 @@ import { JSDOM } from 'jsdom';
 // Import the things we want to test
 import * as gameUI from '../gameUI.js';
 import { gameState } from '../state.js';
-// ^ Adjust import paths as needed based on your project structure
 
 describe('gameUI module tests', () => {
     let dom;
     let document;
     let window;
 
-    /**
-     * Before each test, we create a fresh JSDOM environment
-     * and set up the essential DOM elements that gameUI interacts with.
-     */
     beforeEach(() => {
         dom = new JSDOM(`
       <!DOCTYPE html>
@@ -303,6 +298,18 @@ describe('gameUI module tests', () => {
         expect(loseScreen.style.display).toBe('none');
     });
 
+    it('resize() should reduce font-size if ROWS > 4', () => {
+        gameState.ROWS = 5;
+        gameUI.resize();
+        // e.g. expected font-size = 14 - (5 - 4) = 13px
+        expect(document.body.style.fontSize).toBe('13px');
+    });
+
+    it('resize() should keep 14px for ROWS <= 4', () => {
+        gameState.ROWS = 4;
+        gameUI.resize();
+        expect(document.body.style.fontSize).toBe('14px');
+    });
 
 });
 
