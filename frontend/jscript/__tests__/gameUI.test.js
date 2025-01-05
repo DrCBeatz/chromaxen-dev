@@ -1,5 +1,5 @@
 // tests/gameUI.test.js
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 // Import the things we want to test
@@ -235,6 +235,56 @@ describe('gameUI module tests', () => {
         });
     });
 
+    it('hide_screens() should set win/lose containers to display=none', () => {
+        const winScreen = document.getElementById('win_screen_container');
+        const loseScreen = document.getElementById('lose_screen_container');
+        winScreen.style.display = 'block';
+        loseScreen.style.display = 'block';
+
+        gameUI.hide_screens();
+        expect(winScreen.style.display).toBe('none');
+        expect(loseScreen.style.display).toBe('none');
+    });
+
+    it('init_preset_menu() should populate the select with GAME_PRESETS', () => {
+        // e.g. gameState.GAME_PRESETS has 3 items
+        const selectEl = document.getElementById('preset_select_el');
+        gameUI.init_preset_menu();
+        // expect 3 option elements
+        expect(selectEl.querySelectorAll('option').length).toBe(3);
+        // Option 1 => "Preset 1", etc.
+        expect(selectEl.querySelectorAll('option')[0].innerHTML).toBe('Preset 1');
+    });
+
+    it('toggle_preset_menu() should toggle display style of #preset_select_el', () => {
+        const selectEl = document.getElementById('preset_select_el');
+        expect(selectEl.style.display).toBe(''); // possibly empty string
+
+        gameUI.toggle_preset_menu();
+        expect(selectEl.style.display).toBe('block');
+
+        gameUI.toggle_preset_menu();
+        expect(selectEl.style.display).toBe('none');
+    });
+
+
+    it('hide_screens() should set win/lose containers to display=none', () => {
+        const winScreen = document.getElementById('win_screen_container');
+        const loseScreen = document.getElementById('lose_screen_container');
+
+        // Initially make them "visible"
+        winScreen.style.display = 'block';
+        loseScreen.style.display = 'block';
+
+        // Call the function
+        gameUI.hide_screens();
+
+        // Now assert they're hidden
+        expect(winScreen.style.display).toBe('none');
+        expect(loseScreen.style.display).toBe('none');
+    });
+
+
 });
 
 describe('gameUI DOM side effects', () => {
@@ -392,3 +442,4 @@ describe('gameUI DOM side effects', () => {
         expect(row2cell3.style.backgroundColor).toBe('rgb(225, 217, 67)');  // #e1d943
     });
 });
+
