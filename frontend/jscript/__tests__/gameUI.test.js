@@ -493,5 +493,26 @@ describe('gameUI DOM side effects', () => {
         expect(row2cell2.style.backgroundColor).toBe('rgb(187, 204, 204)'); // #bcc
         expect(row2cell3.style.backgroundColor).toBe('rgb(225, 217, 67)');  // #e1d943
     });
+
+    it('should display solved rows when showSolvedRows(true) is called', () => {
+        // Mark row 0 as solved
+        gameState.CA_STATE_MATRIX[0][gameState.COLS - 1] = gameState.GOALS[0];
+
+        // 1) Ensure the table & cells exist
+        gameUI.init_rows();
+        // 2) Possibly draw them once
+        gameUI.drawRows();
+
+        // 3) If your code hides solved rows by default, you can set gameState.SHOW_SOLVED_ROWS = false 
+        //    or trust that the default is false
+
+        // 4) Call the method
+        gameUI.showSolvedRows(true);
+
+        // 5) Now row 0’s goal cell is solved
+        const goalCell = document.getElementById('cell_0_3');
+        // e.g. if solved rows use .game_cell_goal_solved
+        expect(goalCell.className).toContain('game_cell_goal_solved');
+    });
 });
 
