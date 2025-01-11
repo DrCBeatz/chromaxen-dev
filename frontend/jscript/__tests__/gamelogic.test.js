@@ -22,6 +22,8 @@ import {
   win,
   gameState,
 } from '../gamelogic.js';
+import * as gamelogic from '../gamelogic.js';
+import * as winModule from '../win.js';
 import { gameState } from '../state.js';
 describe('bitTest()', () => {
   it('should return non-zero if a bit is set', () => {
@@ -551,6 +553,25 @@ describe('nextMove()', () => {
     };
   });
 
+  it('should increment CURRENT_MOVE, MOVE_COUNT, and push an "advance" action to moveHistory', () => {
+    // Starting scenario
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+    expect(gameState.moveHistory).toEqual([]);
+
+    nextMove();
+
+    // Verify we advanced
+    expect(gameState.CURRENT_MOVE).toBe(1);
+    expect(gameState.MOVE_COUNT).toBe(1);
+    expect(gameState.moveHistory).toEqual([{ action: 'advance' }]);
+
+    // localStorage is updated
+    expect(window.localStorage.move_count).toBe(1);
+    expect(window.localStorage.current_move).toBe(1);
+
+  });
+
   it('should do nothing if CURRENT_MOVE >= COLS - 1', () => {
     // Put us at the last column
     gameState.CURRENT_MOVE = 7;  // since COLS=8 => last col index is 7
@@ -576,6 +597,23 @@ describe('nextMove()', () => {
     expect(gameState.CURRENT_MOVE).toBe(2);
     expect(gameState.MOVE_COUNT).toBe(2);
     expect(gameState.moveHistory).toEqual([]);
+  });
+
+  it('should call win() if we land on the last column and test_win() is true', () => {
+    // Spy on test_win
+    const testWinSpy = vi.spyOn(gamelogic, 'test_win').mockReturnValue(true);
+    // Spy on the actual "win" from the "win.js" module
+    const winSpy = vi.spyOn(winModule, 'win').mockImplementation(() => { });
+
+    gameState.CURRENT_MOVE = gameState.COLS - 2; // second-to-last
+    gamelogic.nextMove();  // triggers code that calls win() from ../win.js
+
+    expect(gameState.CURRENT_MOVE).toBe(gameState.COLS - 1);
+    expect(winSpy).toHaveBeenCalled();
+
+    // Clean up
+    testWinSpy.mockRestore();
+    winSpy.mockRestore();
   });
 
 });
