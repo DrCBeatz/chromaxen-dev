@@ -17,6 +17,10 @@ import {
   retreat,
   start_game,
   makeNewGame,
+  nextMove,
+  test_win,
+  win,
+  gameState,
 } from '../gamelogic.js';
 import { gameState } from '../state.js';
 describe('bitTest()', () => {
@@ -520,3 +524,58 @@ describe('start_game()', () => {
 
 });
 
+describe('nextMove()', () => {
+  beforeEach(() => {
+    // Reset the relevant parts of gameState before each test
+    gameState.CURRENT_MOVE = 0;
+    gameState.MOVE_COUNT = 0;
+    gameState.COLS = 8;  // typical board width
+    gameState.COOL_TRANSITIONS_ENABLED = false;
+    gameState.is_cool_transitions_animating = false;
+    gameState.moveHistory = [];
+
+    // Also set up localStorage or mock it if your code uses it:
+    const store = {};
+    // If your code does localStorage.move_count = ..., do likewise:
+    store.move_count = '0';
+    store.current_move = '0';
+    store.rules = JSON.stringify([127, 53, 61, 43, 41, 17, 123, 213]);
+    store.state_matrix = JSON.stringify(
+      Array.from({ length: 8 }, () => Array(8).fill(0))
+    );
+
+    // Provide a basic localStorage simulation
+    window.localStorage = {
+      getItem: vi.fn(key => store[key]),
+      setItem: vi.fn((key, value) => { store[key] = value; }),
+    };
+  });
+
+  it('should do nothing if CURRENT_MOVE >= COLS - 1', () => {
+    // Put us at the last column
+    gameState.CURRENT_MOVE = 7;  // since COLS=8 => last col index is 7
+    gameState.MOVE_COUNT = 5;
+
+    nextMove();  // Attempt to move beyond the last column
+
+    // Expect no change
+    expect(gameState.CURRENT_MOVE).toBe(7);
+    expect(gameState.MOVE_COUNT).toBe(5);
+    expect(gameState.moveHistory).toEqual([]);
+  });
+
+  it('should bail out early if COOL_TRANSITIONS_ENABLED && is_cool_transitions_animating', () => {
+    gameState.COOL_TRANSITIONS_ENABLED = true;
+    gameState.is_cool_transitions_animating = true;
+
+    gameState.CURRENT_MOVE = 2;
+    gameState.MOVE_COUNT = 2;
+    nextMove();
+
+    // Should do nothing
+    expect(gameState.CURRENT_MOVE).toBe(2);
+    expect(gameState.MOVE_COUNT).toBe(2);
+    expect(gameState.moveHistory).toEqual([]);
+  });
+
+});
