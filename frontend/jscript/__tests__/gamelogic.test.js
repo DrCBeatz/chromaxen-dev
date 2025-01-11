@@ -14,7 +14,9 @@ import {
   test_win,
   enable_retreat_button,
   disable_retreat_button,
-  retreat
+  retreat,
+  start_game,
+  makeNewGame,
 } from '../gamelogic.js';
 import { gameState } from '../state.js';
 describe('bitTest()', () => {
@@ -375,3 +377,146 @@ describe('disable_retreat_button()', () => {
     expect(removeEventListenerSpy).toHaveBeenCalledWith('click', retreat);
   });
 });
+
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { start_game } from '../gamelogic.js';
+import { gameState } from '../state.js';
+
+describe('start_game()', () => {
+  beforeEach(() => {
+    // DOM setup
+    document.body.innerHTML = `
+      <div id="game_header">
+			<div id="back_to_menu" class="button">&#x21DA; Menu</div>
+			<div id="game_title_display"></div>
+			<div id="game_desc_display"></div>
+			<div id="next_button" class="button">Next Level &#x21DB;</div>
+			<div id="prev_button" class="button">&#x21DA;</div>
+			<select id="preset_select_el"></select>
+		</div>
+
+		<div id="gameboard_container">
+			<table id="gameboard">
+			</table>
+		</div>
+
+		<div id="gameboard_overlay_container">
+			<div id="gameboard_overlay"></div>
+		</div>
+
+		<div id="game_footer">
+			<div id="update_button" class="button">Advance</div>
+			<div id="retreat_button" class="button">Retreat</div>
+			<div id="reset_button" class="button">Reset &#x21BA;</div>
+			<div id="random_button" class="button">Random</div>
+			<div id="moves_display">
+				<span>Moves: </span>
+				<span id="update_counter">0</span>
+			</div>
+			<div id="timer_display">
+				<span>Time: </span>
+				<span id="timer">00:00</span>
+			</div>
+			<div id="save_button" class="button">Save Game</div>
+			<div id="load_button" class="button">Load Game
+			</div>
+			<input type="file" id="load_game_input" accept=".json" style="display:none">
+			<div id="solve_button" class="button">Solve!</div>
+			<div id="dragndrop_style_display">Style: Swap</div>
+		</div>
+    <div id="win_screen_container">
+			<div id="win_screen">
+				<h1 id="win_screen_header">You win!</h1>
+				<h3 id="high_score_table_header"><b>Game 1 High Score</b></h3>
+				<table id="high_score_table">
+					<tr>
+						<th></th>
+						<th>Moves</th>
+						<th>Time</th>
+						<th>Name</th>
+					</tr>
+				</table>
+				<div id="win_screen_footer">
+					<div id="replay_button" class="button">Replay &#x21BA;</div>
+					<div id="next_level_button" class="button">Next &#x21DB;</div>
+				</div>
+			</div>
+		</div>
+    <div id="lose_screen_container">
+			<div id="lose_screen">
+				<h1 id="lose_screen_header">
+					You lose
+				</h1>
+				<div id="lose_screen_footer">
+					<div id="lose_replay_button" class="button">Replay</div>
+					<div id="lose_next_button" class="button">Next</div>
+				</div>
+			</div>
+		</div>
+    `;
+
+    // Our local "in-memory" store for convenience:
+    const store = {
+      rules: JSON.stringify([127, 53, 61, 43, 41, 17, 123, 213]),
+      state_matrix: JSON.stringify(
+        Array.from({ length: 8 }, () => Array(8).fill(0))
+      ),
+      goals: JSON.stringify([0, 0, 0, 0, 0, 0, 0, 0]),
+      rows: '8',
+      cols: '8',
+    };
+
+    window.localStorage.rules = store.rules;
+    window.localStorage.state_matrix = store.state_matrix;
+    window.localStorage.goals = store.goals;
+    window.localStorage.rows = store.rows;
+    window.localStorage.cols = store.cols;
+
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation((key) => {
+      return window.localStorage[key];
+    });
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, val) => {
+      window.localStorage[key] = val;
+    });
+
+    globalThis.COLORS = [
+      '#000000',
+      '#111111',
+      '#222222',
+      '#333333',
+      '#444444',
+      '#555555',
+      '#666666',
+      '#777777',
+    ];
+
+    gameState.RULES = [];
+    gameState.CA_STATE_MATRIX = [];
+    gameState.MOVE_COUNT = 0;
+    gameState.CURRENT_MOVE = 0;
+  });
+
+  it('should initialize timer and enable/disable the retreat button based on MOVE_COUNT', () => {
+    // 1) start_game() => creates gameState.timer, loads matrix, etc.
+    start_game();
+
+    // 2) Then we can call makeNewGame(false) => uses the timer that now exists
+    makeNewGame(false);
+
+    // 3) Adjust gameState if you want to test certain logic
+    gameState.MOVE_COUNT = 0;
+    // Now call start_game() again if you want
+    start_game();
+
+    // For example, check the retreat button is disabled (class "button_disabled")
+    const retreatBtn = document.getElementById('retreat_button');
+    expect(retreatBtn.className).toBe('button_disabled');
+
+    // Check if the timer is not null
+    expect(gameState.timer).not.toBeNull();
+    // Check if update_counter is "0", etc.
+    expect(document.getElementById('update_counter').textContent).toBe('0');
+  });
+
+});
+
