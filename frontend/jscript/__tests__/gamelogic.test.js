@@ -1,7 +1,21 @@
 // tests/gamelogic.test.js
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { bitTest, bitSet, nextByRule, rnd, chooseRule, chooseGoal, chooseSeed, parse_comma_number_list, create_random_preset, test_win } from '../gamelogic.js';
+import {
+  bitTest,
+  bitSet,
+  nextByRule,
+  rnd,
+  chooseRule,
+  chooseGoal,
+  chooseSeed,
+  parse_comma_number_list,
+  create_random_preset,
+  test_win,
+  enable_retreat_button,
+  disable_retreat_button,
+  retreat
+} from '../gamelogic.js';
 import { gameState } from '../state.js';
 describe('bitTest()', () => {
   it('should return non-zero if a bit is set', () => {
@@ -301,5 +315,63 @@ describe('test_win()', () => {
     // Currently, test_win() loops over `i < gameState.GOALS.length`, so an empty array won’t fail the loop
     // The function will just return true. This might be the expected or default behavior.
     expect(test_win()).toBe(true);
+  });
+});
+
+describe('enable_retreat_button()', () => {
+  beforeEach(() => {
+    // Reset the DOM for each test so we start fresh.
+    document.body.innerHTML = `
+      <div id="retreat_button" class="button_disabled" style="cursor: default;"></div>
+    `;
+  });
+
+  it('should set className to "button", make cursor pointer, and add a click event listener', () => {
+    const retreatBtn = document.getElementById('retreat_button');
+    // Spy on addEventListener to verify it gets called
+    const addEventListenerSpy = vi.spyOn(retreatBtn, 'addEventListener');
+
+    enable_retreat_button();
+
+    // 1. className changes
+    expect(retreatBtn.className).toBe('button');
+
+    // 2. style changes
+    expect(retreatBtn.style.cursor).toBe('pointer');
+
+    // 3. event listener is attached
+    // Check that addEventListener was called exactly once with ('click', retreat)
+    expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
+    expect(addEventListenerSpy).toHaveBeenCalledWith('click', retreat);
+  });
+});
+
+describe('disable_retreat_button()', () => {
+  beforeEach(() => {
+    // Reset the DOM again, but this time let's emulate a button already enabled
+    document.body.innerHTML = `
+      <div id="retreat_button" class="button" style="cursor: pointer;"></div>
+    `;
+  });
+
+  it('should set className to "button_disabled", make cursor default, and remove the click listener', () => {
+    const retreatBtn = document.getElementById('retreat_button');
+    // First, add a listener so that removeEventListener has something to remove
+    retreatBtn.addEventListener('click', retreat);
+
+    // Spy on removeEventListener
+    const removeEventListenerSpy = vi.spyOn(retreatBtn, 'removeEventListener');
+
+    disable_retreat_button();
+
+    // 1. className changes
+    expect(retreatBtn.className).toBe('button_disabled');
+
+    // 2. style changes
+    expect(retreatBtn.style.cursor).toBe('default');
+
+    // 3. event listener is removed
+    expect(removeEventListenerSpy).toHaveBeenCalledTimes(1);
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('click', retreat);
   });
 });
