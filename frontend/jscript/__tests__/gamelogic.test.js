@@ -385,9 +385,6 @@ describe('disable_retreat_button()', () => {
   });
 });
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { start_game } from '../gamelogic.js';
-import { gameState } from '../state.js';
 
 describe('start_game()', () => {
   beforeEach(() => {
