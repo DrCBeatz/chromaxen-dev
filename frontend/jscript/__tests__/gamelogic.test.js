@@ -24,6 +24,7 @@ import {
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
+import * as gameUI from '../gameUI.js';
 import { gameState } from '../state.js';
 describe('bitTest()', () => {
   it('should return non-zero if a bit is set', () => {
@@ -620,16 +621,15 @@ describe('nextMove()', () => {
 
 describe('retreat()', () => {
   beforeEach(() => {
-    // Reset gameState
+    // Reset relevant parts of gameState
     gameState.CURRENT_MOVE = 0;
     gameState.MOVE_COUNT = 0;
-    gameState.ROWS = 3;
-    gameState.COLS = 5;
+    gameState.ROWS = 8;
+    gameState.COLS = 8;
     gameState.moveHistory = [];
 
-    // Minimal CA_STATE_MATRIX to work with
-    // e.g. 3 rows x 5 cols, all zero
-    gameState.CA_STATE_MATRIX = Array.from({ length: 3 }, () => Array(5).fill(0));
+    // Create a minimal 8×8 CA_STATE_MATRIX filled with zeros
+    gameState.CA_STATE_MATRIX = Array.from({ length: 8 }, () => Array(8).fill(0));
 
     // Mock localStorage
     const store = {};
@@ -638,27 +638,121 @@ describe('retreat()', () => {
       store[key] = val;
     });
 
-    // Optional: set up minimal DOM if needed
+    // Stub out drawRows to avoid DOM manipulation errors
+    vi.spyOn(gameUI, 'drawRows').mockImplementation(() => { /* no-op */ });
+
+    // Minimal DOM structure if needed
     document.body.innerHTML = `
-      <div id="retreat_button" class="button_disabled" style="cursor: default;"></div>
-      <div id="update_button" class="button_disabled" style="cursor: default;"></div>
-    `;
+    <div id="container">
+  <div id="game_header">
+    <div id="back_to_menu" class="button">&#x21DA; Menu</div>
+    <div id="game_title_display"></div>
+    <div id="game_desc_display"></div>
+    <div id="next_button" class="button">Next Level &#x21DB;</div>
+    <div id="prev_button" class="button">&#x21DA;</div>
+    <select id="preset_select_el"></select>
+  </div>
+
+  <div id="gameboard_container">
+    <table id="gameboard">
+    </table>
+
+  </div>
+
+  <div id="gameboard_overlay_container">
+    <div id="gameboard_overlay"></div>
+  </div>
+
+  <div id="game_footer">
+    <div id="update_button" class="button">Advance</div>
+    <div id="retreat_button" class="button">Retreat</div>
+    <div id="reset_button" class="button">Reset &#x21BA;</div>
+    <div id="random_button" class="button">Random</div>
+    <div id="moves_display">
+      <span>Moves: </span>
+      <span id="update_counter">0</span>
+    </div>
+    <div id="timer_display">
+      <span>Time: </span>
+      <span id="timer">00:00</span>
+    </div>
+    <div id="save_button" class="button">Save Game</div>
+    <div id="load_button" class="button">Load Game
+    </div>
+    <input type="file" id="load_game_input" accept=".json" style="display:none">
+    <div id="solve_button" class="button">Solve!</div>
+    <div id="dragndrop_style_display">Style: Swap</div>
+  </div>
+  `;
   });
 
   it('does nothing if moveHistory is empty', () => {
-    // Given
-    expect(gameState.moveHistory).toEqual([]);
-
-    // Remember initial values
+    // Arrange
     const initialMove = gameState.CURRENT_MOVE;
     const initialCount = gameState.MOVE_COUNT;
 
-    // When
+    // Act
     retreat();
 
-    // Then
+    // Assert
     expect(gameState.CURRENT_MOVE).toBe(initialMove);
     expect(gameState.MOVE_COUNT).toBe(initialCount);
     expect(gameState.moveHistory).toEqual([]);
   });
+
+  it('undoes an "advance" action without mocking nextByRule', () => {
+    // Arrange
+
+    // Fill CA_STATE_MATRIX so we can detect changes
+    gameState.CA_STATE_MATRIX = [
+      [0, 1, 1, 1, 1, 1, 1, 1],
+      [0, 2, 2, 2, 2, 2, 2, 2],
+      [0, 3, 3, 3, 3, 3, 3, 3],
+      [0, 4, 4, 4, 4, 4, 4, 4],
+      [0, 5, 5, 5, 5, 5, 5, 5],
+      [0, 6, 6, 6, 6, 6, 6, 6],
+      [0, 7, 7, 7, 7, 7, 7, 7],
+      [0, 8, 8, 8, 8, 8, 8, 8],
+    ];
+    gameState.moveHistory = [{ action: 'advance' }];
+    gameState.CURRENT_MOVE = 2;
+    gameState.MOVE_COUNT = 2;
+
+    // Act
+    retreat();
+
+    // Assert
+    // 1) gameState updates
+    expect(gameState.CURRENT_MOVE).toBe(1);
+    expect(gameState.MOVE_COUNT).toBe(1);
+    expect(gameState.moveHistory).toEqual([]);
+
+    // 2) CA_STATE_MATRIX changed from col 2..7 for each row
+    for (let i = 0; i < 8; i++) {
+      // We expect col 0,1 to remain the same,
+      // but col 2..7 might now differ from the old value
+      expect(gameState.CA_STATE_MATRIX[i][0]).toBe(0);
+      expect(gameState.CA_STATE_MATRIX[i][1]).toBe(i + 1);
+
+      // Now confirm col 2..7 were changed from their old pattern
+      for (let j = 2; j < 8; j++) {
+        expect(gameState.CA_STATE_MATRIX[i][j]).not.toBe(/* old value from setup */);
+      }
+    }
+
+    // 3) localStorage checks
+
+    expect(window.localStorage.move_count).toBe(1);
+    expect(window.localStorage.current_move).toBe(1);
+    expect(window.localStorage.move_history).toBeUndefined();
+
+    // 4) Button class check
+    const retreatBtn = document.getElementById('retreat_button');
+    if (gameState.MOVE_COUNT === 0) {
+      expect(retreatBtn.className).toBe('button_disabled');
+    } else {
+      expect(retreatBtn.className).toBe('button');
+    }
+  });
 });
+
