@@ -617,3 +617,48 @@ describe('nextMove()', () => {
   });
 
 });
+
+describe('retreat()', () => {
+  beforeEach(() => {
+    // Reset gameState
+    gameState.CURRENT_MOVE = 0;
+    gameState.MOVE_COUNT = 0;
+    gameState.ROWS = 3;
+    gameState.COLS = 5;
+    gameState.moveHistory = [];
+
+    // Minimal CA_STATE_MATRIX to work with
+    // e.g. 3 rows x 5 cols, all zero
+    gameState.CA_STATE_MATRIX = Array.from({ length: 3 }, () => Array(5).fill(0));
+
+    // Mock localStorage
+    const store = {};
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation((key) => store[key]);
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, val) => {
+      store[key] = val;
+    });
+
+    // Optional: set up minimal DOM if needed
+    document.body.innerHTML = `
+      <div id="retreat_button" class="button_disabled" style="cursor: default;"></div>
+      <div id="update_button" class="button_disabled" style="cursor: default;"></div>
+    `;
+  });
+
+  it('does nothing if moveHistory is empty', () => {
+    // Given
+    expect(gameState.moveHistory).toEqual([]);
+
+    // Remember initial values
+    const initialMove = gameState.CURRENT_MOVE;
+    const initialCount = gameState.MOVE_COUNT;
+
+    // When
+    retreat();
+
+    // Then
+    expect(gameState.CURRENT_MOVE).toBe(initialMove);
+    expect(gameState.MOVE_COUNT).toBe(initialCount);
+    expect(gameState.moveHistory).toEqual([]);
+  });
+});
