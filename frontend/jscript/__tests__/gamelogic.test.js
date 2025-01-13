@@ -30,6 +30,7 @@ import {
   resetSeeds,
   resetGoals,
   next_game_win,
+  prev_game,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
@@ -1170,7 +1171,6 @@ describe('makeNewGame()', () => {
   });
 
   afterEach(() => {
-    // If your Timer has a .stop() method, call it:
     if (gameState.timer && typeof gameState.timer.stop === 'function') {
       gameState.timer.stop();
     }
@@ -1406,4 +1406,301 @@ describe('next_game_win()', () => {
     expect(gamelogic.next_game).not.toHaveBeenCalled();
   });
 
+});
+
+describe('next_game()', () => {
+  beforeEach(() => {
+    // Set up gameState so we have multiple presets:
+    gameState.GAME_PRESETS = [
+      { id: 1, name: 'Game1' },
+      { id: 2, name: 'Game2' },
+      { id: 3, name: 'Game3' },
+    ];
+    // Example initial states:
+    gameState.PRESET = 0;
+    gameState.CURRENT_MOVE = 5;
+    gameState.MOVE_COUNT = 5;
+    gameState.ROWS = 8;
+    gameState.COLS = 8;
+
+    vi.clearAllMocks();
+
+    gameState.timer = {
+      reset: vi.fn(),
+      start: vi.fn()
+    };
+
+    document.body.innerHTML = `
+    <div id="entry_page">
+		<div id="entry_title">
+			<b>ChromaXen</b>
+		</div>
+		<div id="entry_continue_button" class="entry_button">
+			Continue
+		</div>
+
+		<div id="entry_game_button" class="entry_button">
+			New Game
+		</div>
+		<div id="entry_random_button" class="entry_button">
+			Random
+		</div>
+		<div id="entry_all_rules_button" class="entry_button">
+			All Rules
+		</div>
+	</div>
+    <div id="container">
+  <div id="game_header">
+    <div id="back_to_menu" class="button">&#x21DA; Menu</div>
+    <div id="game_title_display"></div>
+    <div id="game_desc_display"></div>
+    <div id="next_button" class="button">Next Level &#x21DB;</div>
+    <div id="prev_button" class="button">&#x21DA;</div>
+    <select id="preset_select_el"></select>
+  </div>
+
+  <div id="gameboard_container">
+    <table id="gameboard">
+    </table>
+
+  </div>
+
+  <div id="gameboard_overlay_container">
+    <div id="gameboard_overlay"></div>
+  </div>
+
+  <div id="game_footer">
+    <div id="update_button" class="button">Advance</div>
+    <div id="retreat_button" class="button">Retreat</div>
+    <div id="reset_button" class="button">Reset &#x21BA;</div>
+    <div id="random_button" class="button">Random</div>
+    <div id="moves_display">
+      <span>Moves: </span>
+      <span id="update_counter">0</span>
+    </div>
+    <div id="timer_display">
+      <span>Time: </span>
+      <span id="timer">00:00</span>
+    </div>
+    <div id="save_button" class="button">Save Game</div>
+    <div id="load_button" class="button">Load Game
+    </div>
+    <input type="file" id="load_game_input" accept=".json" style="display:none">
+    <div id="solve_button" class="button">Solve!</div>
+    <div id="dragndrop_style_display">Style: Swap</div>
+  </div>
+
+  <div id="win_screen_container">
+			<div id="win_screen">
+				<h1 id="win_screen_header">You win!</h1>
+				<h3 id="high_score_table_header"><b>Game 1 High Score</b></h3>
+				<table id="high_score_table">
+					<tr>
+						<th></th>
+						<th>Moves</th>
+						<th>Time</th>
+						<th>Name</th>
+					</tr>
+				</table>
+				<div id="win_screen_footer">
+					<div id="replay_button" class="button">Replay &#x21BA;</div>
+					<div id="next_level_button" class="button">Next &#x21DB;</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="lose_screen_container">
+			<div id="lose_screen">
+				<h1 id="lose_screen_header">
+					You lose
+				</h1>
+				<div id="lose_screen_footer">
+					<div id="lose_replay_button" class="button">Replay</div>
+					<div id="lose_next_button" class="button">Next</div>
+				</div>
+			</div>
+		</div>
+  `;
+
+  });
+
+  afterEach(() => {
+    if (gameState.timer && typeof gameState.timer.stop === 'function') {
+      gameState.timer.stop();
+    }
+  });
+
+  it('increments PRESET if not at the end, then performs a reset side-effect', () => {
+    // The array above has length=3, so PRESET=0 => next_game => PRESET=1
+    next_game();
+
+    // 1) Confirm PRESET increments
+    expect(gameState.PRESET).toBe(1);
+
+    // 2) Confirm side effects of reset() happened.
+    // Typically, your `reset()` calls `makeNewGame(false)`, 
+    // which sets CURRENT_MOVE=0, MOVE_COUNT=0, etc.
+    // So check those:
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+
+    // If you want to confirm the game board was re-initialized or
+    // some other reset side effect, check that too:
+    // e.g. expect(gameState.CA_STATE_MATRIX).toHaveLength(8);
+    // or check that the first row is all zeroed, etc. 
+  });
+
+  it('wraps around to 0 if at the last index, then performs a reset side-effect', () => {
+    // Because we have 3 presets, the last index is 2
+    gameState.PRESET = 2;
+
+    next_game(); // => should wrap from 2 back to 0
+
+    expect(gameState.PRESET).toBe(0);
+
+    // Again, confirm that the reset side-effects occurred
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+    // Possibly check other fields or DOM changes if relevant
+  });
+});
+
+
+describe('prev_game()', () => {
+  beforeEach(() => {
+    // Same setup as above
+    gameState.GAME_PRESETS = [
+      { id: 1, name: 'Game1' },
+      { id: 2, name: 'Game2' },
+      { id: 3, name: 'Game3' },
+    ];
+    gameState.PRESET = 2;  // we'll start near the end
+    gameState.CURRENT_MOVE = 5;
+    gameState.MOVE_COUNT = 5;
+
+    gameState.timer = {
+      reset: vi.fn(),
+      start: vi.fn()
+    };
+
+    document.body.innerHTML = `
+    <div id="entry_page">
+		<div id="entry_title">
+			<b>ChromaXen</b>
+		</div>
+		<div id="entry_continue_button" class="entry_button">
+			Continue
+		</div>
+
+		<div id="entry_game_button" class="entry_button">
+			New Game
+		</div>
+		<div id="entry_random_button" class="entry_button">
+			Random
+		</div>
+		<div id="entry_all_rules_button" class="entry_button">
+			All Rules
+		</div>
+	</div>
+    <div id="container">
+  <div id="game_header">
+    <div id="back_to_menu" class="button">&#x21DA; Menu</div>
+    <div id="game_title_display"></div>
+    <div id="game_desc_display"></div>
+    <div id="next_button" class="button">Next Level &#x21DB;</div>
+    <div id="prev_button" class="button">&#x21DA;</div>
+    <select id="preset_select_el"></select>
+  </div>
+
+  <div id="gameboard_container">
+    <table id="gameboard">
+    </table>
+
+  </div>
+
+  <div id="gameboard_overlay_container">
+    <div id="gameboard_overlay"></div>
+  </div>
+
+  <div id="game_footer">
+    <div id="update_button" class="button">Advance</div>
+    <div id="retreat_button" class="button">Retreat</div>
+    <div id="reset_button" class="button">Reset &#x21BA;</div>
+    <div id="random_button" class="button">Random</div>
+    <div id="moves_display">
+      <span>Moves: </span>
+      <span id="update_counter">0</span>
+    </div>
+    <div id="timer_display">
+      <span>Time: </span>
+      <span id="timer">00:00</span>
+    </div>
+    <div id="save_button" class="button">Save Game</div>
+    <div id="load_button" class="button">Load Game
+    </div>
+    <input type="file" id="load_game_input" accept=".json" style="display:none">
+    <div id="solve_button" class="button">Solve!</div>
+    <div id="dragndrop_style_display">Style: Swap</div>
+  </div>
+
+  <div id="win_screen_container">
+			<div id="win_screen">
+				<h1 id="win_screen_header">You win!</h1>
+				<h3 id="high_score_table_header"><b>Game 1 High Score</b></h3>
+				<table id="high_score_table">
+					<tr>
+						<th></th>
+						<th>Moves</th>
+						<th>Time</th>
+						<th>Name</th>
+					</tr>
+				</table>
+				<div id="win_screen_footer">
+					<div id="replay_button" class="button">Replay &#x21BA;</div>
+					<div id="next_level_button" class="button">Next &#x21DB;</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="lose_screen_container">
+			<div id="lose_screen">
+				<h1 id="lose_screen_header">
+					You lose
+				</h1>
+				<div id="lose_screen_footer">
+					<div id="lose_replay_button" class="button">Replay</div>
+					<div id="lose_next_button" class="button">Next</div>
+				</div>
+			</div>
+		</div>
+  `;
+
+  });
+
+  afterEach(() => {
+    if (gameState.timer && typeof gameState.timer.stop === 'function') {
+      gameState.timer.stop();
+    }
+  });
+
+  it('decrements PRESET and performs a reset side-effect if PRESET > 0', () => {
+    // Since PRESET=2, we expect it to drop to 1
+    prev_game();
+    expect(gameState.PRESET).toBe(1);
+
+    // Check side effects from reset():
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+  });
+
+  it('clamps to 0 if PRESET is already 0, and still performs reset side-effect', () => {
+    gameState.PRESET = 0;
+
+    prev_game(); // tries to go to -1 => clamps to 0
+    expect(gameState.PRESET).toBe(0);
+
+    // Check the reset side-effect
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+  });
 });
