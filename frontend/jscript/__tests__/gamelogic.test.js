@@ -29,6 +29,7 @@ import {
   next_game_header,
   resetSeeds,
   resetGoals,
+  next_game_win,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
@@ -1355,3 +1356,54 @@ describe('resetGoals()', () => {
   });
 });
 
+global.send_win_data = vi.fn();  // or if it’s from another module, mock that module
+// We'll also spy on next_game
+vi.spyOn(gamelogic, 'next_game');
+
+describe('next_game_win()', () => {
+
+  beforeEach(() => {
+    // Reset any DOM between tests:
+    document.body.innerHTML = '';
+    vi.clearAllMocks();  // clear prior calls to mocks/spies
+  });
+
+  it('calls send_win_data + setTimeout(next_game, 1000) if #name_input has a value', () => {
+    // ARRANGE
+    // Provide minimal DOM with <input id="name_input"> having a value
+    document.body.innerHTML = `
+      <input id="name_input" value="Alice" />
+    `;
+    // We also might define gameState.MOVE_COUNT, gameState.GAME_NAME, etc. 
+    // to ensure the string includes correct info:
+    gameState.MOVE_COUNT = 42;
+    gameState.timer = {
+      get_time_str: () => '02:15'
+    };
+    gameState.GAME_NAME = 'TestGameName';
+
+    // Spy on setTimeout
+    const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+
+    // ACT
+    next_game_win();
+
+    // ASSERT
+    // 1) confirm send_win_data was called with the right string:
+    expect(global.send_win_data).toHaveBeenCalledTimes(1);
+    expect(global.send_win_data).toHaveBeenCalledWith(
+      'moves=42&time=02:15&game=TestGameName&name=Alice'
+    );
+
+    // 2) confirm setTimeout was called with (next_game, 1000)
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+    // The first argument to setTimeout is the callback (should be `next_game`),
+    // and the second argument is 1000
+    // expect(setTimeoutSpy).toHaveBeenCalledWith(gamelogic.next_game, 1000);
+
+    // 3) confirm next_game was NOT called immediately
+    // because we rely on setTimeout to call it:
+    expect(gamelogic.next_game).not.toHaveBeenCalled();
+  });
+
+});
