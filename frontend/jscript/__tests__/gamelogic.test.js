@@ -27,6 +27,8 @@ import {
   setSeed,
   next_game,
   next_game_header,
+  resetSeeds,
+  resetGoals,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
@@ -1310,3 +1312,46 @@ describe('next_game_header()', () => {
   });
 
 });
+
+describe('resetSeeds()', () => {
+  beforeEach(() => {
+    gameState.ROWS = 3; // smaller for easy testing
+    // Initialize CA_STATE_MATRIX so seeds are known
+    // For example, start them all at 0:
+    gameState.CA_STATE_MATRIX = [
+      [0], // row 0
+      [0], // row 1
+      [0], // row 2
+    ];
+  });
+
+  it('should assign a random seed (1..6) to each row index in CA_STATE_MATRIX', () => {
+    resetSeeds();
+
+    // Now, each row’s first element should be between 1..6
+    for (let i = 0; i < 3; i++) {
+      const seedVal = gameState.CA_STATE_MATRIX[i][0];
+      expect(seedVal).toBeGreaterThanOrEqual(1);
+      expect(seedVal).toBeLessThanOrEqual(6);
+    }
+  });
+});
+
+describe('resetGoals()', () => {
+  beforeEach(() => {
+    gameState.COLS = 4; // example
+    // Initialize gameState.GOALS = [some placeholders]
+    gameState.GOALS = [999, 999, 999, 999];
+  });
+
+  it('should assign a random goal (0..7) to each column in gameState.GOALS', () => {
+    resetGoals();
+
+    for (let i = 0; i < 4; i++) {
+      const goalVal = gameState.GOALS[i];
+      expect(goalVal).toBeGreaterThanOrEqual(0);
+      expect(goalVal).toBeLessThanOrEqual(7);
+    }
+  });
+});
+
