@@ -837,7 +837,7 @@ describe('init_game()', () => {
 
     // Mock get_rules_list
     getRulesListSpy = vi.spyOn(getRulesModule, 'get_rules_list').mockImplementation(() => {
-      // no-op or minimal
+      // no-op
     });
 
     // Mock loadPresets
@@ -848,7 +848,7 @@ describe('init_game()', () => {
 
     // Mock start_game
     startGameSpy = vi.spyOn(gamelogic, 'start_game').mockImplementation(() => {
-      // no-op or minimal
+      // no-op
     });
   });
 
@@ -893,7 +893,7 @@ describe('init_game()', () => {
 
 function createFakeXML() {
   // The real code calls xml.getElementsByTagName('game')
-  // So let's mock an object with getElementsByTagName returning e.g. [<game>...].
+  // This function mocks an object with getElementsByTagName returning e.g. [<game>...].
   // Each <game> node has childNodes for <id>, <name>, <desc>, etc.
   return {
     getElementsByTagName: (tag) => {
@@ -902,7 +902,7 @@ function createFakeXML() {
           {
             getElementsByTagName: (t) => {
               // for e.g. 'id', 'name', 'desc', etc. 
-              // we can return a single item with childNodes[0].nodeValue = 'someval'
+              // return a single item with childNodes[0].nodeValue = 'someval'
               if (t === 'id') {
                 return [{ childNodes: [{ nodeValue: '1' }] }];
               } else if (t === 'name') {
