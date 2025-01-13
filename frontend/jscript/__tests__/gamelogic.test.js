@@ -1,6 +1,6 @@
 // tests/gamelogic.test.js
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   bitTest,
   bitSet,
@@ -21,11 +21,15 @@ import {
   test_win,
   win,
   gameState,
+  init_game,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
 import * as gameUI from '../gameUI.js';
 import { gameState } from '../state.js';
+import * as getRulesModule from '../get_rules.js';
+import * as presetsModule from '../presets.js';
+import * as presetMenuModule from '../presetMenu.js';
 describe('bitTest()', () => {
   it('should return non-zero if a bit is set', () => {
     // 0b1010 is decimal 10. Bits are [1,0,1,0] from LSB to MSB
@@ -753,3 +757,179 @@ describe('retreat()', () => {
   });
 });
 
+describe('init_game()', () => {
+  let getRulesListSpy;
+  let loadPresetsSpy;
+  let startGameSpy;
+
+  beforeEach(() => {
+    // DOM setup etc. as above
+    document.body.innerHTML = `
+    <div id="entry_page">
+		<div id="entry_title">
+			<b>ChromaXen</b>
+		</div>
+		<div id="entry_continue_button" class="entry_button">
+			Continue
+		</div>
+
+		<div id="entry_game_button" class="entry_button">
+			New Game
+		</div>
+		<div id="entry_random_button" class="entry_button">
+			Random
+		</div>
+		<div id="entry_all_rules_button" class="entry_button">
+			All Rules
+		</div>
+	</div>
+    <div id="container">
+  <div id="game_header">
+    <div id="back_to_menu" class="button">&#x21DA; Menu</div>
+    <div id="game_title_display"></div>
+    <div id="game_desc_display"></div>
+    <div id="next_button" class="button">Next Level &#x21DB;</div>
+    <div id="prev_button" class="button">&#x21DA;</div>
+    <select id="preset_select_el"></select>
+  </div>
+
+  <div id="gameboard_container">
+    <table id="gameboard">
+    </table>
+
+  </div>
+
+  <div id="gameboard_overlay_container">
+    <div id="gameboard_overlay"></div>
+  </div>
+
+  <div id="game_footer">
+    <div id="update_button" class="button">Advance</div>
+    <div id="retreat_button" class="button">Retreat</div>
+    <div id="reset_button" class="button">Reset &#x21BA;</div>
+    <div id="random_button" class="button">Random</div>
+    <div id="moves_display">
+      <span>Moves: </span>
+      <span id="update_counter">0</span>
+    </div>
+    <div id="timer_display">
+      <span>Time: </span>
+      <span id="timer">00:00</span>
+    </div>
+    <div id="save_button" class="button">Save Game</div>
+    <div id="load_button" class="button">Load Game
+    </div>
+    <input type="file" id="load_game_input" accept=".json" style="display:none">
+    <div id="solve_button" class="button">Solve!</div>
+    <div id="dragndrop_style_display">Style: Swap</div>
+  </div>
+  `;
+
+    gameState.GAME_PRESETS = [];
+    gameState.GAME_XML_URL = 'games.xml';
+
+    // localStorage mocks...
+    const store = {};
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation((key) => store[key]);
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, val) => {
+      store[key] = val;
+    });
+
+    // Mock get_rules_list
+    getRulesListSpy = vi.spyOn(getRulesModule, 'get_rules_list').mockImplementation(() => {
+      // no-op or minimal
+    });
+
+    // Mock loadPresets
+    loadPresetsSpy = vi.spyOn(presetsModule, 'loadPresets').mockImplementation((url, cb) => {
+      // We'll call the callback manually in the test or at the end of the function:
+      cb(createFakeXML());
+    });
+
+    // Mock start_game
+    startGameSpy = vi.spyOn(gamelogic, 'start_game').mockImplementation(() => {
+      // no-op or minimal
+    });
+  });
+
+  afterEach(() => {
+    getRulesListSpy.mockRestore();
+    loadPresetsSpy.mockRestore();
+    startGameSpy.mockRestore();
+  });
+
+  it('shows "entry_continue_button" if localStorage.current_move is set', () => {
+    // Suppose localStorage.current_move is '5'
+    window.localStorage.setItem('current_move', '5');
+
+    init_game();
+
+    const continueBtn = document.getElementById('entry_continue_button');
+    expect(continueBtn.style.display).toBe('block');
+  });
+
+  it('calls get_rules_list with #all_rules element', () => {
+    init_game();
+    expect(getRulesListSpy).toHaveBeenCalledTimes(1);
+
+    const allRulesEl = document.getElementById('all_rules');
+    expect(getRulesListSpy).toHaveBeenCalledWith(allRulesEl);
+  });
+
+  it('calls loadPresets with "games/games.xml" (by default) and sets up gameState.GAME_PRESETS from the XML', () => {
+    init_game();
+
+    // Confirm loadPresets was called
+    expect(loadPresetsSpy).toHaveBeenCalledTimes(1);
+    // first arg => "games/" + gameState.GAME_XML_URL
+    expect(loadPresetsSpy).toHaveBeenCalledWith('games/games.xml', expect.any(Function));
+
+    // Because we called the callback with `createFakeXML()` in the mock,
+    // let's see if gameState.GAME_PRESETS is populated
+    expect(gameState.GAME_PRESETS.length).toBeGreaterThan(0);
+  });
+
+});
+
+function createFakeXML() {
+  // The real code calls xml.getElementsByTagName('game')
+  // So let's mock an object with getElementsByTagName returning e.g. [<game>...].
+  // Each <game> node has childNodes for <id>, <name>, <desc>, etc.
+  return {
+    getElementsByTagName: (tag) => {
+      if (tag === 'game') {
+        return [
+          {
+            getElementsByTagName: (t) => {
+              // for e.g. 'id', 'name', 'desc', etc. 
+              // we can return a single item with childNodes[0].nodeValue = 'someval'
+              if (t === 'id') {
+                return [{ childNodes: [{ nodeValue: '1' }] }];
+              } else if (t === 'name') {
+                return [{ childNodes: [{ nodeValue: 'TestGame' }] }];
+              } else if (t === 'desc') {
+                return [{ childNodes: [{ nodeValue: 'A test game' }] }];
+              } else if (t === 'rows') {
+                return [{ childNodes: [{ nodeValue: '8' }] }];
+              } else if (t === 'columns') {
+                return [{ childNodes: [{ nodeValue: '8' }] }];
+              } else if (t === 'rules') {
+                return [{ childNodes: [{ nodeValue: '1,2,3' }] }];
+              } else if (t === 'seeds') {
+                return [{ childNodes: [{ nodeValue: '4,5,6' }] }];
+              } else if (t === 'goals') {
+                return [{ childNodes: [{ nodeValue: '7,0,1' }] }];
+              } else if (t === 'show_ahead') {
+                return [{ childNodes: [{ nodeValue: 'true' }] }];
+              } else if (t === 'swap_enabled') {
+                return [{ childNodes: [{ nodeValue: 'false' }] }];
+              }
+              return [];
+            },
+          },
+        ];
+      }
+      return [];
+    },
+  };
+}
