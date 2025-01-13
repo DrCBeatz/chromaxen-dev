@@ -31,7 +31,6 @@ import * as gameUI from '../gameUI.js';
 import { gameState } from '../state.js';
 import * as getRulesModule from '../get_rules.js';
 import * as presetsModule from '../presets.js';
-// import { loadPreset } from '../presetMenu.js';
 import * as presetMenuModule from '../presetMenu.js';
 
 describe('bitTest()', () => {
