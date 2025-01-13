@@ -22,6 +22,8 @@ import {
   win,
   gameState,
   init_game,
+  setRule,
+  display_rule,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
@@ -933,3 +935,90 @@ function createFakeXML() {
     },
   };
 }
+
+describe('setRule()', () => {
+  beforeEach(() => {
+    // Reset or initialize gameState as needed
+    gameState.ROWS = 3;
+    gameState.COLS = 5;
+    gameState.CURRENT_MOVE = 2;     // Just as an example
+    gameState.RULES = [10, 20, 30]; // old rule set for 3 rows
+    gameState.CA_STATE_MATRIX = [
+      [0, 1, 2, 2, 2],  // row 0
+      [0, 1, 1, 1, 1],  // row 1
+      [3, 3, 3, 3, 3],  // row 2
+    ];
+
+    // Mock localStorage
+    const store = {};
+    vi.spyOn(window.localStorage, 'getItem').mockImplementation((key) => store[key]);
+    vi.spyOn(window.localStorage, 'setItem').mockImplementation((key, val) => {
+      store[key] = val;
+    });
+
+    // Optionally spy on display_rule if it's a separate function you want to check
+    vi.spyOn(gameUI, 'display_rule'); // or wherever display_rule is exported
+  });
+
+  it('updates the rule, recalculates from CURRENT_MOVE, and updates localStorage', () => {
+    // ARRANGE
+    // Suppose we want to set row=1 to rule=99. recalc from CURRENT_MOVE=2
+    // So columns [3..4] in CA_STATE_MATRIX for row=1 will be recalculated.
+    // nextByRule is a normal function we can let run, or mock if you prefer.
+    // We'll do it "for real" in this example so we see changes.
+
+    // ACT
+    setRule(1, 99, false);
+
+    // ASSERT
+    // 1) The rule is updated in gameState
+    expect(gameState.RULES[1]).toBe(99);
+
+    // 2) localStorage is updated
+    const updatedRules = JSON.parse(window.localStorage.rules);
+    expect(updatedRules).toEqual([10, 99, 30]);
+
+    // 3) The CA_STATE_MATRIX row=1 is recalculated from column=2 onward
+    //    i.e. we keep the old value at col=2, but recalc col=3..4.
+    //    We can check if it's changed from the old [1,1] to whatever nextByRule() yields.
+    //    Let’s just confirm it's *not* the old values:
+    expect(gameState.CA_STATE_MATRIX[1][2]).toBe(1);  // unchanged
+    // columns 3..4 must be new values, not the old [1,1] from before:
+    expect(gameState.CA_STATE_MATRIX[1][3]).not.toBe(1);
+    expect(gameState.CA_STATE_MATRIX[1][4]).not.toBe(1);
+
+    // 4) localStorage.state_matrix is updated
+    const updatedMatrix = JSON.parse(window.localStorage.state_matrix);
+    // Check at least something changed in row=1, col=3 or col=4
+    expect(updatedMatrix[1][3]).not.toBe(1);
+    expect(updatedMatrix[1][4]).not.toBe(1);
+
+    // 5) display_rule(1,99) was called (if you want to confirm UI updates)
+    expect(gameUI.display_rule).toHaveBeenCalledWith(1, 99);
+  });
+
+  it('updates the rule, recalculates from col=0 if recalculateFromStart=true', () => {
+    // ARRANGE
+    // e.g. row=0 => set rule=77, recalc from start=0
+    // That means columns [1..4] are recomputed from the seed at col=0
+
+    // ACT
+    setRule(0, 77, true);
+
+    // ASSERT
+    // The entire row 0 is recalculated from col=0 onward.
+    // So col=1..4 definitely change from the old [1,2,2,2].
+    expect(gameState.RULES[0]).toBe(77);
+    expect(gameState.CA_STATE_MATRIX[0][1]).not.toBe(1);
+    expect(gameState.CA_STATE_MATRIX[0][2]).not.toBe(2);
+    expect(gameState.CA_STATE_MATRIX[0][3]).not.toBe(2);
+    expect(gameState.CA_STATE_MATRIX[0][4]).not.toBe(2);
+
+    // localStorage checks
+    expect(JSON.parse(window.localStorage.rules)[0]).toBe(77);
+    expect(JSON.parse(window.localStorage.state_matrix)[0][4]).not.toBe(2);
+
+    // UI callback
+    expect(gameUI.display_rule).toHaveBeenCalledWith(0, 77);
+  });
+});
