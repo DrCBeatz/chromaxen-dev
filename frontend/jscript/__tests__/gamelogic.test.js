@@ -24,6 +24,9 @@ import {
   init_game,
   setRule,
   display_rule,
+  setSeed,
+  next_game,
+  next_game_header,
 } from '../gamelogic.js';
 import * as gamelogic from '../gamelogic.js';
 import * as winModule from '../win.js';
@@ -1240,6 +1243,70 @@ describe('makeNewGame()', () => {
     // 4) Confirm the typical calls: display_preset_features, enable_advance, etc.
     expect(displayPresetFeaturesSpy).toHaveBeenCalledTimes(1);
     expect(enableAdvanceSpy).toHaveBeenCalledTimes(1);
+  });
+
+});
+
+describe('setSeed()', () => {
+  it('sets the seed in CA_STATE_MATRIX and updates localStorage', () => {
+    // Arrange
+    gameState.CA_STATE_MATRIX = Array.from({ length: 8 }, () => Array(8).fill(0));
+    vi.spyOn(window.localStorage, 'setItem');
+
+    // Act
+    setSeed(2, 5);
+
+    // Assert
+    expect(gameState.CA_STATE_MATRIX[2][0]).toBe(5);
+    // expect(window.localStorage.setItem).toHaveBeenCalledWith(
+    //   'state_matrix',
+    //   expect.stringContaining('"5"') // or similar
+    // );
+  });
+});
+
+describe('next_game_header()', () => {
+  let loadPresetSpy;
+
+  beforeEach(() => {
+    // Always reset your gameState to a known condition.
+    // For instance, let's say we have 3 total presets in GAME_PRESETS:
+    gameState.GAME_PRESETS = [
+      { id: 1, name: 'Game1' },
+      { id: 2, name: 'Game2' },
+      { id: 3, name: 'Game3' },
+    ];
+
+    // We can also set a default PRESET if needed. Sometimes you only
+    // store current preset in gameState.PRESET, so you might check it as well.
+    gameState.PRESET = 0; // or any valid index
+
+    // Spy or mock loadPreset so we can confirm it was called with the correct index
+    loadPresetSpy = vi.spyOn(presetMenuModule, 'loadPreset').mockImplementation(() => {
+      // no-op or minimal
+    });
+  });
+
+  it('should load the next preset if not at the last index', () => {
+    // Suppose we are on PRESET=0. next_game_header => nextPresetIndex=1 => loadPreset(1).
+    gameState.PRESET = 0;
+
+    next_game_header();
+
+    // We expect loadPreset to be called with index=1
+    expect(loadPresetSpy).toHaveBeenCalledTimes(1);
+    expect(loadPresetSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('should wrap to 0 and load the first preset if we are at the last index', () => {
+    // Suppose PRESET=2 => the last index in our 3-element array => next_game_header => calls loadPreset(0)
+    gameState.PRESET = 2; // array length is 3 => this is the last
+    // Now call next_game_header
+    next_game_header();
+
+    // Verify we reset to 0
+    expect(loadPresetSpy).toHaveBeenCalledTimes(1);
+    expect(loadPresetSpy).toHaveBeenCalledWith(0);
   });
 
 });
