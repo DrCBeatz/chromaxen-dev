@@ -1064,7 +1064,6 @@ describe('makeNewGame()', () => {
     // Spy on or mock out some functions that makeNewGame calls
     loadPresetSpy = vi.spyOn(presetMenuModule, 'loadPreset').mockImplementation(() => { });
     displayPresetFeaturesSpy = vi.spyOn(gameUI, 'display_preset_features').mockImplementation(() => { });
-    disableRetreatSpy = vi.spyOn(gamelogic, 'disable_retreat_button').mockImplementation(() => { });
     enableAdvanceSpy = vi.spyOn(gameUI, 'enable_advance_button').mockImplementation(() => { });
 
     // Also spy on the timer
@@ -1172,6 +1171,30 @@ describe('makeNewGame()', () => {
     }
   });
 
+  it('resets the game state for a new preset game if PRESET != -1', () => {
+    // ARRANGE
+    gameState.PRESET = 2;
+
+    // ACT
+    makeNewGame(false);
+
+    // ASSERT
+    // 1) Timer calls
+    expect(timerResetSpy).toHaveBeenCalledTimes(1);
+    expect(timerStartSpy).toHaveBeenCalledTimes(1);
+
+    // 2) Basic gameState checks
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+
+    // 3) Confirm it calls loadPreset(PRESET)
+    expect(loadPresetSpy).toHaveBeenCalledTimes(1);
+    expect(loadPresetSpy).toHaveBeenCalledWith(2);
+
+    // 4) Confirm the typical calls: display_preset_features, enable_advance, etc.
+    expect(displayPresetFeaturesSpy).toHaveBeenCalledTimes(1);
+    expect(enableAdvanceSpy).toHaveBeenCalledTimes(1);
+  });
 
   it('loads random game if PRESET == -1 and is_random=true', () => {
     // ARRANGE
@@ -1192,6 +1215,32 @@ describe('makeNewGame()', () => {
     expect(timerStartSpy).toHaveBeenCalledTimes(1);
 
     // etc.
+  });
+
+  it('resets the game state for a new preset game if PRESET != -1', () => {
+    // ARRANGE
+    // e.g. gameState.PRESET = 2
+    gameState.PRESET = 2;
+
+    // ACT
+    makeNewGame(false);
+
+    // ASSERT
+    // 1) Timer calls
+    expect(timerResetSpy).toHaveBeenCalledTimes(1);
+    expect(timerStartSpy).toHaveBeenCalledTimes(1);
+
+    // 2) Basic gameState checks
+    expect(gameState.CURRENT_MOVE).toBe(0);
+    expect(gameState.MOVE_COUNT).toBe(0);
+
+    // 3) Confirm it calls loadPreset(PRESET)
+    expect(loadPresetSpy).toHaveBeenCalledTimes(1);
+    expect(loadPresetSpy).toHaveBeenCalledWith(2);
+
+    // 4) Confirm the typical calls: display_preset_features, enable_advance, etc.
+    expect(displayPresetFeaturesSpy).toHaveBeenCalledTimes(1);
+    expect(enableAdvanceSpy).toHaveBeenCalledTimes(1);
   });
 
 });
