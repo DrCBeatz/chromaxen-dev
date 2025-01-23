@@ -280,7 +280,7 @@ ChromaXen is distributed under the [GNU General Public License 3.0](https://www.
 - **Primary Authors**:
   - Gary Bourgeois (Game concept & design)
   - Otis Runnings (Graphic Design, Programming)
-  - Bryne Carruthers (Programming, Github Repository Manager)
+  - Bryne Carruthers (Programming, Github Repository Maintainer)
   - Chris Rolfe (Programming)
 
 If you encounter any issues or have questions, feel free to open an issue on GitHub or reach out via email.
