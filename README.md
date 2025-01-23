@@ -2,7 +2,7 @@
 
 ChromaXen is a solo puzzle game that uses size-3 Elementary Cellular Automata (ECA) rules on an 8x8 grid. Your goal is to match each row’s final column color to a target. Drag and drop rule icons onto rows, then ‘Advance’ to evolve the colors according to the selected rules. Scores are tracked by both time and fewest moves.
 
----
+![ChromaXen screenshot](chromaxen_screenshot.png "ChromaXen screenshot")
 
 ## Table of Contents
 
