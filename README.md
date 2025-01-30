@@ -30,7 +30,7 @@ ChromaXen is a solo puzzle game that uses size-3 Elementary Cellular Automata (E
 
 ## Overview
 
-ChromaXen is a colour-based puzzle game where each level has its own rules that dictate colour transitions and piece movements. Within this repository:
+Within this repository:
 
 - **Frontend**: A Vite-driven application (using ES6 JavaScript, HTML, and CSS) for the puzzle UI.
 - **Backend**: A FastAPI-based REST service for storing and retrieving high scores in a DynamoDB table.
