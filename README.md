@@ -168,7 +168,7 @@ Below is a high-level view of the repository structure (omitting `node_modules/`
 - [Node.js 18+](https://nodejs.org/)
 - [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/)
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) (optional if you want to deploy to AWS)
-- [Python 3.9+](https://www.python.org/) _(if you plan to run local tests or scripts)_
+- [Python 3.9+](https://www.python.org/) (if you want to use the high score functionality and run the backend tests)
 
 ### Running the App Locally via Docker Compose
 
