@@ -30,7 +30,7 @@ ChromaXen is a solo puzzle game that uses size-3 Elementary Cellular Automata (E
 
 ## Overview
 
-ChromaXen is a colour-based puzzle game where each level has its own rules that dictate colour transitions and piece movements. Within this repository:
+Within this repository:
 
 - **Frontend**: A Vite-driven application (using ES6 JavaScript, HTML, and CSS) for the puzzle UI.
 - **Backend**: A FastAPI-based REST service for storing and retrieving high scores in a DynamoDB table.
@@ -168,7 +168,7 @@ Below is a high-level view of the repository structure (omitting `node_modules/`
 - [Node.js 18+](https://nodejs.org/)
 - [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/)
 - [Terraform](https://developer.hashicorp.com/terraform/downloads) (optional if you want to deploy to AWS)
-- [Python 3.9+](https://www.python.org/) _(if you plan to run local tests or scripts)_
+- [Python 3.9+](https://www.python.org/) (if you want to use the high score functionality and run the backend tests)
 
 ### Running the App Locally via Docker Compose
 
@@ -280,7 +280,7 @@ ChromaXen is distributed under the [GNU General Public License 3.0](https://www.
 - **Primary Authors**:
   - Gary Bourgeois (Game concept & design)
   - Otis Runnings (Graphic Design, Programming)
-  - Bryne Carruthers (Programming, Github Repository Manager)
+  - Bryne Carruthers (Programming, Github Repository Maintainer)
   - Chris Rolfe (Programming)
 
 If you encounter any issues or have questions, feel free to open an issue on GitHub or reach out via email.
